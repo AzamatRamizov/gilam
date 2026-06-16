@@ -17,6 +17,10 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class Users extends AbstractLongEntity implements UserDetails {
+    private String fish;
+    private String tel;
+    private String address;
+    private String izoh;
     private String username;
     private String password;
     private String role;

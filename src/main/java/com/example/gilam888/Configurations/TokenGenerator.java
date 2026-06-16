@@ -2,6 +2,7 @@ package com.example.gilam888.Configurations;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -9,36 +10,24 @@ import java.util.Date;
 
 @Component
 public class TokenGenerator {
-    private String parol = "jn&*gbc%";
+    private final String SECRET_KEY = "mysecretkeymysecretkeymysecretkey";
 
-    public String token(String username) {
-        long vaqt = 2 * 60 * 60 * 1000;
-        Date muddat = new Date(System.currentTimeMillis() + vaqt);
-
-        String base64EncodedParol = Base64.getEncoder().encodeToString(parol.getBytes());
-
-        String token = Jwts.builder()
+    public String generateToken(String username) {
+        return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(muddat)
-                .signWith(SignatureAlgorithm.HS256, base64EncodedParol)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+//                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 10))
+                .signWith(SignatureAlgorithm.HS256, Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
                 .compact();
-        return token;
     }
-    public boolean tokenCheck(String token){
-        Jwts
-                .parser()
-                .setSigningKey(parol)
-                .parseClaimsJws(token);
-        return true;
-    }
-    public String usernameolish(String token){
-        String subject = Jwts
-                .parser()
-                .setSigningKey(Base64.getEncoder().encodeToString(parol.getBytes()))
+
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY.getBytes())
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-        return subject;
     }
 }

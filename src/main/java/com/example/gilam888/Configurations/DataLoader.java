@@ -20,7 +20,11 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if(usersRepository.count()==0){
-            usersRepository.save(new Users("owner",passwordEncoder.encode("1"),"owner"));
+            Users users = new Users();
+            users.setUsername("owner");
+            users.setRole("owner");
+            users.setPassword(passwordEncoder.encode("1"));
+            usersRepository.save(users);
         }
     }
 }

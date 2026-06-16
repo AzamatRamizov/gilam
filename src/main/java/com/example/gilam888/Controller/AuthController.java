@@ -1,6 +1,7 @@
 package com.example.gilam888.Controller;
 
 import com.example.gilam888.Configurations.TokenGenerator;
+import com.example.gilam888.Dto.LoginDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,24 +16,28 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
-    private final TokenGenerator tokenGenerator;
     private final AuthenticationManager authenticationManager;
+    private final TokenGenerator jwtService;
+
+    public AuthController(AuthenticationManager authenticationManager,
+                          TokenGenerator jwtService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            body.get("username"),
-                            body.get("password")
-                    )
-            );
-            String token = tokenGenerator.token(auth.getName());
-            return ResponseEntity.ok(Map.of("token", token));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(Map.of("error", "Username yoki parol noto'g'ri"));
-        }
+    public ResponseEntity<?> login(@RequestBody LoginDto dto) {
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        dto.getLogin(),
+                        dto.getPassword()
+                )
+        );
+
+        String token = jwtService.generateToken(dto.getLogin());
+
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }

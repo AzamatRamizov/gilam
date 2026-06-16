@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         .error-msg {
@@ -93,132 +94,25 @@
             display: none;
         }
     </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
 
 <div class="login-card">
     <h2>Kirish</h2>
-    <form id="loginForm">
-        <div class="form-group">
-            <label for="username">Foydalanuvchi nomi</label>
-            <input type="text" id="username" name="username" placeholder="Username" required />
-        </div>
-        <div class="form-group">
-            <label for="password">Parol</label>
-            <input type="password" id="password" name="password" placeholder="••••••••" required />
-        </div>
-        <button type="submit" class="login-btn">Kirish</button>
-        <p class="warn-msg" id="warnMsg"></p>
-        <p class="error-msg" id="errorMsg">Xato username yoki parol!</p>
-    </form>
+    <div class="form-group">
+        <label for="login">Foydalanuvchi nomi</label>
+        <input type="text" id="login" name="username" placeholder="Username" required />
+    </div>
+    <div class="form-group">
+        <label for="password">Parol</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required />
+    </div>
+    <button class="login-btn" id="submitbtn">Kirish</button>
+    <p class="warn-msg" id="warnMsg"></p>
+    <p class="error-msg" id="errorMsg">Xato username yoki parol!</p>
 </div>
 
-<script>
-    // Sahifa ochilganda token mavjud bo'lsa — tekshirish
-    (function checkExistingToken() {
-        const token = localStorage.getItem('token');
-        if (token) {
-            fetch('/admin/dashboard', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            }).then(res => {
-                if (res.ok || res.redirected) {
-                    window.location.href = '/admin/dashboard';
-                } else {
-                    localStorage.removeItem('token');
-                }
-            }).catch(() => localStorage.removeItem('token'));
-        }
-    })();
-
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const errorMsg = document.getElementById('errorMsg');
-        errorMsg.style.display = 'none';
-
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('role', data.role);
-                window.location.href = '/admin/dashboard';
-            } else {
-                errorMsg.style.display = 'block';
-            }
-        } catch (err) {
-            errorMsg.style.display = 'block';
-        }
-    });
-</script>
-<script>
-    // URL parametrlarini tekshirish
-    (function checkUrlParams() {
-        const params = new URLSearchParams(window.location.search);
-        const warnMsg = document.getElementById('warnMsg');
-        if (params.get('error') === 'session') {
-            warnMsg.textContent = '⚠️ Sessiyangiz tugagan. Qayta kiring.';
-            warnMsg.style.display = 'block';
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-        } else if (params.get('error') === 'forbidden') {
-            warnMsg.textContent = '🚫 Bu sahifaga kirishga ruxsatingiz yo\'q.';
-            warnMsg.style.display = 'block';
-        }
-    })();
-
-    // Sahifa ochilganda token mavjud bo'lsa — tekshirish
-    (function checkExistingToken() {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        fetch('/admin/dashboard', {
-            headers: { 'Authorization': 'Bearer ' + token }
-        }).then(res => {
-            if (res.ok) {
-                window.location.href = '/admin/dashboard';
-            } else {
-                localStorage.removeItem('token');
-                localStorage.removeItem('role');
-            }
-        }).catch(() => {
-            localStorage.removeItem('token');
-        });
-    })();
-
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const errorMsg = document.getElementById('errorMsg');
-        const warnMsg = document.getElementById('warnMsg');
-        errorMsg.style.display = 'none';
-        warnMsg.style.display = 'none';
-
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                localStorage.setItem('token', data.token);
-                window.location.href = '/admin/dashboard';
-            } else {
-                errorMsg.style.display = 'block';
-            }
-        } catch (err) {
-            errorMsg.style.display = 'block';
-        }
-    });
-</script>
+<script src="/login.js"></script>
 </body>
 </html>

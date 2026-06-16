@@ -1,63 +1,69 @@
 package com.example.gilam888.Configurations;
 
-import com.example.gilam888.Entity.Users;
-import com.example.gilam888.Repository.UsersRepository;
+import com.example.gilam888.Service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    private final TokenGenerator tokenGenerator;
-    private final UsersRepository usersRepository;
+    private final TokenGenerator jwtService;
+    private final UserService userDetailsService;
+
+    public JwtFilter(TokenGenerator jwtService, UserService userDetailsService) {
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String token = null;
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
-        // 1. Authorization: Bearer <token> headerdan olish
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
+        String header = request.getHeader("Authorization");
 
-        // 2. Agar header yo'q bo'lsa, Cookie'dan olish
-        if (token == null && request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("Auth".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
+        // Agar header yo‘q bo‘lsa, cookie’dan o‘qish
+        if (header == null || !header.startsWith("Bearer ")) {
+            if (request.getCookies() != null) {
+                for (Cookie c : request.getCookies()) {
+                    if ("Auth".equals(c.getName())) {
+                        header = "Bearer " + c.getValue();
+                    }
                 }
             }
         }
 
-        if (token != null) {
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+
             try {
-                boolean valid = tokenGenerator.tokenCheck(token);
-                if (valid) {
-                    String username = tokenGenerator.usernameolish(token);
-                    Optional<Users> userOpt = usersRepository.findByUsername(username);
-                    if (userOpt.isPresent()) {
-                        Users user = userOpt.get();
-                        UsernamePasswordAuthenticationToken auth =
-                                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
+                String username = jwtService.extractUsername(token);
+
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
-            } catch (Exception ignored) {
-                // Token noto'g'ri yoki muddati o'tgan
+
+            } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+                // Token muddati tugagan, SecurityContext bo'lmaydi
+                System.out.println("JWT expired: " + ex.getMessage());
+            } catch (Exception e) {
+                System.out.println("JWT error: " + e.getMessage());
             }
         }
 
