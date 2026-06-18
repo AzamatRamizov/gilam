@@ -1,23 +1,39 @@
 package com.example.gilam888.Service;
 
 import com.example.gilam888.Configurations.ApiResponse;
+import com.example.gilam888.Dto.MijozDataDto;
+import com.example.gilam888.Dto.MijozRoyxat;
+import com.example.gilam888.Entity.FaylBayt;
 import com.example.gilam888.Entity.Mijoz;
+import com.example.gilam888.Entity.Shartnoma;
 import com.example.gilam888.Entity.Users;
+import com.example.gilam888.Repository.FaylBaytRepository;
 import com.example.gilam888.Repository.MijozRepository;
+import com.example.gilam888.Repository.ShartnomaRepository;
 import com.example.gilam888.Repository.UsersRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AdminService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
     private final MijozRepository mijozRepository;
+    private final FaylBaytRepository faylBaytRepository;
+    private final ShartnomaRepository shartnomaRepository;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
+        this.faylBaytRepository = faylBaytRepository;
+        this.shartnomaRepository = shartnomaRepository;
     }
 
     public ApiResponse addHodim(Users user) {
@@ -58,19 +74,97 @@ public class AdminService {
         return new ApiResponse("Hodim topilmadi",false);
     }
 
-    public ApiResponse addMijoz(Mijoz mijoz) {
+    public ApiResponse addMijoz(MijozDataDto mijoz, MultipartFile passport, MultipartFile rasm2, MultipartFile kafolat, MultipartFile kafolat2) throws IOException {
         if(mijozRepository.findByPassport(mijoz.getPassport()).isPresent()){
             return new ApiResponse("Bu passport allaqachon ishlatilgan",false);
         }
+
+//        -----------------------------------------------------------
+
         Mijoz mijoz1 = new Mijoz();
         mijoz1.setIsm(mijoz.getIsm());
-        mijoz1.setTel(mijoz.getTel());
         mijoz1.setFamiliya(mijoz.getFamiliya());
         mijoz1.setSharif(mijoz.getSharif());
+        mijoz1.setTel1(mijoz.getTel1());
+        mijoz1.setTel2(mijoz.getTel2());
+        mijoz1.setTel3(mijoz.getTel3());
+        mijoz1.setViloyat(mijoz.getViloyat());
         mijoz1.setTuman(mijoz.getTuman());
         mijoz1.setManzil(mijoz.getManzil());
+        mijoz1.setMuljal(mijoz.getMuljal());
         mijoz1.setPassport(mijoz.getPassport());
-        mijozRepository.save(mijoz1);
+
+        FaylBayt passportRasm = new FaylBayt();
+        passportRasm.setOriginalNomi(passport.getOriginalFilename());
+        passportRasm.setHajmiFayl(passport.getSize());
+        passportRasm.setContentTypeFayl(passport.getContentType());
+        passportRasm.setBayt(passport.getBytes());
+        FaylBayt passportSave = faylBaytRepository.save(passportRasm);
+
+        FaylBayt katm = new FaylBayt();
+        katm.setOriginalNomi(rasm2.getOriginalFilename());
+        katm.setHajmiFayl(rasm2.getSize());
+        katm.setContentTypeFayl(rasm2.getContentType());
+        katm.setBayt(rasm2.getBytes());
+        FaylBayt katmSave = faylBaytRepository.save(katm);
+
+        mijoz1.setPassportRasm(passportSave);
+        mijoz1.setKatm(katmSave);
+        Mijoz mijozSave = mijozRepository.save(mijoz1);
+
+//        ___________________________________________________________
+
+        Shartnoma shartnoma = new Shartnoma();
+        shartnoma.setMijoz(mijozSave);
+        shartnoma.setSumma(mijoz.getSumma());
+        shartnoma.setStatus("ochiq");
+        shartnoma.setMuddat(mijoz.getMuddat());
+
+        FaylBayt kafolatRasm = new FaylBayt();
+        kafolatRasm.setOriginalNomi(kafolat.getOriginalFilename());
+        kafolatRasm.setHajmiFayl(kafolat.getSize());
+        kafolatRasm.setContentTypeFayl(kafolat.getContentType());
+        kafolatRasm.setBayt(kafolat.getBytes());
+        FaylBayt kafolatSave = faylBaytRepository.save(kafolatRasm);
+
+        FaylBayt kafolat2Rasm = new FaylBayt();
+        kafolat2Rasm.setOriginalNomi(kafolat2.getOriginalFilename());
+        kafolat2Rasm.setHajmiFayl(kafolat2.getSize());
+        kafolat2Rasm.setContentTypeFayl(kafolat2.getContentType());
+        kafolat2Rasm.setBayt(kafolat2.getBytes());
+        FaylBayt kafolat2Save = faylBaytRepository.save(kafolat2Rasm);
+
+        shartnoma.setKafolat(kafolatSave);
+        shartnoma.setKafolat2(kafolat2Save);
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+        shartnoma.setCreatedTime(localDateTime);
+
+        shartnomaRepository.save(shartnoma);
+
+//        ------------------------------------
+
         return new ApiResponse("Mijoz qo'shildi",true);
+    }
+
+    public Object mijozlar() {
+
+        List<MijozRoyxat> mijozRoyxats=new ArrayList<>();
+
+        for (Mijoz mijoz : mijozRepository.findAll()) {
+            MijozRoyxat mijozRoyxat = new MijozRoyxat();
+            mijozRoyxat.setIsm(mijoz.getIsm());
+            mijozRoyxat.setFamiliya(mijoz.getFamiliya());
+            mijozRoyxat.setSharif(mijoz.getSharif());
+            mijozRoyxat.setId(mijoz.getId());
+            mijozRoyxat.setTel(mijoz.getTel1());
+            mijozRoyxat.setTuman(mijoz.getTuman());
+            mijozRoyxat.setManzil(mijoz.getManzil());
+            mijozRoyxat.setPassport(mijoz.getPassport());
+            mijozRoyxats.add(mijozRoyxat);
+        }
+
+        System.out.println(mijozRoyxats);
+        return mijozRoyxats;
     }
 }

@@ -1,16 +1,18 @@
 package com.example.gilam888.Controller;
 
 import com.example.gilam888.Configurations.ApiResponse;
-import com.example.gilam888.Entity.Mijoz;
+import com.example.gilam888.Dto.MijozDataDto;
 import com.example.gilam888.Entity.Users;
 import com.example.gilam888.Repository.MijozRepository;
 import com.example.gilam888.Repository.UsersRepository;
 import com.example.gilam888.Service.AdminService;
 import com.example.gilam888.Service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/admin")
@@ -18,11 +20,13 @@ public class AdminController {
     private final AdminService adminService;
     private final UsersRepository usersRepository;
     private final MijozRepository mijozRepository;
+    private final UserService userService;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
+        this.userService = userService;
     }
 
     //    @PreAuthorize("hasRole('user')")
@@ -65,7 +69,8 @@ public class AdminController {
     }
     @GetMapping("/mijozlar-all")
     public ResponseEntity<?> mijozlarAll(){
-        return ResponseEntity.ok(mijozRepository.findAll());
+
+        return ResponseEntity.ok(adminService.mijozlar());
     }
     @GetMapping("/mijozlar-delete/{id}")
     public ResponseEntity<?> mijozlarDelete(@PathVariable Long id){
@@ -73,8 +78,12 @@ public class AdminController {
         return ResponseEntity.ok("Mijoz o'chirildi");
     }
     @PostMapping("/add-mijoz")
-    public ResponseEntity<?> addMijoz(@RequestBody Mijoz mijoz){
-        ApiResponse apiResponse=adminService.addMijoz(mijoz);
+    public ResponseEntity<?> addMijoz(@RequestPart("mijoz") MijozDataDto mijoz, @RequestParam(value = "rasm",required = false) MultipartFile passport, @RequestParam(value = "rasm2",required = false) MultipartFile rasm2,  @RequestParam(value = "kafolat1",required = false) MultipartFile kafolat,  @RequestParam(value = "kafolat2",required = false) MultipartFile kafolat2) throws IOException {
+        ApiResponse apiResponse=adminService.addMijoz(mijoz, passport, rasm2, kafolat, kafolat2);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
+    @GetMapping("/my-profile")
+    public String myProfile(){
+        return "my-profile-page";
     }
 }

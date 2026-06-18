@@ -19,4 +19,9 @@ public class Shartnoma extends AbstractLongEntity {
     private Mijoz mijoz;
 
     private String status;
+
+    @ManyToOne
+    private FaylBayt kafolat;
+    @ManyToOne
+    private FaylBayt kafolat2;
 }

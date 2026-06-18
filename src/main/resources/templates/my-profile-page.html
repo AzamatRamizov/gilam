@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head xmlns:th="http://www.thymeleaf.org">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Profil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --bg-sidebar:    #1a6fa8;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --color-dd-bg:   #ffffff;
+            --color-dd-hov:  #e8f4fd;
+            --color-dd-bdr:  #c5dff0;
+            --color-dd-item: #1a3a52;
+            --transition: 0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --bg-sidebar:    #0e3f60;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --color-dd-bg:   #162534;
+            --color-dd-hov:  #1c3448;
+            --color-dd-bdr:  #2a4f6a;
+            --color-dd-item: #c0ddf0;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body {
+            background-color: var(--bg-body);
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--color-text);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #1a6fa8 !important;
+            box-shadow: 0 2px 10px rgba(26,111,168,0.3);
+            padding: 0;
+        }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 20px; font-weight: 700;
+            color: #fff !important; letter-spacing: -0.3px;
+        }
+        .navbar-brand .logo-icon {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 8px; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .navbar-brand span { color: #a8dcf5; }
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.88) !important;
+            font-size: 14px; font-weight: 500;
+            padding: 20px 14px !important;
+            border-bottom: 2px solid transparent;
+        }
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: #fff !important;
+            border-bottom-color: rgba(255,255,255,0.6);
+        }
+        .dropdown-menu {
+            background: var(--color-dd-bg);
+            border: 1px solid var(--color-dd-bdr);
+            border-radius: 10px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            padding: 6px 0; min-width: 190px; margin-top: 0 !important;
+        }
+        .dropdown-item {
+            font-size: 14px; color: var(--color-dd-item);
+            padding: 9px 18px; display: flex; align-items: center; gap: 9px;
+        }
+        .dropdown-item:hover { background: var(--color-dd-hov); color: #1a6fa8; }
+        .dropdown-divider { border-color: var(--color-divider); margin: 4px 0; }
+        .navbar-toggler { border-color: rgba(255,255,255,0.3); }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        .theme-toggle {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 20px; color: #fff;
+            padding: 5px 14px; font-size: 13px; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            margin-left: 10px;
+        }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+        /* Section title */
+        .section-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: #1a6fa8; margin-bottom: 14px;
+        }
+        [data-theme="dark"] .section-title { color: #5ab4dc; }
+
+        /* Cards */
+        .main-card {
+            background: var(--bg-card);
+            border: 1px solid var(--color-card-bdr);
+            border-radius: 12px; padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(26,111,168,0.07);
+        }
+        [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
+
+        .page-title { font-size: 22px; font-weight: 700; color: var(--color-text); margin: 0; }
+        .page-subtitle { font-size: 13px; color: var(--color-sub); margin: 2px 0 0; }
+
+        /* Avatar */
+        .profile-avatar {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: #dbeeff; color: #1a6fa8;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 700; flex-shrink: 0;
+            border: 3px solid #b3d6ee;
+        }
+        [data-theme="dark"] .profile-avatar { background: #1a3a5c; color: #6ab8e8; border-color: #2a4f6a; }
+
+        /* Form inputs */
+        .form-label-custom {
+            font-size: 12px; color: var(--color-sub);
+            font-weight: 600; margin-bottom: 5px; display: block;
+        }
+        .form-control-custom {
+            width: 100%;
+            padding: 9px 12px;
+            font-size: 14px;
+            color: var(--color-text);
+            background: var(--bg-body);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control-custom:focus {
+            border-color: #1a6fa8;
+            box-shadow: 0 0 0 3px rgba(26,111,168,0.12);
+        }
+        .form-control-custom.readonly-field {
+            background: var(--color-divider);
+            color: var(--color-sub);
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+        [data-theme="dark"] .form-control-custom { background: #0f1e2b; border-color: var(--color-border); }
+        [data-theme="dark"] .form-control-custom.readonly-field { background: #1e3d55; }
+
+        .input-wrapper { position: relative; }
+        .input-wrapper .lock-icon {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-sub); font-size: 14px; pointer-events: none;
+        }
+        .input-wrapper .eye-icon {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-sub); font-size: 16px; cursor: pointer;
+        }
+        .input-wrapper .form-control-custom { padding-right: 34px; }
+
+        .field-hint {
+            font-size: 11px; color: var(--color-sub);
+            margin: 4px 0 0;
+        }
+
+        /* Badge */
+        .badge-role {
+            font-size: 11px; padding: 3px 12px; border-radius: 20px;
+            font-weight: 600; display: inline-block;
+            background: #dbeeff; color: #1a6fa8;
+        }
+        [data-theme="dark"] .badge-role { background: #1a3a5c; color: #6ab8e8; }
+
+        /* Divider */
+        .card-divider { border-color: var(--color-divider); margin: 1.25rem 0; }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: #1a6fa8; color: #fff;
+            border: none; border-radius: 8px;
+            padding: 9px 22px; font-size: 13px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-primary-custom:hover { background: #155d8e; }
+        .btn-primary-custom:active { transform: scale(0.98); }
+
+        .btn-danger-custom {
+            background: #fde8e8; color: #c0392b;
+            border: 1px solid #f5c6c6; border-radius: 8px;
+            padding: 9px 22px; font-size: 13px; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-danger-custom:hover { background: #f5c6c6; }
+        [data-theme="dark"] .btn-danger-custom { background: #3a1a1a; color: #e07070; border-color: #5a2a2a; }
+
+        /* Alert messages */
+        .alert-success-custom {
+            font-size: 12px; color: #1a9a5a; margin: 8px 0 0;
+            display: none;
+        }
+        .alert-danger-custom {
+            font-size: 12px; color: #c0392b; margin: 8px 0 0;
+            display: none;
+        }
+
+        /* Password strength */
+        .strength-bar-wrap { height: 4px; border-radius: 4px; background: var(--color-divider); margin-top: 6px; overflow: hidden; }
+        .strength-bar { height: 100%; border-radius: 4px; width: 0; transition: width 0.3s, background 0.3s; }
+
+        /* Info row (read-only display) */
+        .info-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-divider);
+            font-size: 13px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--color-sub); font-size: 12px; }
+        .info-value { color: var(--color-text); font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<!-- Main Content -->
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <p class="page-title">👤 Mening profilim</p>
+            <p class="page-subtitle">Shaxsiy ma'lumotlarni ko'rish va tahrirlash</p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-sm" style="background:var(--bg-card);color:#1a6fa8;border:1px solid var(--color-border);border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;">
+            ← Dashboard
+        </a>
+    </div>
+
+    <div class="row g-3">
+
+        <!-- LEFT: Avatar + read-only info -->
+        <div class="col-lg-4">
+
+            <!-- Avatar card -->
+            <div class="main-card text-center mb-3">
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="profile-avatar" id="avatarInitials">AK</div>
+                </div>
+                <p style="font-size:18px; font-weight:700; color:var(--color-text); margin:0;" id="displayName">Alisher Karimov</p>
+                <p style="font-size:13px; color:var(--color-sub); margin:4px 0 10px;" id="displayUsername">@alisher_k</p>
+                <span class="badge-role" id="displayRole">Hodim</span>
+            </div>
+
+            <!-- System info card -->
+            <div class="main-card">
+                <p class="section-title">🔒 Tizim ma'lumotlari</p>
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value" id="sysUsername">alisher_k</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Rol</span>
+                    <span class="info-value" id="sysRole">Hodim</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ro'yxatdan o'tgan</span>
+                    <span class="info-value">14.06.2026</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">So'nggi kirish</span>
+                    <span class="info-value">Bugun, --:--</span>
+                </div>
+                <p class="field-hint mt-2">
+                    ⚠️ Username va rol faqat administrator tomonidan o'zgartirilishi mumkin.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Edit forms -->
+        <div class="col-lg-8 d-flex flex-column gap-3">
+
+            <!-- Ma'lumotlarni tahrirlash -->
+            <div class="main-card">
+                <p class="section-title">✏️ Asosiy ma'lumotlar</p>
+
+                <div class="row g-3">
+
+                    <!-- Ism familiya -->
+                    <div class="col-sm-6">
+                        <label class="form-label-custom">Ism familiya</label>
+                        <input type="text" class="form-control-custom" id="fullName"value="Alisher Karimov"
+                               placeholder="Ism Familiya" oninput="updateDisplay()" />
+                    </div>
+
+                    <!-- Telefon -->
+                    <div class="col-sm-6">
+                        <label class="form-label-custom">Telefon raqam</label>
+                        <input type="tel" class="form-control-custom" id="phone"value="+998 90 123 45 67"
+                               placeholder="+998 90 000 00 00" />
+                    </div>
+
+                    <!-- Manzil -->
+                    <div class="col-12">
+                        <label class="form-label-custom">Manzil</label>
+                        <input type="text" class="form-control-custom" id="address"value="Toshkent, Chilonzor tumani"
+                               placeholder="Shahar, tuman" />
+                    </div>
+
+                    <!-- Username (readonly) -->
+                    <div class="col-sm-6">
+                        <label class="form-label-custom">Username</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-control-custom readonly-field"value="alisher_k" readonly />
+                            <span class="lock-icon">🔒</span>
+                        </div>
+                        <p class="field-hint">Tahrirlab bo'lmaydi</p>
+                    </div>
+
+                    <!-- Rol (readonly) -->
+                    <div class="col-sm-6">
+                        <label class="form-label-custom">Rol</label>
+                        <div class="input-wrapper">
+                            <input type="text" class="form-control-custom readonly-field"value="Admin" readonly />
+                            <span class="lock-icon">🔒</span>
+                        </div>
+                        <p class="field-hint">Tahrirlab bo'lmaydi</p>
+                    </div>
+
+                </div>
+
+                <hr class="card-divider">
+
+                <div class="d-flex align-items-center justify-content-end gap-3 flex-wrap">
+                    <p class="alert-success-custom mb-0" id="infoSuccess">✅ Ma'lumotlar muvaffaqiyatli saqlandi</p>
+                    <button class="btn-primary-custom" onclick="saveInfo()">
+                        💾 Saqlash
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parolni almashtirish -->
+            <div class="main-card">
+                <p class="section-title">🔑 Parolni almashtirish</p>
+
+                <div class="row g-3">
+
+                    <!-- Joriy parol -->
+                    <div class="col-12">
+                        <label class="form-label-custom">Joriy parol</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-control-custom" id="oldPwd"
+                                   placeholder="Joriy parolni kiriting" />
+                            <span class="eye-icon" onclick="togglePwd('oldPwd', this)">👁</span>
+                        </div>
+                    </div>
+
+                    <!-- Yangi parol -->
+                    <div class="col-sm-6">
+                        <label class="form-label-custom">Yangi parol</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-control-custom" id="newPwd"
+                                   placeholder="Kamida 8 ta belgi" oninput="checkStrength(); checkMatch();" />
+                            <span class="eye-icon" onclick="togglePwd('newPwd', this)">👁</span>
+                        </div>
+                        <div class="strength-bar-wrap">
+                            <div class="strength-bar" id="strengthBar"></div>
+                        </div>
+                        <p class="field-hint" id="strengthLabel"></p>
+                    </div>
+
+                    <!-- Tasdiqlash -->
+                    <div class="col-sm-6">
+                        <label class="form-label-custom">Yangi parolni tasdiqlang</label>
+                        <div class="input-wrapper">
+                            <input type="password" class="form-control-custom" id="confPwd"
+                                   placeholder="Parolni qayta kiriting" oninput="checkMatch()" />
+                            <span class="eye-icon" onclick="togglePwd('confPwd', this)">👁</span>
+                        </div>
+                        <p class="field-hint" id="matchMsg"></p>
+                    </div>
+
+                </div>
+
+                <hr class="card-divider">
+
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <p class="alert-success-custom mb-0" id="pwdSuccess">✅ Parol muvaffaqiyatli yangilandi</p>
+                        <p class="alert-danger-custom mb-0" id="pwdError"></p>
+                    </div>
+                    <button class="btn-primary-custom" onclick="changePwd()">
+                        🔑 Parolni yangilash
+                    </button>
+                </div>
+            </div>
+
+<!--            &lt;!&ndash; Xavfli zona &ndash;&gt;-->
+<!--            <div class="main-card" style="border-color:#f5c6c6;">-->
+<!--                <p class="section-title" style="color:#c0392b;">⚠️ Xavfli zona</p>-->
+<!--                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">-->
+<!--                    <div>-->
+<!--                        <p style="font-size:14px; font-weight:600; color:var(&#45;&#45;color-text); margin:0;">Hisobdan chiqish</p>-->
+<!--                        <p style="font-size:12px; color:var(&#45;&#45;color-sub); margin:2px 0 0;">Barcha qurilmalardan chiqish</p>-->
+<!--                    </div>-->
+<!--                    <button class="btn-danger-custom" onclick="confirmLogout()">-->
+<!--                        🚪 Chiqish-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* Theme */
+    const html = document.documentElement;
+    const saved = localStorage.getItem('mb-theme') || 'light';
+    applyTheme(saved);
+
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('mb-theme', theme);
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (icon) icon.textContent  = theme === 'dark' ? '☀️' : '🌙';
+        if (label) label.textContent = theme === 'dark' ? 'Kun' : 'Tun';
+    }
+    function toggleTheme() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    /* Update left panel live */
+    function updateDisplay() {
+        const name = document.getElementById('fullName').value.trim();
+        document.getElementById('displayName').textContent = name || '—';
+        const parts = name.split(' ');
+        const initials = parts.map(p => p[0] || '').join('').toUpperCase().slice(0, 2);
+        document.getElementById('avatarInitials').textContent = initials || '?';
+    }
+
+    /* Save info */
+    function saveInfo() {
+        const s = document.getElementById('infoSuccess');
+        s.style.display = 'block';
+        setTimeout(() => s.style.display = 'none', 3000);
+    }
+
+    /* Toggle password visibility */
+    function togglePwd(id, icon) {
+        const inp = document.getElementById(id);
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.textContent = '🙈';
+        } else {
+            inp.type = 'password';
+            icon.textContent = '👁';
+        }
+    }
+
+    /* Password strength */
+    function checkStrength() {
+        const val = document.getElementById('newPwd').value;
+        const bar = document.getElementById('strengthBar');
+        const lbl = document.getElementById('strengthLabel');
+        let score = 0;
+        if (val.length >= 8)  score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+            { w: '0%',   bg: 'transparent', text: '' },
+            { w: '25%',  bg: '#c0392b', text: '🔴 Juda zaif' },
+            { w: '50%',  bg: '#c87800', text: '🟡 O\'rtacha' },
+            { w: '75%',  bg: '#1a9a5a', text: '🟢 Yaxshi' },
+            { w: '100%', bg: '#1a6fa8', text: '💪 Juda kuchli' }
+        ];
+        bar.style.width = levels[score].w;
+        bar.style.background = levels[score].bg;
+        lbl.textContent = levels[score].text;
+    }
+
+    /* Match check */
+    function checkMatch() {
+        const n = document.getElementById('newPwd').value;
+        const c = document.getElementById('confPwd').value;
+        const m = document.getElementById('matchMsg');
+        if (!c) { m.textContent = ''; return; }
+        if (n === c) {
+            m.style.color = '#1a9a5a';
+            m.textContent = '✓ Parollar mos keldi';
+        } else {
+            m.style.color = '#c0392b';
+            m.textContent = '✗ Parollar mos kelmadi';
+        }
+    }
+
+    /* Change password */
+    function changePwd() {
+        const old  = document.getElementById('oldPwd').value;
+        const n    = document.getElementById('newPwd').value;
+        const c    = document.getElementById('confPwd').value;
+        const succ = document.getElementById('pwdSuccess');
+        const err  = document.getElementById('pwdError');
+
+        succ.style.display = 'none';
+        err.style.display  = 'none';
+
+        if (!old || !n || !c) {
+            err.textContent = '⚠️ Barcha maydonlarni to\'ldiring';
+            err.style.display = 'block'; return;
+        }
+        if (n !== c) {
+            err.textContent = '⚠️ Yangi parollar mos kelmadi';
+            err.style.display = 'block'; return;
+        }
+        if (n.length < 8) {
+            err.textContent = '⚠️ Parol kamida 8 ta belgidan iborat bo\'lishi kerak';
+            err.style.display = 'block'; return;
+        }
+
+        /* Success */
+        succ.style.display = 'block';
+        document.getElementById('oldPwd').value = '';
+        document.getElementById('newPwd').value = '';
+        document.getElementById('confPwd').value = '';
+        document.getElementById('strengthBar').style.width = '0';
+        document.getElementById('strengthLabel').textContent = '';
+        document.getElementById('matchMsg').textContent = '';
+        setTimeout(() => succ.style.display = 'none', 3000);
+    }
+
+    /* Logout */
+    function confirmLogout() {
+        if (confirm('Haqiqatan ham chiqmoqchimisiz?')) {
+            window.location.href = '/logout';
+        }
+    }
+</script>
+</body>
+</html>
