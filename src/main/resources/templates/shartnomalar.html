@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Shartnomalar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --bg-sidebar:    #1a6fa8;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --color-dd-bg:   #ffffff;
+            --color-dd-hov:  #e8f4fd;
+            --color-dd-bdr:  #c5dff0;
+            --color-dd-item: #1a3a52;
+            --color-hint:    #90b8cc;
+            --bg-input:      #f5fafd;
+            --transition: 0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --bg-sidebar:    #0e3f60;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --color-dd-bg:   #162534;
+            --color-dd-hov:  #1c3448;
+            --color-dd-bdr:  #2a4f6a;
+            --color-dd-item: #c0ddf0;
+            --color-hint:    #4a7a94;
+            --bg-input:      #1c2f40;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+
+        /* Navbar */
+        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #fff !important; letter-spacing: -0.3px; }
+        .navbar-brand .logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .navbar-brand span { color: #a8dcf5; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.88) !important; font-size: 14px; font-weight: 500; padding: 20px 14px !important; border-bottom: 2px solid transparent; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #fff !important; border-bottom-color: rgba(255,255,255,0.6); }
+        .dropdown-menu { background: var(--color-dd-bg); border: 1px solid var(--color-dd-bdr); border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); padding: 6px 0; min-width: 190px; margin-top: 0 !important; }
+        .dropdown-item { font-size: 14px; color: var(--color-dd-item); padding: 9px 18px; display: flex; align-items: center; gap: 9px; }
+        .dropdown-item:hover { background: var(--color-dd-hov); color: #1a6fa8; }
+        .dropdown-divider { border-color: var(--color-divider); margin: 4px 0; }
+        .navbar-toggler { border-color: rgba(255,255,255,0.3); }
+        .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+        .nav-badge { font-size: 10px; background: #ff6b6b; color: #fff; border-radius: 10px; padding: 1px 6px; margin-left: 4px; font-weight: 600; }
+        .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+        /* Stat cards */
+        .stat-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 20px 22px; box-shadow: 0 2px 10px rgba(26,111,168,0.07); display: flex; align-items: center; gap: 16px; }
+        [data-theme="dark"] .stat-card { box-shadow: 0 2px 14px rgba(0,0,0,0.2); }
+        .stat-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+        .stat-icon.blue   { background: #dbeeff; color: #1a6fa8; }
+        .stat-icon.green  { background: #d8f5e8; color: #1a9a5a; }
+        .stat-icon.orange { background: #fff0dc; color: #c87800; }
+        .stat-icon.red    { background: #fde8e8; color: #c0392b; }
+        [data-theme="dark"] .stat-icon.blue   { background: #1a3a5c; color: #6ab8e8; }
+        [data-theme="dark"] .stat-icon.green  { background: #1a3a2a; color: #4dc886; }
+        [data-theme="dark"] .stat-icon.orange { background: #3a2e18; color: #f0a830; }
+        [data-theme="dark"] .stat-icon.red    { background: #3a1a1a; color: #e07070; }
+        .stat-value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--color-text); }
+        .stat-label { font-size: 12px; color: var(--color-sub); margin-top: 3px; }
+
+        .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1a6fa8; margin-bottom: 14px; }
+        [data-theme="dark"] .section-title { color: #5ab4dc; }
+
+        .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(26,111,168,0.07); }
+        [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
+
+        .page-title { font-size: 22px; font-weight: 700; color: var(--color-text); margin: 0; }
+        .page-subtitle { font-size: 13px; color: var(--color-sub); margin: 2px 0 0; }
+
+        /* Toolbar */
+        .toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:1.1rem; }
+        .search-box { position:relative; flex:1; min-width:220px; }
+        .search-box input { width:100%; background:#f0f8ff; border:1px solid var(--color-border); border-radius:8px; padding:9px 12px 9px 36px; font-size:14px; color:var(--color-text); outline:none; }
+        [data-theme="dark"] .search-box input { background:#1a3048; }
+        .search-box input:focus { border-color:#1a6fa8; box-shadow:0 0 0 3px rgba(26,111,168,0.12); }
+        .search-box input::placeholder { color: var(--color-hint); }
+        .search-box svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--color-sub); }
+        .filter-select { background:#f0f8ff; border:1px solid var(--color-border); border-radius:8px; padding:9px 12px; font-size:14px; color:var(--color-text); outline:none; }
+        [data-theme="dark"] .filter-select { background:#1a3048; }
+        .filter-select:focus { border-color:#1a6fa8; }
+
+        /* Table */
+        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+        .table-custom thead th { background: #f0f8ff; color: #1a6fa8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 1px solid var(--color-border); white-space: nowrap; cursor: pointer; user-select: none; }
+        [data-theme="dark"] .table-custom thead th { background: #1a3048; color: #6ab8e8; }
+        .table-custom thead th:hover { opacity: 0.75; }
+        .table-custom thead th .sort-icon { margin-left:4px; opacity:.5; font-size:10px; }
+        .table-custom tbody td { padding: 11px 14px; border-bottom: 1px solid var(--color-divider); color: var(--color-text); vertical-align: middle; }
+        .table-custom tbody tr:last-child td { border-bottom: none; }
+        .table-custom tbody tr:hover td { background: #f4f9fd; }
+        [data-theme="dark"] .table-custom tbody tr:hover td { background: #1a2e3e; }
+
+        .contract-no { font-family: monospace; font-weight: 700; color: #1a6fa8; background:#dbeeff; padding:3px 9px; border-radius:6px; font-size:12.5px; }
+        [data-theme="dark"] .contract-no { background:#1a3a5c; color:#6ab8e8; }
+
+        .avatar-sm { width: 32px; height: 32px; border-radius: 8px; background: #dbeeff; color: #1a6fa8; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; margin-right: 8px; flex-shrink: 0; }
+        [data-theme="dark"] .avatar-sm { background: #1a3a5c; color: #6ab8e8; }
+
+        .badge-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+        .badge-status .dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; }
+        .badge-active   { background: #d8f5e8; color: #1a7a50; }
+        .badge-closed   { background: #e4e9ee; color: #5a6b7d; }
+        .badge-overdue  { background: #fde8e8; color: #b03030; }
+        [data-theme="dark"] .badge-active   { background: #1a3a28; color: #4dc886; }
+        [data-theme="dark"] .badge-closed   { background: #28333d; color: #97a7b8; }
+        [data-theme="dark"] .badge-overdue  { background: #3a1a1a; color: #e07070; }
+
+        .action-link { font-size:12px; text-decoration:none; font-weight:600; margin-right:10px; cursor:pointer; }
+        .action-link.view { color:#1a6fa8; }
+
+        .pagination-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:1.1rem; }
+        .page-info { font-size:13px; color:var(--color-sub); }
+        .page-btns { display:flex; gap:4px; }
+        .page-btn { background:#f0f8ff; border:1px solid var(--color-border); border-radius:6px; padding:5px 12px; font-size:13px; color:var(--color-text); cursor:pointer; }
+        [data-theme="dark"] .page-btn { background:#1a3048; }
+        .page-btn:hover { border-color:#1a6fa8; color:#1a6fa8; }
+        .page-btn.active { background:#1a6fa8; border-color:#1a6fa8; color:#fff; }
+        .page-btn:disabled { opacity:0.4; cursor:default; }
+
+        .empty-state { text-align:center; padding:3rem 1rem; color:var(--color-sub); }
+        .empty-state svg { opacity:.35; margin-bottom:10px; }
+
+        .loading-state { text-align:center; padding:3rem 1rem; color:var(--color-sub); }
+        .spinner-border-custom { width:32px; height:32px; border:3px solid var(--color-divider); border-top-color:#1a6fa8; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<!-- Main -->
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <p class="page-title">📄 Shartnomalar</p>
+            <p class="page-subtitle">Tizimdagi barcha shartnomalar ro'yxati</p>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4" id="statsRow"></div>
+
+    <!-- Table card -->
+    <div class="main-card">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="search-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.598 1.04a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Shartnoma raqami yoki mijoz F.I.Sh bo'yicha qidirish..." oninput="renderTable()">
+            </div>
+            <select class="filter-select" id="statusFilter" onchange="renderTable()">
+                <option value="">Barcha holat</option>
+                <option value="Faol">Faol</option>
+                <option value="Yopilgan">Yopilgan</option>
+                <option value="Muddati o'tgan">Muddati o'tgan</option>
+            </select>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-state" id="loadingState">
+            <div class="spinner-border-custom"></div>
+            <p style="font-size:14px;">Shartnomalar yuklanmoqda...</p>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive" id="tableWrap" style="display:none;">
+            <table class="table-custom" id="contractTable">
+                <thead>
+                <tr>
+                    <th onclick="sortBy('id')">Shartnoma №<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('fish')">F.I.Sh<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('muddat')">Muddat<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('summa')">Summa<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('status')">Holat<span class="sort-icon">↕</span></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5.5 1.5V5H13L9.5 1.5ZM4 7a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Zm0 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4ZM4 12a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H4Z"/>
+                </svg>
+                <p style="margin-top:8px;font-size:14px;">Shartnoma topilmadi</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-row" id="paginationRow" style="display:none;">
+            <div class="page-info" id="pageInfo"></div>
+            <div class="page-btns" id="pageBtns"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── Theme ──
+    const html = document.documentElement;
+    applyTheme(localStorage.getItem('mb-theme') || 'light');
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('mb-theme', theme);
+        document.getElementById('themeIcon').textContent  = theme === 'dark' ? '☀️' : '🌙';
+        document.getElementById('themeLabel').textContent = theme === 'dark' ? 'Kun'  : 'Tun';
+    }
+    function toggleTheme() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    // ── Model: backend Shartnoma entity (id, fish, muddat, summa, status) ──
+    const AVATAR_COLORS = [
+        {bg:'#dbeeff', c:'#1a6fa8'}, {bg:'#d8f5e8', c:'#1a7a50'}, {bg:'#fff0dc', c:'#b07000'},
+        {bg:'#e8ddfb', c:'#6b3fc8'}, {bg:'#ffe4ef', c:'#c8447a'}, {bg:'#dcf7f0', c:'#0f9b8e'}
+    ];
+
+    function rndColor(id){ return AVATAR_COLORS[(id||0) % AVATAR_COLORS.length]; }
+    function initialsOf(name){
+        const parts = (name||'').trim().split(/\s+/);
+        return (parts[0]?.[0]||'') + (parts[1]?.[0]||'');
+    }
+    function fmtSumma(n){
+        return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
+    }
+
+    function badgeInfo(status){
+        if(status === 'Faol')   return { cls:'badge-active',  label:'Faol' };
+        if(status === 'Yopilgan') return { cls:'badge-closed', label:'Yopilgan' };
+        if(status === "Muddati o'tgan") return { cls:'badge-overdue', label:"Muddati o'tgan" };
+        return { cls:'badge-closed', label: status || '—' };
+    }
+
+    let contracts = [];
+    let sortCol = 'id', sortDir = 1, page = 1;
+    const PER_PAGE = 10;
+
+    // ── Load from backend: GET /admin/shartnoma-all ──
+    function loadContracts(){
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('tableWrap').style.display = 'none';
+        document.getElementById('paginationRow').style.display = 'none';
+
+        fetch('/admin/shartnoma-all')
+            .then(res => res.json())
+            .then(data => {
+                contracts = Array.isArray(data) ? data : [];
+                renderStats();
+                renderTable();
+                document.getElementById('tableWrap').style.display = 'block';
+                document.getElementById('paginationRow').style.display = 'flex';
+            })
+            .catch(err => {
+                console.error(err);
+                contracts = [];
+                renderStats();
+            })
+            .finally(() => {
+                document.getElementById('loadingState').style.display = 'none';
+            });
+    }
+
+    // ── Stats ──
+    function renderStats(){
+        const total = contracts.length;
+        const active = contracts.filter(c => c.status === 'Faol').length;
+        const closed = contracts.filter(c => c.status === 'Yopilgan').length;
+        const overdue = contracts.filter(c => c.status === "Muddati o'tgan").length;
+        const totalSumma = contracts.reduce((s,c) => s + (Number(c.summa)||0), 0);
+
+        document.getElementById('statsRow').innerHTML = `
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card">
+                <div class="stat-icon blue">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5.5 1.5V5H13L9.5 1.5ZM4 7a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Zm0 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4ZM4 12a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H4Z"/></svg>
+                </div>
+                <div><div class="stat-value">${total}</div><div class="stat-label">Jami shartnomalar</div></div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card">
+                <div class="stat-icon green">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>
+                </div>
+                <div><div class="stat-value">${active}</div><div class="stat-label">Faol</div></div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card">
+                <div class="stat-icon red">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                </div>
+                <div><div class="stat-value">${overdue}</div><div class="stat-label">Muddati o'tgan</div></div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card">
+                <div class="stat-icon orange">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4Zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05Zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.838 1.823-2.231 1.974V8.71l.379.107Z"/></svg>
+                </div>
+                <div><div class="stat-value">${fmtSumma(totalSumma)}</div><div class="stat-label">Jami summa</div></div>
+              </div>
+            </div>
+        `;
+    }
+
+    // ── Filter + sort ──
+    function getFiltered(){
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const st = document.getElementById('statusFilter').value;
+        return contracts.filter(c => {
+            const blob = `${c.id||''} ${c.fish||''}`.toLowerCase();
+            return (!q || blob.includes(q)) && (!st || c.status === st);
+        }).sort((a,b) => {
+            let va = a[sortCol], vb = b[sortCol];
+            if(sortCol === 'id' || sortCol === 'muddat' || sortCol === 'summa'){
+                va = Number(va)||0; vb = Number(vb)||0;
+            } else {
+                va = (va||'').toString(); vb = (vb||'').toString();
+            }
+            return va < vb ? -sortDir : va > vb ? sortDir : 0;
+        });
+    }
+
+    function sortBy(col){
+        if(sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
+        page = 1; renderTable();
+    }
+
+    // ── Render table ──
+    function renderTable(){
+        const data = getFiltered();
+        const total = data.length;
+        const pages = Math.ceil(total / PER_PAGE) || 1;
+        if(page > pages) page = 1;
+        const slice = data.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+        const cols = ['id','fish','muddat','summa','status'];
+        document.querySelectorAll('.table-custom thead th').forEach((th,i)=>{
+            const sp = th.querySelector('.sort-icon');
+            if(!sp) return;
+            sp.textContent = (cols[i] === sortCol) ? (sortDir === 1 ? '↑' : '↓') : '↕';
+        });
+
+        const tbody = document.getElementById('tableBody');
+        const empty = document.getElementById('emptyState');
+
+        if(!slice.length){
+            tbody.innerHTML = ''; empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            tbody.innerHTML = slice.map(c => {
+                const ac = rndColor(c.id);
+                const b = badgeInfo(c.status);
+                return `
+                <tr>
+                    <td><span class="contract-no">№${c.id}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm" style="background:${ac.bg};color:${ac.c}">${initialsOf(c.fish)}</div>
+                            <div style="font-weight:600;">${c.fish || '—'}</div>
+                        </div>
+                    </td>
+                    <td>${c.muddat ? c.muddat + ' oy' : '—'}</td>
+                    <td>${fmtSumma(c.summa)}</td>
+                    <td><span class="badge-status ${b.cls}"><span class="dot"></span>${b.label}</span></td>
+                    <td style="white-space:nowrap;">
+                        <a class="action-link view" href="/admin/shartnoma-detail?id=${c.id}">Batafsil</a>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        const from = (page-1)*PER_PAGE + 1, to = Math.min(page*PER_PAGE, total);
+        document.getElementById('pageInfo').textContent = total ? `${from}–${to} / jami ${total} ta` : '0 ta natija';
+
+        const pb = document.getElementById('pageBtns');
+        let btns = `<button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>‹</button>`;
+        for(let p2=1; p2<=pages; p2++){
+            if(pages<=7 || p2===1 || p2===pages || Math.abs(p2-page)<=1){
+                btns += `<button class="page-btn ${p2===page?'active':''}" onclick="goPage(${p2})">${p2}</button>`;
+            } else if(Math.abs(p2-page)===2){
+                btns += `<button class="page-btn" disabled>…</button>`;
+            }
+        }
+        btns += `<button class="page-btn" onclick="goPage(${page+1})" ${page>=pages?'disabled':''}>›</button>`;
+        pb.innerHTML = btns;
+    }
+
+    function goPage(p){ page = p; renderTable(); window.scrollTo(0,0); }
+
+    // ── Init ──
+    loadContracts();
+</script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Shartnoma ma'lumotlari</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --bg-sidebar:    #1a6fa8;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --color-dd-bg:   #ffffff;
+            --color-dd-hov:  #e8f4fd;
+            --color-dd-bdr:  #c5dff0;
+            --color-dd-item: #1a3a52;
+            --color-hint:    #90b8cc;
+            --bg-input:      #f5fafd;
+            --bg-input-grp:  #daeef9;
+            --transition: 0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --bg-sidebar:    #0e3f60;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --color-dd-bg:   #162534;
+            --color-dd-hov:  #1c3448;
+            --color-dd-bdr:  #2a4f6a;
+            --color-dd-item: #c0ddf0;
+            --color-hint:    #4a7a94;
+            --bg-input:      #1c2f40;
+            --bg-input-grp:  #1a3048;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+
+        /* Navbar */
+        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #fff !important; letter-spacing: -0.3px; }
+        .navbar-brand .logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .navbar-brand span { color: #a8dcf5; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.88) !important; font-size: 14px; font-weight: 500; padding: 20px 14px !important; border-bottom: 2px solid transparent; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #fff !important; border-bottom-color: rgba(255,255,255,0.6); }
+        .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+        /* Page */
+        .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(26,111,168,0.07); }
+        [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
+
+        .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1a6fa8; margin-bottom: 16px; }
+        [data-theme="dark"] .section-title { color: #5ab4dc; }
+
+        .part-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:1.4rem; flex-wrap:wrap; }
+        .part-header-left { display:flex; align-items:center; gap:12px; }
+        .part-number { width:32px; height:32px; border-radius:50%; background:#1a6fa8; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+        .part-title { font-size:17px; font-weight:700; color:var(--color-text); margin:0; }
+        .part-subtitle { font-size:12px; color:var(--color-sub); margin:1px 0 0; }
+
+        .info-row { margin-bottom: 1rem; }
+        .info-label { font-size: 11px; color: var(--color-sub); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px; }
+        .info-value { font-size: 14.5px; color: var(--color-text); font-weight: 500; min-height: 21px; }
+        .info-value.empty { color: var(--color-hint); font-weight: 400; font-style: italic; }
+        .info-value a { color: #1a6fa8; text-decoration: none; }
+        .info-value a:hover { text-decoration: underline; }
+
+        .divider { border: none; border-top: 1px solid var(--color-divider); margin: 2rem 0; }
+
+        .btn-primary-c { background-color: #1a6fa8; color: #fff; border: none; border-radius: 8px; padding: 10px 26px; font-size: 14px; font-weight: 600; cursor:pointer; }
+        .btn-primary-c:hover { background-color: #155d8e; color: #fff; }
+
+        .page-title { font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0; }
+        .page-subtitle { font-size: 13px; color: var(--color-sub); margin: 2px 0 0; }
+        .avatar-icon { width: 56px; height: 56px; background: var(--bg-input-grp); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight:700; color: #1a6fa8; flex-shrink: 0; }
+        [data-theme="dark"] .avatar-icon { color: #5ab4dc; }
+
+        /* Photo display boxes (read-only) */
+        .photo-box {
+            border: 1px solid var(--color-border); border-radius: 10px;
+            background: var(--bg-input); overflow:hidden;
+            min-height: 150px; display:flex; align-items:center; justify-content:center;
+            position: relative;
+        }
+        .photo-box img { width:100%; height:100%; max-height:220px; object-fit:contain; display:block; background:var(--bg-card); }
+        .photo-box .no-photo { text-align:center; color: var(--color-hint); font-size:12.5px; padding: 30px 10px; }
+        .photo-box .no-photo svg { margin-bottom:6px; opacity:0.5; }
+        .photo-label { font-size:13px; color:var(--color-sub); margin-bottom:6px; font-weight:500; display:block; }
+
+        /* Loading / error */
+        .loading-state { text-align:center; padding:4rem 1rem; color:var(--color-sub); }
+        .spinner-border-custom { width:36px; height:36px; border:3px solid var(--color-divider); border-top-color:#1a6fa8; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .error-banner { background:#fde8e8; color:#b03030; border-radius:8px; padding:10px 16px; font-size:13px; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+        [data-theme="dark"] .error-banner { background:#3a1a1a; color:#e07070; }
+
+        /* Contract head */
+        .contract-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .contract-no { font-family: monospace; font-weight: 700; color: #1a6fa8; font-size:15px; }
+        [data-theme="dark"] .contract-no { color: #6ab8e8; }
+
+        .badge-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+        .badge-status .dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; }
+        .badge-active   { background: #d8f5e8; color: #1a7a50; }
+        .badge-closed   { background: #e4e9ee; color: #5a6b7d; }
+        .badge-overdue  { background: #fde8e8; color: #b03030; }
+        [data-theme="dark"] .badge-active   { background: #1a3a28; color: #4dc886; }
+        [data-theme="dark"] .badge-closed   { background: #28333d; color: #97a7b8; }
+        [data-theme="dark"] .badge-overdue  { background: #3a1a1a; color: #e07070; }
+
+        /* Payment schedule table */
+        .schedule-table { width:100%; border-collapse:collapse; font-size:13px; }
+        .schedule-table thead th { background:var(--bg-input); color:var(--color-sub); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:8px 12px; text-align:left; border-bottom:1px solid var(--color-border); }
+        .schedule-table tbody td { padding:9px 12px; border-bottom:1px solid var(--color-divider); color:var(--color-text); vertical-align:middle; }
+        .schedule-table tbody tr:last-child td { border-bottom:none; }
+        .schedule-table tbody tr:hover td { background: var(--bg-input); }
+
+        .pay-status { font-size:11px; padding:2px 9px; border-radius:14px; font-weight:600; }
+        .pay-status.paid { background:#d8f5e8; color:#1a7a50; }
+        .pay-status.pending { background:#fff0dc; color:#b07000; }
+        .pay-status.overdue { background:#fde8e8; color:#c0392b; }
+        [data-theme="dark"] .pay-status.paid { background:#1a3a28; color:#4dc886; }
+        [data-theme="dark"] .pay-status.pending { background:#3a2e18; color:#f0a830; }
+        [data-theme="dark"] .pay-status.overdue { background:#3a1a1a; color:#e07070; }
+
+        .btn-pay { background:#1a6fa8; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:12.5px; font-weight:600; cursor:pointer; }
+        .btn-pay:hover { background:#155d8e; }
+        .btn-pay:disabled { opacity:0.5; cursor:default; }
+
+        .schedule-empty { text-align:center; padding: 1.5rem; color: var(--color-hint); font-size:13px; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<!-- Main -->
+<div class="container py-4" style="max-width:1000px;">
+
+    <div id="errorBanner" class="error-banner" style="display:none;">
+        <span>⚠️</span><span id="errorBannerText"></span>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loadingState">
+        <div class="spinner-border-custom"></div>
+        <p style="font-size:14px;">Ma'lumotlar yuklanmoqda...</p>
+    </div>
+
+    <div id="pageContent" style="display:none;">
+
+        <!-- Page header -->
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="avatar-icon" id="avatarIcon">—</div>
+            <div>
+                <p class="page-title" id="pageTitle">Shartnoma ma'lumotlari</p>
+                <p class="page-subtitle">Mijoz va shartnoma haqida to'liq ma'lumot</p>
+            </div>
+        </div>
+
+        <!-- ══════ 1-QISM: SHAXSIY MA'LUMOTLAR ══════ -->
+        <div class="main-card mb-4">
+            <div class="part-header">
+                <div class="part-header-left">
+                    <div class="part-number">1</div>
+                    <div>
+                        <p class="part-title">Shaxsiy ma'lumotlar</p>
+                        <p class="part-subtitle">Mijoz va hujjat ma'lumotlari</p>
+                    </div>
+                </div>
+                <button class="btn-primary-c" onclick="alert('Tahrirlash funksiyasi keyinroq qo\'shiladi')">✏️ Tahrirlash</button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 info-row"><div class="info-label">Ism</div><div class="info-value" id="v_ism"></div></div>
+                <div class="col-md-4 info-row"><div class="info-label">Familiya</div><div class="info-value" id="v_familiya"></div></div>
+                <div class="col-md-4 info-row"><div class="info-label">Sharif</div><div class="info-value" id="v_sharif"></div></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 info-row"><div class="info-label">Telefon 1</div><div class="info-value" id="v_tel1"></div></div>
+                <div class="col-md-4 info-row"><div class="info-label">Telefon 2</div><div class="info-value" id="v_tel2"></div></div>
+                <div class="col-md-4 info-row"><div class="info-label">Telefon 3</div><div class="info-value" id="v_tel3"></div></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 info-row"><div class="info-label">Viloyat</div><div class="info-value" id="v_viloyat"></div></div>
+                <div class="col-md-6 info-row"><div class="info-label">Tuman</div><div class="info-value" id="v_tuman"></div></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 info-row"><div class="info-label">Manzil</div><div class="info-value" id="v_manzil"></div></div>
+                <div class="col-md-6 info-row"><div class="info-label">Mo'ljal</div><div class="info-value" id="v_muljal"></div></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 info-row"><div class="info-label">Lokatsiya</div><div class="info-value" id="v_lokatsiya"></div></div>
+                <div class="col-md-6 info-row"><div class="info-label">Passport seriya va raqami</div><div class="info-value" id="v_passport"></div></div>
+            </div>
+
+            <hr class="divider">
+
+            <p class="section-title" style="margin-bottom:14px;">📎 Passport rasmlari</p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <span class="photo-label">Passport rasmi (1-bet)</span>
+                    <div class="photo-box" id="passportPhoto1Box">
+                        <div class="no-photo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
+                            <div>Rasm mavjud emas</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <span class="photo-label">Passport rasmi (2-bet)</span>
+                    <div class="photo-box" id="passportPhoto2Box">
+                        <div class="no-photo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
+                            <div>Rasm mavjud emas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════ 2-QISM: SHARTNOMA ══════ -->
+        <div class="main-card">
+            <div class="part-header">
+                <div class="part-header-left">
+                    <div class="part-number">2</div>
+                    <div>
+                        <p class="part-title">Shartnoma</p>
+                        <p class="part-subtitle">To'lov shartlari va kafolat hujjati</p>
+                    </div>
+                </div>
+                <button class="btn-primary-c" onclick="alert('Yangi shartnoma ochish funksiyasi keyinroq qo\'shiladi')">➕ Yangi shartnoma ochish</button>
+            </div>
+
+            <div class="contract-head mb-3">
+                <span class="contract-no" id="v_contractNo">№—</span>
+                <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:13px;">
+                    <span><span style="color:var(--color-sub)">Summa:</span> <b id="v_summa">—</b></span>
+                    <span><span style="color:var(--color-sub)">Muddat:</span> <b id="v_muddat">—</b></span>
+                </div>
+                <span class="badge-status" id="v_statusBadge"><span class="dot"></span><span id="v_statusLabel">—</span></span>
+            </div>
+
+            <div id="scheduleWrap"></div>
+
+            <hr class="divider" style="margin:1.25rem 0;">
+
+            <p class="section-title" style="margin-bottom:14px;">🛡️ Kafolat xati rasmlari</p>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <span class="photo-label">Kafolat xati (1-bet)</span>
+                    <div class="photo-box" id="kafolatPhoto1Box">
+                        <div class="no-photo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
+                            <div>Rasm mavjud emas</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <span class="photo-label">Kafolat xati (2-bet)</span>
+                    <div class="photo-box" id="kafolatPhoto2Box">
+                        <div class="no-photo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
+                            <div>Rasm mavjud emas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── Theme ──
+    const html = document.documentElement;
+    applyTheme(localStorage.getItem('mb-theme') || 'light');
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('mb-theme', theme);
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if(icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        if(label) label.textContent = theme === 'dark' ? 'Kun' : 'Tun';
+    }
+    function toggleTheme() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    // ── Get shartnoma id from URL ──
+    const params = new URLSearchParams(window.location.search);
+    const shartnomaId = params.get('id');
+
+    function setVal(elId, value){
+        const el = document.getElementById(elId);
+        if(value === undefined || value === null || value === ''){
+            el.textContent = '—';
+            el.classList.add('empty');
+        } else {
+            el.textContent = value;
+            el.classList.remove('empty');
+        }
+    }
+
+    function initialsOf(ism, familiya){
+        return (ism?.[0]||'') + (familiya?.[0]||'');
+    }
+
+    function showError(msg){
+        document.getElementById('errorBannerText').textContent = msg;
+        document.getElementById('errorBanner').style.display = 'flex';
+    }
+
+    function badgeInfo(status){
+        if(status === 'Faol')   return { cls:'badge-active',  label:'Faol' };
+        if(status === 'Yopilgan') return { cls:'badge-closed', label:'Yopilgan' };
+        if(status === "Muddati o'tgan") return { cls:'badge-overdue', label:"Muddati o'tgan" };
+        return { cls:'badge-closed', label: status || '—' };
+    }
+
+    function fmtSumma(n){
+        if(n === undefined || n === null || n === '') return '—';
+        return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
+    }
+
+    function payStatusInfo(status){
+        if(status === 'Tolangan' || status === "To'langan") return { cls:'paid', label:"To'langan" };
+        if(status === "Muddati o'tgan" || status === 'Overdue') return { cls:'overdue', label:"Muddati o'tgan" };
+        return { cls:'pending', label:'Kutilmoqda' };
+    }
+
+    function renderPhoto(boxId, photoSrc){
+        const box = document.getElementById(boxId);
+        if(!photoSrc) return; // "rasm mavjud emas" holatida qoladi
+        let src = photoSrc;
+        if(typeof photoSrc === 'object' && photoSrc.id){
+            src = `/admin/fayl/${photoSrc.id}`;
+        } else if(typeof photoSrc === 'number'){
+            src = `/admin/fayl/${photoSrc}`;
+        }
+        box.innerHTML = `<img src="${src}" alt="Hujjat rasmi">`;
+    }
+
+    // ── Render mijoz info ──
+    function renderMijoz(m){
+        m = m || {};
+        setVal('v_ism', m.ism);
+        setVal('v_familiya', m.familiya);
+        setVal('v_sharif', m.sharif);
+        setVal('v_tel1', m.tel1);
+        setVal('v_tel2', m.tel2);
+        setVal('v_tel3', m.tel3);
+        setVal('v_viloyat', m.viloyat);
+        setVal('v_tuman', m.tuman);
+        setVal('v_manzil', m.manzil);
+        setVal('v_muljal', m.muljal);
+        setVal('v_passport', m.passport);
+
+        const lokEl = document.getElementById('v_lokatsiya');
+        if(m.lokatsiya){
+            lokEl.innerHTML = `<a href="${m.lokatsiya}" target="_blank">${m.lokatsiya}</a>`;
+            lokEl.classList.remove('empty');
+        } else if(m.lat && m.lng){
+            lokEl.innerHTML = `<a href="https://maps.google.com/?q=${m.lat},${m.lng}" target="_blank">${m.lat}, ${m.lng}</a>`;
+            lokEl.classList.remove('empty');
+        } else {
+            lokEl.textContent = '—';
+            lokEl.classList.add('empty');
+        }
+
+        document.getElementById('pageTitle').textContent = `${m.familiya||''} ${m.ism||''} ${m.sharif||''}`.trim() || 'Shartnoma ma\'lumotlari';
+        document.getElementById('avatarIcon').textContent = initialsOf(m.ism, m.familiya) || '—';
+
+        renderPhoto('passportPhoto1Box', m.passportRasm || m.passportRasm1);
+        renderPhoto('passportPhoto2Box', m.passportRasm2 || m.katm);
+    }
+
+    // ── Render shartnoma ──
+    function renderShartnoma(c){
+        c = c || {};
+        document.getElementById('v_contractNo').textContent = `№${c.id ?? '—'}`;
+        document.getElementById('v_summa').textContent = fmtSumma(c.summa);
+        document.getElementById('v_muddat').textContent = c.muddat ? c.muddat + ' oy' : '—';
+
+        const b = badgeInfo(c.status);
+        const badgeEl = document.getElementById('v_statusBadge');
+        badgeEl.className = 'badge-status ' + b.cls;
+        document.getElementById('v_statusLabel').textContent = b.label;
+
+        const grafik = c.tolovGrafigi || c.grafik || [];
+        const scheduleWrap = document.getElementById('scheduleWrap');
+
+        if(grafik.length){
+            scheduleWrap.innerHTML = `
+                <table class="schedule-table">
+                    <thead><tr><th>#</th><th>To'lov sanasi</th><th>Summasi</th><th>Holati</th><th></th></tr></thead>
+                    <tbody>
+                        ${grafik.map((g, i) => {
+                const ps = payStatusInfo(g.status || g.holat);
+                const isPaid = ps.cls === 'paid';
+                return `
+                            <tr>
+                                <td>${i+1}</td>
+                                <td>${g.sana || g.date || '—'}</td>
+                                <td>${fmtSumma(g.summa || g.amount)}</td>
+                                <td><span class="pay-status ${ps.cls}">${ps.label}</span></td>
+                                <td><button class="btn-pay" ${isPaid ? 'disabled' : ''} onclick="payInstallment(${g.id ?? "''"})">${isPaid ? "To'landi" : "To'lash"}</button></td>
+                            </tr>`;
+            }).join('')}
+                    </tbody>
+                </table>`;
+        } else {
+            scheduleWrap.innerHTML = `<div class="schedule-empty">To'lov grafigi mavjud emas</div>`;
+        }
+
+        renderPhoto('kafolatPhoto1Box', c.kafolat);
+        renderPhoto('kafolatPhoto2Box', c.kafolat2);
+    }
+
+    function payInstallment(id){
+        alert("To'lov funksiyasi keyinroq qo'shiladi" + (id ? ` (to'lov ID: ${id})` : ''));
+    }
+
+    // ── Load data: bitta endpoint /shartnoma-detail/{id} ──
+    function loadData(){
+        if(!shartnomaId){
+            showError("Shartnoma ID topilmadi (URL'da ?id= parametri yo'q)");
+            document.getElementById('loadingState').style.display = 'none';
+            return;
+        }
+
+        fetch(`/admin/shartnoma-detail/${shartnomaId}`)
+            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+            .then(data => {
+                renderMijoz(data.mijoz);
+                renderShartnoma(data);
+                document.getElementById('pageContent').style.display = 'block';
+            })
+            .catch(err => {
+                console.error(err);
+                showError("Ma'lumotlarni yuklab bo'lmadi. Server xatosi: " + err);
+                renderMijoz({});
+                renderShartnoma({});
+                document.getElementById('pageContent').style.display = 'block';
+            })
+            .finally(() => {
+                document.getElementById('loadingState').style.display = 'none';
+            });
+    }
+
+    loadData();
+</script>
+</body>
+</html>

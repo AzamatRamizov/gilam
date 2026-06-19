@@ -3,6 +3,7 @@ package com.example.gilam888.Service;
 import com.example.gilam888.Configurations.ApiResponse;
 import com.example.gilam888.Dto.MijozDataDto;
 import com.example.gilam888.Dto.MijozRoyxat;
+import com.example.gilam888.Dto.ShartnomaRoyxat;
 import com.example.gilam888.Entity.FaylBayt;
 import com.example.gilam888.Entity.Mijoz;
 import com.example.gilam888.Entity.Shartnoma;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AdminService {
@@ -163,8 +165,27 @@ public class AdminService {
             mijozRoyxat.setPassport(mijoz.getPassport());
             mijozRoyxats.add(mijozRoyxat);
         }
-
-        System.out.println(mijozRoyxats);
         return mijozRoyxats;
+    }
+
+    public Object getShartnomaAll() {
+        List<ShartnomaRoyxat> shartnomaRoyxats=new ArrayList<>();
+
+        for (Shartnoma shartnoma : shartnomaRepository.findAll()) {
+            ShartnomaRoyxat shartnomaRoyxat = new ShartnomaRoyxat();
+            String fish= shartnoma.getMijoz().getIsm()+" " + shartnoma.getMijoz().getFamiliya()+" " + shartnoma.getMijoz().getSharif();
+            shartnomaRoyxat.setFish(fish);
+            shartnomaRoyxat.setId(shartnoma.getId());
+            shartnomaRoyxat.setSumma(shartnoma.getSumma());
+            shartnomaRoyxat.setMuddat(shartnoma.getMuddat());
+            shartnomaRoyxat.setStatus(shartnoma.getStatus());
+            shartnomaRoyxats.add(shartnomaRoyxat);
+        }
+        return shartnomaRoyxats;
+    }
+
+    public Object shartnomaDetail(long id) {
+        Optional<Shartnoma> byId = shartnomaRepository.findById(id);
+        return byId.get();
     }
 }

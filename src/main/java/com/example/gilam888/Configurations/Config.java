@@ -43,6 +43,8 @@ public class Config {
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler((req, res, exc) ->
+                                res.sendRedirect("/admin/dashboard?error=access_denied"))
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
