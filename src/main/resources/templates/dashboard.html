@@ -204,9 +204,90 @@
         /* Progress bar */
         .progress-slim { height: 6px; border-radius: 4px; background: var(--color-divider); overflow: hidden; margin-top: 6px; }
         .progress-fill { height: 100%; border-radius: 4px; background: #1a6fa8; }
+
+        /* ===== ACCESS DENIED TOAST ===== */
+        .toast-container-custom {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast-error {
+            pointer-events: all;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 1px solid #f5c6c6;
+            border-left: 4px solid #c0392b;
+            border-radius: 12px;
+            padding: 14px 16px;
+            min-width: 300px;
+            max-width: 380px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+            animation: slideInRight 0.35s cubic-bezier(.22,.68,0,1.2) both;
+        }
+        [data-theme="dark"] .toast-error {
+            border-color: #5a2a2a;
+            border-left-color: #e07070;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+        }
+        .toast-error.hiding {
+            animation: slideOutRight 0.3s ease forwards;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(60px); }
+        }
+        .toast-icon {
+            width: 36px; height: 36px; border-radius: 9px;
+            background: #fde8e8; color: #c0392b;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        [data-theme="dark"] .toast-icon { background: #3a1a1a; color: #e07070; }
+        .toast-title {
+            font-size: 14px; font-weight: 700;
+            color: var(--color-text); margin: 0 0 2px;
+        }
+        .toast-msg {
+            font-size: 12px; color: var(--color-sub); margin: 0;
+        }
+        .toast-close {
+            margin-left: auto; background: none; border: none;
+            color: var(--color-sub); font-size: 18px; cursor: pointer;
+            padding: 0; line-height: 1; flex-shrink: 0;
+            opacity: 0.6;
+        }
+        .toast-close:hover { opacity: 1; }
+        .toast-progress {
+            position: absolute;
+            bottom: 0; left: 4px;
+            height: 3px; border-radius: 0 0 0 8px;
+            background: #c0392b;
+            animation: shrink 5s linear forwards;
+        }
+        [data-theme="dark"] .toast-progress { background: #e07070; }
+        @keyframes shrink {
+            from { width: calc(100% - 8px); }
+            to   { width: 0; }
+        }
+        /* ===== END TOAST ===== */
     </style>
 </head>
 <body>
+
+<!-- ===== ACCESS DENIED TOAST CONTAINER ===== -->
+<div class="toast-container-custom" id="toastContainer"></div>
+<!-- ===== END TOAST CONTAINER ===== -->
 
 <!-- Navbar -->
 <nav th:replace="~{fragment :: navbar}"></nav>
@@ -219,8 +300,8 @@
             <p class="page-title">📊 Dashboard</p>
             <p class="page-subtitle">Xush kelibsiz! Bugungi holat — <span id="currentDate"></span></p>
         </div>
-        <a href="/admin/katm" class="btn btn-sm" style="background:#1a6fa8;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;">
-            ➕ KATM tekshirish
+        <a href="/admin/add" class="btn btn-sm" style="background:#1a6fa8;color:#fff;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;">
+            ➕ Yangi qo'shish
         </a>
     </div>
 
@@ -286,276 +367,276 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+<!--    <div class="row g-3 mb-4">-->
 
-        <!-- Quick Actions -->
-        <div class="col-lg-4">
-            <div class="main-card h-100">
-                <p class="section-title">⚡ Tezkor harakatlar</p>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <a href="#" class="quick-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
-                            </svg>
-                            Foydalanuvchi qo'sh
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="#" class="quick-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-                            </svg>
-                            Ro'yxatni ko'r
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="#" class="quick-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
-                            </svg>
-                            Statistika
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="#" class="quick-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                            </svg>
-                            Excel eksport
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="#" class="quick-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
-                                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.901-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>
-                            </svg>
-                            Sozlamalar
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="#" class="quick-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
-                            </svg>
-                            Xabar yuborish
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--        &lt;!&ndash; Quick Actions &ndash;&gt;-->
+<!--        <div class="col-lg-4">-->
+<!--            <div class="main-card h-100">-->
+<!--                <p class="section-title">⚡ Tezkor harakatlar</p>-->
+<!--                <div class="row g-2">-->
+<!--                    <div class="col-6">-->
+<!--                        <a href="#" class="quick-btn">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
+<!--                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>-->
+<!--                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>-->
+<!--                            </svg>-->
+<!--                            Foydalanuvchi qo'sh-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                    <div class="col-6">-->
+<!--                        <a href="#" class="quick-btn">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
+<!--                                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>-->
+<!--                            </svg>-->
+<!--                            Ro'yxatni ko'r-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                    <div class="col-6">-->
+<!--                        <a href="#" class="quick-btn">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
+<!--                                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>-->
+<!--                            </svg>-->
+<!--                            Statistika-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                    <div class="col-6">-->
+<!--                        <a href="#" class="quick-btn">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
+<!--                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>-->
+<!--                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>-->
+<!--                            </svg>-->
+<!--                            Excel eksport-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                    <div class="col-6">-->
+<!--                        <a href="#" class="quick-btn">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
+<!--                                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>-->
+<!--                                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.901-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>-->
+<!--                            </svg>-->
+<!--                            Sozlamalar-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                    <div class="col-6">-->
+<!--                        <a href="#" class="quick-btn">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
+<!--                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>-->
+<!--                            </svg>-->
+<!--                            Xabar yuborish-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
-        <!-- Progress / Summary -->
-        <div class="col-lg-4">
-            <div class="main-card h-100">
-                <p class="section-title">📌 Oylik maqsad</p>
+<!--        &lt;!&ndash; Progress / Summary &ndash;&gt;-->
+<!--        <div class="col-lg-4">-->
+<!--            <div class="main-card h-100">-->
+<!--                <p class="section-title">📌 Oylik maqsad</p>-->
 
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
-                        <span>Yangi foydalanuvchilar</span><span style="font-weight:600;">68%</span>
-                    </div>
-                    <div class="progress-slim"><div class="progress-fill" style="width:68%;"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
-                        <span>Faollik darajasi</span><span style="font-weight:600;">79%</span>
-                    </div>
-                    <div class="progress-slim"><div class="progress-fill" style="width:79%; background:#1a9a5a;"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
-                        <span>Arizalar hal qilindi</span><span style="font-weight:600;">45%</span>
-                    </div>
-                    <div class="progress-slim"><div class="progress-fill" style="width:45%; background:#c87800;"></div></div>
-                </div>
-                <div class="mb-1">
-                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
-                        <span>Bloklangan kamaydi</span><span style="font-weight:600;">92%</span>
-                    </div>
-                    <div class="progress-slim"><div class="progress-fill" style="width:92%; background:#1a6fa8;"></div></div>
-                </div>
+<!--                <div class="mb-3">-->
+<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
+<!--                        <span>Yangi foydalanuvchilar</span><span style="font-weight:600;">68%</span>-->
+<!--                    </div>-->
+<!--                    <div class="progress-slim"><div class="progress-fill" style="width:68%;"></div></div>-->
+<!--                </div>-->
+<!--                <div class="mb-3">-->
+<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
+<!--                        <span>Faollik darajasi</span><span style="font-weight:600;">79%</span>-->
+<!--                    </div>-->
+<!--                    <div class="progress-slim"><div class="progress-fill" style="width:79%; background:#1a9a5a;"></div></div>-->
+<!--                </div>-->
+<!--                <div class="mb-3">-->
+<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
+<!--                        <span>Arizalar hal qilindi</span><span style="font-weight:600;">45%</span>-->
+<!--                    </div>-->
+<!--                    <div class="progress-slim"><div class="progress-fill" style="width:45%; background:#c87800;"></div></div>-->
+<!--                </div>-->
+<!--                <div class="mb-1">-->
+<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
+<!--                        <span>Bloklangan kamaydi</span><span style="font-weight:600;">92%</span>-->
+<!--                    </div>-->
+<!--                    <div class="progress-slim"><div class="progress-fill" style="width:92%; background:#1a6fa8;"></div></div>-->
+<!--                </div>-->
 
-                <hr style="border-color:var(--color-divider); margin:18px 0 14px;">
-                <p class="section-title">🔔 Tizim holati</p>
-                <div class="d-flex flex-column gap-2" style="font-size:13px;">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span style="color:var(--color-sub);">Server holati</span>
-                        <span class="badge-status badge-active">Ishlayapti</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span style="color:var(--color-sub);">Ma'lumotlar bazasi</span>
-                        <span class="badge-status badge-active">Ulangan</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span style="color:var(--color-sub);">Backup</span>
-                        <span class="badge-status badge-pending">Kutilmoqda</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!--                <hr style="border-color:var(&#45;&#45;color-divider); margin:18px 0 14px;">-->
+<!--                <p class="section-title">🔔 Tizim holati</p>-->
+<!--                <div class="d-flex flex-column gap-2" style="font-size:13px;">-->
+<!--                    <div class="d-flex justify-content-between align-items-center">-->
+<!--                        <span style="color:var(&#45;&#45;color-sub);">Server holati</span>-->
+<!--                        <span class="badge-status badge-active">Ishlayapti</span>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex justify-content-between align-items-center">-->
+<!--                        <span style="color:var(&#45;&#45;color-sub);">Ma'lumotlar bazasi</span>-->
+<!--                        <span class="badge-status badge-active">Ulangan</span>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex justify-content-between align-items-center">-->
+<!--                        <span style="color:var(&#45;&#45;color-sub);">Backup</span>-->
+<!--                        <span class="badge-status badge-pending">Kutilmoqda</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
-        <!-- Recent Activity -->
-        <div class="col-lg-4">
-            <div class="main-card h-100">
-                <p class="section-title">🕐 So'nggi faoliyat</p>
-                <div class="d-flex flex-column gap-3" style="font-size:13px;">
-                    <div class="d-flex gap-3 align-items-start">
-                        <div class="avatar-sm">A</div>
-                        <div>
-                            <div style="font-weight:600; color:var(--color-text);">Alisher Karimov</div>
-                            <div style="color:var(--color-sub);">Yangi hisob yaratildi</div>
-                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">5 daqiqa oldin</div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 align-items-start">
-                        <div class="avatar-sm" style="background:#d8f5e8; color:#1a7a50;">M</div>
-                        <div>
-                            <div style="font-weight:600; color:var(--color-text);">Malika Yusupova</div>
-                            <div style="color:var(--color-sub);">Profil yangilandi</div>
-                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">22 daqiqa oldin</div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 align-items-start">
-                        <div class="avatar-sm" style="background:#fff0dc; color:#b07000;">B</div>
-                        <div>
-                            <div style="font-weight:600; color:var(--color-text);">Bobur Toshmatov</div>
-                            <div style="color:var(--color-sub);">Ariza yuborildi</div>
-                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">1 soat oldin</div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 align-items-start">
-                        <div class="avatar-sm" style="background:#fde8e8; color:#b03030;">Z</div>
-                        <div>
-                            <div style="font-weight:600; color:var(--color-text);">Zulfiya Norova</div>
-                            <div style="color:var(--color-sub);">Hisobot yuklab olindi</div>
-                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">2 soat oldin</div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-3 align-items-start">
-                        <div class="avatar-sm">S</div>
-                        <div>
-                            <div style="font-weight:600; color:var(--color-text);">Sardor Raxmatullayev</div>
-                            <div style="color:var(--color-sub);">Yangi hisob yaratildi</div>
-                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">3 soat oldin</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!--        &lt;!&ndash; Recent Activity &ndash;&gt;-->
+<!--        <div class="col-lg-4">-->
+<!--            <div class="main-card h-100">-->
+<!--                <p class="section-title">🕐 So'nggi faoliyat</p>-->
+<!--                <div class="d-flex flex-column gap-3" style="font-size:13px;">-->
+<!--                    <div class="d-flex gap-3 align-items-start">-->
+<!--                        <div class="avatar-sm">A</div>-->
+<!--                        <div>-->
+<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Alisher Karimov</div>-->
+<!--                            <div style="color:var(&#45;&#45;color-sub);">Yangi hisob yaratildi</div>-->
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">5 daqiqa oldin</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex gap-3 align-items-start">-->
+<!--                        <div class="avatar-sm" style="background:#d8f5e8; color:#1a7a50;">M</div>-->
+<!--                        <div>-->
+<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Malika Yusupova</div>-->
+<!--                            <div style="color:var(&#45;&#45;color-sub);">Profil yangilandi</div>-->
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">22 daqiqa oldin</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex gap-3 align-items-start">-->
+<!--                        <div class="avatar-sm" style="background:#fff0dc; color:#b07000;">B</div>-->
+<!--                        <div>-->
+<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Bobur Toshmatov</div>-->
+<!--                            <div style="color:var(&#45;&#45;color-sub);">Ariza yuborildi</div>-->
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">1 soat oldin</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex gap-3 align-items-start">-->
+<!--                        <div class="avatar-sm" style="background:#fde8e8; color:#b03030;">Z</div>-->
+<!--                        <div>-->
+<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Zulfiya Norova</div>-->
+<!--                            <div style="color:var(&#45;&#45;color-sub);">Hisobot yuklab olindi</div>-->
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">2 soat oldin</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="d-flex gap-3 align-items-start">-->
+<!--                        <div class="avatar-sm">S</div>-->
+<!--                        <div>-->
+<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Sardor Raxmatullayev</div>-->
+<!--                            <div style="color:var(&#45;&#45;color-sub);">Yangi hisob yaratildi</div>-->
+<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">3 soat oldin</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
     <!-- Table -->
-    <div class="main-card">
-        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-            <p class="section-title mb-0">👥 Eng faol foydalanuvchilar</p>
-            <a href="#" style="font-size:13px; color:#1a6fa8; text-decoration:none; font-weight:500;">Barchasi →</a>
-        </div>
-        <div class="table-responsive">
-            <table class="table-custom">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Ism Familiya</th>
-                    <th>Telefon</th>
-                    <th>Manzil</th>
-                    <th>Holat</th>
-                    <th>Sana</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td style="color:var(--color-sub);">1</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm">A</div>
-                            <div>
-                                <div style="font-weight:600;">Alisher Karimov</div>
-                                <div style="font-size:11px; color:var(--color-sub);">alisher@mail.uz</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>+998 90 123 45 67</td>
-                    <td>Toshkent</td>
-                    <td><span class="badge-status badge-active">Faol</span></td>
-                    <td style="color:var(--color-sub);">14.06.2026</td>
-                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>
-                </tr>
-                <tr>
-                    <td style="color:var(--color-sub);">2</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm" style="background:#d8f5e8; color:#1a7a50;">M</div>
-                            <div>
-                                <div style="font-weight:600;">Malika Yusupova</div>
-                                <div style="font-size:11px; color:var(--color-sub);">malika@mail.uz</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>+998 91 234 56 78</td>
-                    <td>Samarqand</td>
-                    <td><span class="badge-status badge-active">Faol</span></td>
-                    <td style="color:var(--color-sub);">13.06.2026</td>
-                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>
-                </tr>
-                <tr>
-                    <td style="color:var(--color-sub);">3</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm" style="background:#fff0dc; color:#b07000;">B</div>
-                            <div>
-                                <div style="font-weight:600;">Bobur Toshmatov</div>
-                                <div style="font-size:11px; color:var(--color-sub);">bobur@mail.uz</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>+998 93 345 67 89</td>
-                    <td>Farg'ona</td>
-                    <td><span class="badge-status badge-pending">Kutilmoqda</span></td>
-                    <td style="color:var(--color-sub);">12.06.2026</td>
-                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>
-                </tr>
-                <tr>
-                    <td style="color:var(--color-sub);">4</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm" style="background:#fde8e8; color:#b03030;">Z</div>
-                            <div>
-                                <div style="font-weight:600;">Zulfiya Norova</div>
-                                <div style="font-size:11px; color:var(--color-sub);">zulfiya@mail.uz</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>+998 94 456 78 90</td>
-                    <td>Andijon</td>
-                    <td><span class="badge-status badge-inactive">Bloklangan</span></td>
-                    <td style="color:var(--color-sub);">11.06.2026</td>
-                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>
-                </tr>
-                <tr>
-                    <td style="color:var(--color-sub);">5</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm">S</div>
-                            <div>
-                                <div style="font-weight:600;">Sardor Raxmatullayev</div>
-                                <div style="font-size:11px; color:var(--color-sub);">sardor@mail.uz</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>+998 97 567 89 01</td>
-                    <td>Buxoro</td>
-                    <td><span class="badge-status badge-active">Faol</span></td>
-                    <td style="color:var(--color-sub);">10.06.2026</td>
-                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<!--    <div class="main-card">-->
+<!--        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">-->
+<!--            <p class="section-title mb-0">👥 Eng faol foydalanuvchilar</p>-->
+<!--            <a href="#" style="font-size:13px; color:#1a6fa8; text-decoration:none; font-weight:500;">Barchasi →</a>-->
+<!--        </div>-->
+<!--        <div class="table-responsive">-->
+<!--            <table class="table-custom">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th>#</th>-->
+<!--                    <th>Ism Familiya</th>-->
+<!--                    <th>Telefon</th>-->
+<!--                    <th>Manzil</th>-->
+<!--                    <th>Holat</th>-->
+<!--                    <th>Sana</th>-->
+<!--                    <th></th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tbody>-->
+<!--                <tr>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">1</td>-->
+<!--                    <td>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <div class="avatar-sm">A</div>-->
+<!--                            <div>-->
+<!--                                <div style="font-weight:600;">Alisher Karimov</div>-->
+<!--                                <div style="font-size:11px; color:var(&#45;&#45;color-sub);">alisher@mail.uz</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                    <td>+998 90 123 45 67</td>-->
+<!--                    <td>Toshkent</td>-->
+<!--                    <td><span class="badge-status badge-active">Faol</span></td>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">14.06.2026</td>-->
+<!--                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">2</td>-->
+<!--                    <td>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <div class="avatar-sm" style="background:#d8f5e8; color:#1a7a50;">M</div>-->
+<!--                            <div>-->
+<!--                                <div style="font-weight:600;">Malika Yusupova</div>-->
+<!--                                <div style="font-size:11px; color:var(&#45;&#45;color-sub);">malika@mail.uz</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                    <td>+998 91 234 56 78</td>-->
+<!--                    <td>Samarqand</td>-->
+<!--                    <td><span class="badge-status badge-active">Faol</span></td>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">13.06.2026</td>-->
+<!--                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">3</td>-->
+<!--                    <td>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <div class="avatar-sm" style="background:#fff0dc; color:#b07000;">B</div>-->
+<!--                            <div>-->
+<!--                                <div style="font-weight:600;">Bobur Toshmatov</div>-->
+<!--                                <div style="font-size:11px; color:var(&#45;&#45;color-sub);">bobur@mail.uz</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                    <td>+998 93 345 67 89</td>-->
+<!--                    <td>Farg'ona</td>-->
+<!--                    <td><span class="badge-status badge-pending">Kutilmoqda</span></td>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">12.06.2026</td>-->
+<!--                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">4</td>-->
+<!--                    <td>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <div class="avatar-sm" style="background:#fde8e8; color:#b03030;">Z</div>-->
+<!--                            <div>-->
+<!--                                <div style="font-weight:600;">Zulfiya Norova</div>-->
+<!--                                <div style="font-size:11px; color:var(&#45;&#45;color-sub);">zulfiya@mail.uz</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                    <td>+998 94 456 78 90</td>-->
+<!--                    <td>Andijon</td>-->
+<!--                    <td><span class="badge-status badge-inactive">Bloklangan</span></td>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">11.06.2026</td>-->
+<!--                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">5</td>-->
+<!--                    <td>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <div class="avatar-sm">S</div>-->
+<!--                            <div>-->
+<!--                                <div style="font-weight:600;">Sardor Raxmatullayev</div>-->
+<!--                                <div style="font-size:11px; color:var(&#45;&#45;color-sub);">sardor@mail.uz</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                    <td>+998 97 567 89 01</td>-->
+<!--                    <td>Buxoro</td>-->
+<!--                    <td><span class="badge-status badge-active">Faol</span></td>-->
+<!--                    <td style="color:var(&#45;&#45;color-sub);">10.06.2026</td>-->
+<!--                    <td><a href="#" style="color:#1a6fa8; font-size:12px; text-decoration:none;">Ko'rish</a></td>-->
+<!--                </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
+<!--        </div>-->
+<!--    </div>-->
 
 </div>
 
@@ -580,6 +661,41 @@
     function toggleTheme() {
         applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
+
+    /* ===== TOAST SYSTEM ===== */
+    function showToast(title, msg, autoMs) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast-error';
+        toast.style.position = 'relative';
+        toast.innerHTML =
+            '<div class="toast-icon">🔒</div>' +
+            '<div style="flex:1; min-width:0;">' +
+            '<p class="toast-title">' + title + '</p>' +
+            '<p class="toast-msg">' + msg + '</p>' +
+            '</div>' +
+            '<button class="toast-close" onclick="closeToast(this.closest(\'.toast-error\'))">×</button>' +
+            '<div class="toast-progress" style="animation-duration:' + (autoMs/1000) + 's"></div>';
+        container.appendChild(toast);
+
+        setTimeout(function() { closeToast(toast); }, autoMs);
+    }
+
+    function closeToast(toast) {
+        if (!toast || toast.classList.contains('hiding')) return;
+        toast.classList.add('hiding');
+        setTimeout(function() { toast.remove(); }, 300);
+    }
+
+    /* URL parametrni tekshirish */
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'access_denied') {
+        showToast('Ruxsat yo\'q! 🚫', 'Siz kirmoqchi bo\'lgan sahifaga kirishga ruxsat berilmagan.', 5000);
+        /* URLdan parametrni tozalash (sahifa reload bo'lmaydi) */
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+    }
+    /* ===== END TOAST ===== */
 </script>
 </body>
 </html>

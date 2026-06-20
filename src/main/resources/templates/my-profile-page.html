@@ -149,6 +149,10 @@
             border-color: #1a6fa8;
             box-shadow: 0 0 0 3px rgba(26,111,168,0.12);
         }
+        .form-control-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .form-control-custom.readonly-field {
             background: var(--color-divider);
             color: var(--color-sub);
@@ -197,6 +201,7 @@
         }
         .btn-primary-custom:hover { background: #155d8e; }
         .btn-primary-custom:active { transform: scale(0.98); }
+        .btn-primary-custom:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .btn-danger-custom {
             background: #fde8e8; color: #c0392b;
@@ -232,6 +237,37 @@
         .info-row:last-child { border-bottom: none; }
         .info-label { color: var(--color-sub); font-size: 12px; }
         .info-value { color: var(--color-text); font-weight: 500; }
+
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-divider) 25%, var(--color-border) 50%, var(--color-divider) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 6px;
+            color: transparent !important;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Page-level error banner */
+        .page-error-banner {
+            display: none;
+            background: #fde8e8;
+            border: 1px solid #f5c6c6;
+            border-left: 4px solid #c0392b;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            color: #8b1a1a;
+            font-size: 13px;
+            align-items: center;
+            gap: 10px;
+        }
+        [data-theme="dark"] .page-error-banner {
+            background: #3a1a1a; border-color: #5a2a2a; color: #f0a0a0;
+        }
     </style>
 </head>
 <body>
@@ -253,6 +289,12 @@
         </a>
     </div>
 
+    <!-- Umumiy xatolik banneri (ma'lumot yuklanmasa) -->
+    <div class="page-error-banner" id="pageErrorBanner">
+        <span style="font-size:18px;">⚠️</span>
+        <span id="pageErrorText">Ma'lumotlarni yuklab bo'lmadi.</span>
+    </div>
+
     <div class="row g-3">
 
         <!-- LEFT: Avatar + read-only info -->
@@ -261,11 +303,12 @@
             <!-- Avatar card -->
             <div class="main-card text-center mb-3">
                 <div class="d-flex justify-content-center mb-3">
-                    <div class="profile-avatar" id="avatarInitials">AK</div>
+                    <div class="profile-avatar skeleton" id="avatarInitials">AK</div>
                 </div>
-                <p style="font-size:18px; font-weight:700; color:var(--color-text); margin:0;" id="displayName">Alisher Karimov</p>
-                <p style="font-size:13px; color:var(--color-sub); margin:4px 0 10px;" id="displayUsername">@alisher_k</p>
-                <span class="badge-role" id="displayRole">Hodim</span>
+                <p style="font-size:18px; font-weight:700; color:var(--color-text); margin:0;" id="displayName"
+                   class="skeleton">Yuklanmoqda...</p>
+                <p style="font-size:13px; color:var(--color-sub); margin:4px 0 10px;" id="displayUsername">@...</p>
+                <span class="badge-role" id="displayRole">...</span>
             </div>
 
             <!-- System info card -->
@@ -273,19 +316,19 @@
                 <p class="section-title">🔒 Tizim ma'lumotlari</p>
                 <div class="info-row">
                     <span class="info-label">Username</span>
-                    <span class="info-value" id="sysUsername">alisher_k</span>
+                    <span class="info-value" id="sysUsername">...</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Rol</span>
-                    <span class="info-value" id="sysRole">Hodim</span>
+                    <span class="info-value" id="sysRole">...</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Ro'yxatdan o'tgan</span>
-                    <span class="info-value">14.06.2026</span>
+                    <span class="info-value" id="sysCreatedAt">—</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">So'nggi kirish</span>
-                    <span class="info-value">Bugun, --:--</span>
+                    <span class="info-value" id="sysLastLogin">—</span>
                 </div>
                 <p class="field-hint mt-2">
                     ⚠️ Username va rol faqat administrator tomonidan o'zgartirilishi mumkin.
@@ -306,29 +349,29 @@
                     <!-- Ism familiya -->
                     <div class="col-sm-6">
                         <label class="form-label-custom">Ism familiya</label>
-                        <input type="text" class="form-control-custom" id="fullName"value="Alisher Karimov"
-                               placeholder="Ism Familiya" oninput="updateDisplay()" />
+                        <input type="text" class="form-control-custom" id="fullName"
+                               placeholder="Ism Familiya" oninput="updateDisplay()" disabled />
                     </div>
 
                     <!-- Telefon -->
                     <div class="col-sm-6">
                         <label class="form-label-custom">Telefon raqam</label>
-                        <input type="tel" class="form-control-custom" id="phone"value="+998 90 123 45 67"
-                               placeholder="+998 90 000 00 00" />
+                        <input type="tel" class="form-control-custom" id="phone"
+                               placeholder="+998 90 000 00 00" disabled />
                     </div>
 
                     <!-- Manzil -->
                     <div class="col-12">
                         <label class="form-label-custom">Manzil</label>
-                        <input type="text" class="form-control-custom" id="address"value="Toshkent, Chilonzor tumani"
-                               placeholder="Shahar, tuman" />
+                        <input type="text" class="form-control-custom" id="address"
+                               placeholder="Shahar, tuman" disabled />
                     </div>
 
                     <!-- Username (readonly) -->
                     <div class="col-sm-6">
                         <label class="form-label-custom">Username</label>
                         <div class="input-wrapper">
-                            <input type="text" class="form-control-custom readonly-field"value="alisher_k" readonly />
+                            <input type="text" class="form-control-custom readonly-field" id="usernameField" readonly />
                             <span class="lock-icon">🔒</span>
                         </div>
                         <p class="field-hint">Tahrirlab bo'lmaydi</p>
@@ -338,7 +381,7 @@
                     <div class="col-sm-6">
                         <label class="form-label-custom">Rol</label>
                         <div class="input-wrapper">
-                            <input type="text" class="form-control-custom readonly-field"value="Admin" readonly />
+                            <input type="text" class="form-control-custom readonly-field" id="roleField" readonly />
                             <span class="lock-icon">🔒</span>
                         </div>
                         <p class="field-hint">Tahrirlab bo'lmaydi</p>
@@ -350,7 +393,8 @@
 
                 <div class="d-flex align-items-center justify-content-end gap-3 flex-wrap">
                     <p class="alert-success-custom mb-0" id="infoSuccess">✅ Ma'lumotlar muvaffaqiyatli saqlandi</p>
-                    <button class="btn-primary-custom" onclick="saveInfo()">
+                    <p class="alert-danger-custom mb-0" id="infoError"></p>
+                    <button class="btn-primary-custom" id="saveInfoBtn" onclick="saveInfo()" disabled>
                         💾 Saqlash
                     </button>
                 </div>
@@ -406,33 +450,18 @@
                         <p class="alert-success-custom mb-0" id="pwdSuccess">✅ Parol muvaffaqiyatli yangilandi</p>
                         <p class="alert-danger-custom mb-0" id="pwdError"></p>
                     </div>
-                    <button class="btn-primary-custom" onclick="changePwd()">
+                    <button class="btn-primary-custom" id="changePwdBtn" onclick="changePwd()">
                         🔑 Parolni yangilash
                     </button>
                 </div>
             </div>
-
-<!--            &lt;!&ndash; Xavfli zona &ndash;&gt;-->
-<!--            <div class="main-card" style="border-color:#f5c6c6;">-->
-<!--                <p class="section-title" style="color:#c0392b;">⚠️ Xavfli zona</p>-->
-<!--                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">-->
-<!--                    <div>-->
-<!--                        <p style="font-size:14px; font-weight:600; color:var(&#45;&#45;color-text); margin:0;">Hisobdan chiqish</p>-->
-<!--                        <p style="font-size:12px; color:var(&#45;&#45;color-sub); margin:2px 0 0;">Barcha qurilmalardan chiqish</p>-->
-<!--                    </div>-->
-<!--                    <button class="btn-danger-custom" onclick="confirmLogout()">-->
-<!--                        🚪 Chiqish-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--            </div>-->
-
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* Theme */
+    /* ============ Theme ============ */
     const html = document.documentElement;
     const saved = localStorage.getItem('mb-theme') || 'light';
     applyTheme(saved);
@@ -449,23 +478,145 @@
         applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
-    /* Update left panel live */
+    /* ============ Profilni yuklash: GET /admin/my-data ============ */
+    document.addEventListener('DOMContentLoaded', loadMyData);
+
+    function loadMyData() {
+        fetch('/admin/my-data', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+            // 'Auth' cookie brauzer tomonidan avtomatik yuboriladi
+        })
+            .then(function (res) {
+                if (res.status === 401 || res.status === 403) {
+                    window.location.href = '/';
+                    return Promise.reject('unauthorized');
+                }
+                if (!res.ok) {
+                    return Promise.reject('Server xatoligi: ' + res.status);
+                }
+                return res.json();
+            })
+            .then(function (data) {
+                fillProfile(data);
+            })
+            .catch(function (err) {
+                if (err === 'unauthorized') return;
+                console.log('my-data xatolik:', err);
+                showPageError("Ma'lumotlarni yuklab bo'lmadi. Sahifani qayta yuklab ko'ring.");
+            });
+    }
+
+    function fillProfile(data) {
+        // input qiymatlari
+        document.getElementById('fullName').value = data.fish || '';
+        document.getElementById('phone').value = data.tel || '';
+        document.getElementById('address').value = data.address || '';
+        document.getElementById('usernameField').value = data.username || '';
+        document.getElementById('roleField').value = data.role || '';
+
+        // tizim ma'lumotlari
+        document.getElementById('sysUsername').textContent = data.username || '—';
+        document.getElementById('sysRole').textContent = data.role || '—';
+        if (data.createdAt) document.getElementById('sysCreatedAt').textContent = data.createdAt;
+        if (data.lastLogin) document.getElementById('sysLastLogin').textContent = data.lastLogin;
+
+        // chap panel
+        document.getElementById('displayUsername').textContent = '@' + (data.username || '');
+        document.getElementById('displayRole').textContent = data.role || '';
+
+        // skeletonlarni olib tashlash
+        var nameEl = document.getElementById('displayName');
+        nameEl.classList.remove('skeleton');
+        var avatarEl = document.getElementById('avatarInitials');
+        avatarEl.classList.remove('skeleton');
+
+        updateDisplayFromValue(data.fish || '');
+
+        // formani yoqish
+        document.getElementById('fullName').disabled = false;
+        document.getElementById('phone').disabled = false;
+        document.getElementById('address').disabled = false;
+        document.getElementById('saveInfoBtn').disabled = false;
+    }
+
+    function showPageError(text) {
+        document.getElementById('pageErrorText').textContent = text;
+        document.getElementById('pageErrorBanner').style.display = 'flex';
+    }
+
+    /* ============ Chap paneldagi ismni jonli yangilash ============ */
     function updateDisplay() {
         const name = document.getElementById('fullName').value.trim();
+        updateDisplayFromValue(name);
+    }
+    function updateDisplayFromValue(name) {
         document.getElementById('displayName').textContent = name || '—';
-        const parts = name.split(' ');
+        const parts = name.split(' ').filter(Boolean);
         const initials = parts.map(p => p[0] || '').join('').toUpperCase().slice(0, 2);
         document.getElementById('avatarInitials').textContent = initials || '?';
     }
 
-    /* Save info */
+    /* ============ Asosiy ma'lumotlarni saqlash: PUT /admin/update-my-data ============ */
     function saveInfo() {
-        const s = document.getElementById('infoSuccess');
-        s.style.display = 'block';
-        setTimeout(() => s.style.display = 'none', 3000);
+        const btn = document.getElementById('saveInfoBtn');
+        const succ = document.getElementById('infoSuccess');
+        const err = document.getElementById('infoError');
+        succ.style.display = 'none';
+        err.style.display = 'none';
+
+        const payload = {
+            username: document.getElementById('usernameField').value.trim(),
+            fish: document.getElementById('fullName').value.trim(),
+            tel: document.getElementById('phone').value.trim(),
+            address: document.getElementById('address').value.trim()
+        };
+
+        if (!payload.fish) {
+            err.textContent = "⚠️ Ism familiya bo'sh bo'lishi mumkin emas";
+            err.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Saqlanmoqda...';
+
+        fetch('/admin/update-my-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(function (res) {
+                if (res.status === 401 || res.status === 403) {
+                    window.location.href = '/';
+                    return Promise.reject('unauthorized');
+                }
+                if (!res.ok) {
+                    return res.json().catch(function () { return {}; }).then(function (body) {
+                        return Promise.reject(body.message || ('Xatolik: ' + res.status));
+                    });
+                }
+                return res.json().catch(function () { return {}; });
+            })
+            .then(function (data) {
+                if (data && (data.fish || data.tel || data.address)) {
+                    fillProfile(data);
+                }
+                succ.style.display = 'block';
+                setTimeout(function () { succ.style.display = 'none'; }, 3000);
+            })
+            .catch(function (msg) {
+                if (msg === 'unauthorized') return;
+                err.textContent = '⚠️ ' + msg;
+                err.style.display = 'block';
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.innerHTML = '💾 Saqlash';
+            });
     }
 
-    /* Toggle password visibility */
+    /* ============ Parolni ko'rsatish/yashirish ============ */
     function togglePwd(id, icon) {
         const inp = document.getElementById(id);
         if (inp.type === 'password') {
@@ -477,7 +628,7 @@
         }
     }
 
-    /* Password strength */
+    /* ============ Parol kuchliligi ============ */
     function checkStrength() {
         const val = document.getElementById('newPwd').value;
         const bar = document.getElementById('strengthBar');
@@ -500,7 +651,7 @@
         lbl.textContent = levels[score].text;
     }
 
-    /* Match check */
+    /* ============ Mos kelishini tekshirish ============ */
     function checkMatch() {
         const n = document.getElementById('newPwd').value;
         const c = document.getElementById('confPwd').value;
@@ -515,11 +666,13 @@
         }
     }
 
-    /* Change password */
+    /* ============ Parolni almashtirish: PUT /admin/change-my-password ============ */
     function changePwd() {
+        const btn = document.getElementById('changePwdBtn');
         const old  = document.getElementById('oldPwd').value;
         const n    = document.getElementById('newPwd').value;
         const c    = document.getElementById('confPwd').value;
+        const username    = document.getElementById('usernameField').value.trim();
         const succ = document.getElementById('pwdSuccess');
         const err  = document.getElementById('pwdError');
 
@@ -539,22 +692,48 @@
             err.style.display = 'block'; return;
         }
 
-        /* Success */
-        succ.style.display = 'block';
-        document.getElementById('oldPwd').value = '';
-        document.getElementById('newPwd').value = '';
-        document.getElementById('confPwd').value = '';
-        document.getElementById('strengthBar').style.width = '0';
-        document.getElementById('strengthLabel').textContent = '';
-        document.getElementById('matchMsg').textContent = '';
-        setTimeout(() => succ.style.display = 'none', 3000);
-    }
+        btn.disabled = true;
+        btn.textContent = '⏳ Yangilanmoqda...';
 
-    /* Logout */
-    function confirmLogout() {
-        if (confirm('Haqiqatan ham chiqmoqchimisiz?')) {
-            window.location.href = '/logout';
-        }
+        fetch('/admin/change-my-password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                oldPassword: old,
+                password: n,
+                username: username
+            })
+        })
+            .then(function (res) {
+                if (res.status === 401 || res.status === 403) {
+                    window.location.href = '/';
+                    return Promise.reject('unauthorized');
+                }
+                return res.json().catch(function () { return {}; }).then(function (body) {
+                    if (!res.ok) return Promise.reject(body.message || ('Xatolik: ' + res.status));
+                    return body;
+                });
+            })
+            .then(function (data) {
+                succ.textContent = '✅ ' + (data.message || 'Parol muvaffaqiyatli yangilandi');
+                succ.style.display = 'block';
+                document.getElementById('oldPwd').value = '';
+                document.getElementById('newPwd').value = '';
+                document.getElementById('confPwd').value = '';
+                document.getElementById('strengthBar').style.width = '0';
+                document.getElementById('strengthLabel').textContent = '';
+                document.getElementById('matchMsg').textContent = '';
+                setTimeout(function () { succ.style.display = 'none'; }, 3000);
+            })
+            .catch(function (msg) {
+                if (msg === 'unauthorized') return;
+                err.textContent = '⚠️ ' + msg;
+                err.style.display = 'block';
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.innerHTML = '🔑 Parolni yangilash';
+            });
     }
 </script>
 </body>

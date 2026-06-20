@@ -323,9 +323,9 @@
             <label class="form-label">Sotilgan do'kon</label>
             <select class="form-select" id="category">
                 <option value="0" selected disabled>Magazinni tanlang...</option>
-                <option value="3">11-qator</option>
-                <option value="1">Zomin</option>
-                <option value="2">Darvoza</option>
+<!--                <option value="3">11-qator</option>-->
+<!--                <option value="1">Zomin</option>-->
+<!--                <option value="2">Darvoza</option>-->
             </select>
         </div>
         <div class="row g-3 mb-3">
@@ -416,6 +416,19 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    const GET_MAGAZINLAR_URL = '/admin/get-magazinlar';
+    function loadMagazinlar(){
+        $.get(GET_MAGAZINLAR_URL, function(data){
+            const select = $('#category');
+            select.find('option:not(:first)').remove();
+            (data || []).forEach(function(m){
+                select.append(`<option value="${m.id}">${m.nomi}</option>`);
+            });
+        }).fail(function(){
+            console.error("Magazinlar ro'yxatini yuklab bo'lmadi");
+        });
+    }
+    loadMagazinlar();
     // ── Theme ──
     const html = document.documentElement;
     applyTheme(localStorage.getItem('mb-theme') || 'light');

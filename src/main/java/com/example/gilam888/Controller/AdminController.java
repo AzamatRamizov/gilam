@@ -3,12 +3,14 @@ package com.example.gilam888.Controller;
 import com.example.gilam888.Configurations.ApiResponse;
 import com.example.gilam888.Dto.MijozDataDto;
 import com.example.gilam888.Entity.FaylBayt;
+import com.example.gilam888.Entity.Magazin;
 import com.example.gilam888.Entity.Users;
 import com.example.gilam888.Repository.FaylBaytRepository;
 import com.example.gilam888.Repository.MijozRepository;
 import com.example.gilam888.Repository.UsersRepository;
 import com.example.gilam888.Service.AdminService;
 import com.example.gilam888.Service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,7 @@ public class AdminController {
         this.faylBaytRepository = faylBaytRepository;
     }
 
-    @PreAuthorize("hasRole('owner')")
+//    @PreAuthorize("hasRole('owner')")
     @GetMapping("/dashboard")
     public String admin(){
         return "dashboard";
@@ -138,13 +140,43 @@ public class AdminController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fayl.getOriginalNomi() + "\"")
                 .body(fayl.getBayt());
     }
-//    public ResponseEntity<byte[]> getFile(@PathVariable long id) {
-//
-//        FaylBayt fayl = faylBaytRepository.findById(id).orElseThrow();
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.IMAGE_JPEG)
-//                .body(fayl.getBayt());
-//    }
+
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/magazin")
+    public String magazin(){
+        return "magazin";
+    }
+
+    @PreAuthorize("hasRole('owner')")
+    @PostMapping("/add-magazin")
+    public ResponseEntity<?> addMagazin(@RequestBody Magazin magazin){
+        ApiResponse apiResponse=adminService.addMagazine(magazin);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
+
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/magazin-all")
+    public ResponseEntity<?> magazinAll(){
+        return ResponseEntity.ok(adminService.getMagazinAll());
+    }
+
+    @GetMapping("/my-data")
+    public ResponseEntity<?> myData(HttpServletRequest request){
+        return ResponseEntity.ok(adminService.getMydata(request));
+    }
+    @PostMapping("/update-my-data")
+    public ResponseEntity<?> updateMyData(@RequestBody Users user){
+        ApiResponse apiResponse=adminService.updateMyData(user);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
+    @PostMapping("/change-my-password")
+    public ResponseEntity<?> changePassword(@RequestBody Users users){
+        ApiResponse apiResponse=adminService.changePassword(users);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
+    @GetMapping("/get-magazinlar")
+    public ResponseEntity<?> magazinlar(){
+        return ResponseEntity.ok(adminService.getMagazinlar());
+    }
 
 }

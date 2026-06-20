@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Magazinlar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --bg-sidebar:    #1a6fa8;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --color-hint:    #90b8cc;
+            --bg-input:      #f5fafd;
+            --bg-input-grp:  #daeef9;
+            --transition: 0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --bg-sidebar:    #0e3f60;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --color-hint:    #4a7a94;
+            --bg-input:      #1c2f40;
+            --bg-input-grp:  #1a3048;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+
+        /* Navbar (shared) */
+        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #fff !important; letter-spacing: -0.3px; }
+        .navbar-brand .logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .navbar-brand span { color: #a8dcf5; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.88) !important; font-size: 14px; font-weight: 500; padding: 20px 14px !important; border-bottom: 2px solid transparent; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #fff !important; border-bottom-color: rgba(255,255,255,0.6); }
+        .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+        /* Stat cards */
+        .stat-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 20px 22px; box-shadow: 0 2px 10px rgba(26,111,168,0.07); display: flex; align-items: center; gap: 16px; }
+        [data-theme="dark"] .stat-card { box-shadow: 0 2px 14px rgba(0,0,0,0.2); }
+        .stat-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+        .stat-icon.blue { background: #dbeeff; color: #1a6fa8; }
+        [data-theme="dark"] .stat-icon.blue { background: #1a3a5c; color: #6ab8e8; }
+        .stat-value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--color-text); }
+        .stat-label { font-size: 12px; color: var(--color-sub); margin-top: 3px; }
+
+        .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(26,111,168,0.07); }
+        [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
+
+        .page-title { font-size: 22px; font-weight: 700; color: var(--color-text); margin: 0; }
+        .page-subtitle { font-size: 13px; color: var(--color-sub); margin: 2px 0 0; }
+
+        /* Toolbar */
+        .toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:1.1rem; }
+        .search-box { position:relative; flex:1; min-width:220px; }
+        .search-box input { width:100%; background:#f0f8ff; border:1px solid var(--color-border); border-radius:8px; padding:9px 12px 9px 36px; font-size:14px; color:var(--color-text); outline:none; }
+        [data-theme="dark"] .search-box input { background:#1a3048; }
+        .search-box input:focus { border-color:#1a6fa8; box-shadow:0 0 0 3px rgba(26,111,168,0.12); }
+        .search-box input::placeholder { color: var(--color-hint); }
+        .search-box svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--color-sub); }
+        .btn-add { background:#1a6fa8; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; cursor:pointer; white-space:nowrap; }
+        .btn-add:hover { background:#155d8e; color:#fff; }
+        .btn-refresh { background:#f0f8ff; border:1px solid var(--color-border); border-radius:8px; padding:9px 12px; font-size:13px; color:#1a6fa8; cursor:pointer; }
+        [data-theme="dark"] .btn-refresh { background:#1a3048; }
+        .btn-refresh:hover { background:#dbeeff; }
+        [data-theme="dark"] .btn-refresh:hover { background:#1e3d5c; }
+        .btn-refresh.spinning svg { animation: spin 0.7s linear; }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+        /* Table */
+        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+        .table-custom thead th { background: #f0f8ff; color: #1a6fa8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+        [data-theme="dark"] .table-custom thead th { background: #1a3048; color: #6ab8e8; }
+        .table-custom tbody td { padding: 11px 14px; border-bottom: 1px solid var(--color-divider); color: var(--color-text); vertical-align: middle; }
+        .table-custom tbody tr:last-child td { border-bottom: none; }
+        .table-custom tbody tr:hover td { background: #f4f9fd; }
+        [data-theme="dark"] .table-custom tbody tr:hover td { background: #1a2e3e; }
+
+        .avatar-sm { width: 34px; height: 34px; border-radius: 8px; background: #dbeeff; color: #1a6fa8; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+        [data-theme="dark"] .avatar-sm { background: #1a3a5c; color: #6ab8e8; }
+
+        .empty-state { text-align:center; padding:3rem 1rem; color:var(--color-sub); }
+        .empty-state svg { opacity:.35; margin-bottom:10px; }
+
+        .loading-state { text-align:center; padding:3rem 1rem; color:var(--color-sub); }
+        .spinner-border-custom { width:32px; height:32px; border:3px solid var(--color-divider); border-top-color:#1a6fa8; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+
+        .error-banner { background:#fde8e8; color:#b03030; border-radius:8px; padding:10px 16px; font-size:13px; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+        [data-theme="dark"] .error-banner { background:#3a1a1a; color:#e07070; }
+
+        /* Modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center; padding: 16px; }
+        .modal-overlay.show { display:flex; }
+        .modal-box { background:var(--bg-card); border-radius:14px; padding:1.8rem; max-width:440px; width:100%; box-shadow:0 8px 40px rgba(0,0,0,0.2); }
+        .modal-title { font-size:17px; font-weight:700; color:var(--color-text); margin:0 0 1.2rem; display:flex; align-items:center; gap:8px; }
+
+        .form-label { font-size: 13px; color: var(--color-sub); margin-bottom: 5px; font-weight: 500; }
+        .form-control { font-size: 14px; border: 1px solid var(--color-border); border-radius: 8px; padding: 9px 12px; color: var(--color-text); background-color: var(--bg-input); }
+        .form-control:focus { border-color: #1a6fa8; box-shadow: 0 0 0 3px rgba(26,111,168,0.14); background-color: var(--bg-card); color: var(--color-text); }
+        .form-control::placeholder { color: var(--color-hint); }
+        .input-group-text { background: var(--bg-input-grp); border: 1px solid var(--color-border); color: #1a6fa8; font-size: 15px; border-radius: 8px 0 0 8px; }
+        [data-theme="dark"] .input-group-text { color: #5ab4dc; }
+        .input-group .form-control { border-radius: 0 8px 8px 0; }
+        .required-star { color: #e05555; margin-left: 2px; }
+
+        .btn-save-form { background:#1a6fa8; color:#fff; border:none; border-radius:8px; padding:9px 22px; font-size:14px; font-weight:600; cursor:pointer; }
+        .btn-save-form:hover { background:#155d8e; }
+        .btn-save-form:disabled { opacity:0.6; cursor:default; }
+        .btn-cancel-form { background:var(--bg-input); color:var(--color-text); border:1px solid var(--color-border); border-radius:8px; padding:9px 18px; font-size:14px; cursor:pointer; }
+
+        .form-msg { font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:14px; display:none; }
+        .form-msg.show { display:block; }
+        .form-msg.error { background:#fde8e8; color:#b03030; }
+        [data-theme="dark"] .form-msg.error { background:#3a1a1a; color:#e07070; }
+        .form-msg.success { background:#d8f5e8; color:#1a7a50; }
+        [data-theme="dark"] .form-msg.success { background:#1a3a28; color:#4dc886; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<!-- Main -->
+<div class="container-fluid px-4 py-4">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <p class="page-title">🏬 Magazinlar</p>
+            <p class="page-subtitle">Tizimga ulangan barcha magazinlar ro'yxati</p>
+        </div>
+        <button class="btn-add" onclick="openAddModal()">➕ Yangi magazin qo'shish</button>
+    </div>
+
+    <!-- Stat Card -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-15A.5.5 0 0 1 0 4.5v-3Zm0 5.5A.5.5 0 0 1 .5 6h15a.5.5 0 0 1 .5.5V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7Zm5 1.5v6h6v-6H5Z"/></svg>
+                </div>
+                <div>
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Jami magazinlar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table card -->
+    <div class="main-card">
+
+        <div id="errorBanner" class="error-banner" style="display:none;">
+            <span>⚠️</span><span id="errorBannerText"></span>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="search-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.598 1.04a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Magazin nomi yoki manzil bo'yicha qidirish..." oninput="renderTable()">
+            </div>
+            <button class="btn-refresh" id="refreshBtn" onclick="loadMagazinlar()" title="Yangilash">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-state" id="loadingState">
+            <div class="spinner-border-custom"></div>
+            <p style="font-size:14px;">Magazinlar yuklanmoqda...</p>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive" id="tableWrap" style="display:none;">
+            <table class="table-custom">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Magazin nomi</th>
+                    <th>Manzil</th>
+                </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 1.5A.5.5 0 0 1 .5 1h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-15A.5.5 0 0 1 0 4.5v-3Zm0 5.5A.5.5 0 0 1 .5 6h15a.5.5 0 0 1 .5.5V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7Zm5 1.5v6h6v-6H5Z"/>
+                </svg>
+                <p style="margin-top:8px;font-size:14px;">Magazin topilmadi</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal-overlay" id="addModal" onclick="closeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <p class="modal-title">➕ Yangi magazin qo'shish</p>
+
+        <div class="form-msg" id="formMsg"></div>
+
+        <div class="mb-3">
+            <label class="form-label">Magazin nomi <span class="required-star">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1h15a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-15A.5.5 0 0 1 0 4.5v-3Zm0 5.5A.5.5 0 0 1 .5 6h15a.5.5 0 0 1 .5.5V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7Zm5 1.5v6h6v-6H5Z"/></svg>
+                </span>
+                <input type="text" id="nomi" class="form-control" placeholder="Masalan: Zomin filiali">
+            </div>
+        </div>
+
+        <div class="mb-1">
+            <label class="form-label">Manzil <span class="required-star">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/><path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+                </span>
+                <input type="text" id="manzil" class="form-control" placeholder="Shahar, ko'cha, uy raqami">
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button class="btn-cancel-form" onclick="closeModal()">Bekor qilish</button>
+            <button class="btn-save-form" id="saveBtn" onclick="saveForm()">💾 Saqlash</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── Theme ──
+    const html = document.documentElement;
+    applyTheme(localStorage.getItem('mb-theme') || 'light');
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('mb-theme', theme);
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if(icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        if(label) label.textContent = theme === 'dark' ? 'Kun' : 'Tun';
+    }
+    function toggleTheme() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    const LIST_URL = '/admin/magazin-all';
+    const ADD_URL = '/admin/add-magazin';
+
+    const AVATAR_COLORS = [
+        {bg:'#dbeeff', c:'#1a6fa8'}, {bg:'#d8f5e8', c:'#1a7a50'}, {bg:'#fff0dc', c:'#b07000'},
+        {bg:'#e8ddfb', c:'#6b3fc8'}, {bg:'#ffe4ef', c:'#c8447a'}, {bg:'#dcf7f0', c:'#0f9b8e'}
+    ];
+    function rndColor(i){ return AVATAR_COLORS[(i||0) % AVATAR_COLORS.length]; }
+
+    let magazinlar = [];
+
+    function showError(msg){
+        document.getElementById('errorBannerText').textContent = msg;
+        document.getElementById('errorBanner').style.display = 'flex';
+    }
+    function hideError(){
+        document.getElementById('errorBanner').style.display = 'none';
+    }
+
+    // ── Load: GET /admin/magazin-all ──
+    function loadMagazinlar(){
+        const refreshBtn = document.getElementById('refreshBtn');
+        refreshBtn.classList.add('spinning');
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('tableWrap').style.display = 'none';
+        hideError();
+
+        fetch(LIST_URL)
+            .then(res => {
+                if(!res.ok) throw new Error(`Server xatosi: ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                magazinlar = Array.isArray(data) ? data : [];
+                document.getElementById('statTotal').textContent = magazinlar.length;
+                renderTable();
+                document.getElementById('tableWrap').style.display = 'block';
+            })
+            .catch(err => {
+                console.error(err);
+                showError("Magazinlarni yuklab bo'lmadi: " + err.message);
+                magazinlar = [];
+                document.getElementById('statTotal').textContent = '0';
+            })
+            .finally(() => {
+                document.getElementById('loadingState').style.display = 'none';
+                refreshBtn.classList.remove('spinning');
+            });
+    }
+
+    function renderTable(){
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = magazinlar.filter(m => {
+            const blob = `${m.nomi||''} ${m.manzil||''}`.toLowerCase();
+            return !q || blob.includes(q);
+        });
+
+        const tbody = document.getElementById('tableBody');
+        const empty = document.getElementById('emptyState');
+
+        if(!filtered.length){
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        tbody.innerHTML = filtered.map((m, idx) => {
+            const ac = rndColor(m.id ?? idx);
+            const initial = (m.nomi||'?')[0].toUpperCase();
+            return `
+            <tr>
+                <td style="color:var(--color-sub);">${m.id ?? (idx+1)}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm" style="background:${ac.bg};color:${ac.c}">${initial}</div>
+                        <div style="font-weight:600;">${m.nomi || '—'}</div>
+                    </div>
+                </td>
+                <td>${m.manzil || '<span style="color:var(--color-hint)">—</span>'}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // ── Add modal ──
+    function openAddModal(){
+        document.getElementById('nomi').value = '';
+        document.getElementById('manzil').value = '';
+        document.getElementById('nomi').classList.remove('is-invalid');
+        document.getElementById('manzil').classList.remove('is-invalid');
+        document.getElementById('formMsg').className = 'form-msg';
+        document.getElementById('formMsg').textContent = '';
+        document.getElementById('addModal').classList.add('show');
+    }
+    function closeModal(){
+        document.getElementById('addModal').classList.remove('show');
+    }
+
+    function showMsg(text, type){
+        const msgEl = document.getElementById('formMsg');
+        msgEl.textContent = text;
+        msgEl.className = 'form-msg ' + type + ' show';
+    }
+
+    function saveForm(){
+        const nomi = document.getElementById('nomi').value.trim();
+        const manzil = document.getElementById('manzil').value.trim();
+
+        document.getElementById('formMsg').className = 'form-msg';
+
+        let valid = true;
+        if(!nomi){ document.getElementById('nomi').classList.add('is-invalid'); valid = false; }
+        else document.getElementById('nomi').classList.remove('is-invalid');
+
+        if(!manzil){ document.getElementById('manzil').classList.add('is-invalid'); valid = false; }
+        else document.getElementById('manzil').classList.remove('is-invalid');
+
+        if(!valid){
+            showMsg("Iltimos, * bilan belgilangan maydonlarni to'ldiring", 'error');
+            return;
+        }
+
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
+
+        fetch(ADD_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nomi, manzil })
+        })
+            .then(async res => {
+                const text = await res.text();
+                if(res.ok){
+                    showMsg(text || "Magazin qo'shildi", 'success');
+                    setTimeout(() => {
+                        closeModal();
+                        loadMagazinlar();
+                    }, 700);
+                } else {
+                    showMsg(text || "Xatolik yuz berdi", 'error');
+                }
+            })
+            .catch(err => {
+                showMsg("Server bilan bog'lanishda xatolik: " + err.message, 'error');
+            })
+            .finally(() => {
+                btn.disabled = false; btn.textContent = '💾 Saqlash';
+            });
+    }
+
+    document.querySelectorAll('.form-control').forEach(el=>{
+        el.addEventListener('input', ()=>el.classList.remove('is-invalid'));
+    });
+
+    // ── Init ──
+    loadMagazinlar();
+</script>
+</body>
+</html>

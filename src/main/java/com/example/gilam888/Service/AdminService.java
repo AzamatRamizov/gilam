@@ -1,17 +1,15 @@
 package com.example.gilam888.Service;
 
 import com.example.gilam888.Configurations.ApiResponse;
+import com.example.gilam888.Configurations.TokenGenerator;
 import com.example.gilam888.Dto.MijozDataDto;
 import com.example.gilam888.Dto.MijozRoyxat;
+import com.example.gilam888.Dto.Nomlar;
 import com.example.gilam888.Dto.ShartnomaRoyxat;
-import com.example.gilam888.Entity.FaylBayt;
-import com.example.gilam888.Entity.Mijoz;
-import com.example.gilam888.Entity.Shartnoma;
-import com.example.gilam888.Entity.Users;
-import com.example.gilam888.Repository.FaylBaytRepository;
-import com.example.gilam888.Repository.MijozRepository;
-import com.example.gilam888.Repository.ShartnomaRepository;
-import com.example.gilam888.Repository.UsersRepository;
+import com.example.gilam888.Entity.*;
+import com.example.gilam888.Repository.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,13 +27,17 @@ public class AdminService {
     private final MijozRepository mijozRepository;
     private final FaylBaytRepository faylBaytRepository;
     private final ShartnomaRepository shartnomaRepository;
+    private final MagazinRepository magazinRepository;
+    private final TokenGenerator tokenGenerator;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
         this.faylBaytRepository = faylBaytRepository;
         this.shartnomaRepository = shartnomaRepository;
+        this.magazinRepository = magazinRepository;
+        this.tokenGenerator = tokenGenerator;
     }
 
     public ApiResponse addHodim(Users user) {
@@ -187,5 +189,84 @@ public class AdminService {
     public Object shartnomaDetail(long id) {
         Optional<Shartnoma> byId = shartnomaRepository.findById(id);
         return byId.get();
+    }
+
+    public ApiResponse addMagazine(Magazin magazin) {
+        if(magazinRepository.findByNomi(magazin.getNomi()).isPresent()){
+            return new ApiResponse("Bu nomi allaqachon ishlatilgan",false);
+        }
+        Magazin magazin1 = new Magazin();
+        magazin1.setManzil(magazin.getManzil());
+        magazin1.setNomi(magazin.getNomi());
+        magazinRepository.save(magazin1);
+        return new ApiResponse("Magazin qo'shildi",true);
+    }
+
+    public Object getMagazinAll() {
+        return magazinRepository.findAll();
+    }
+
+
+    public Users getMydata(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        String username = null;
+        // Agar header yo‘q bo‘lsa, cookie’dan o‘qish
+        if (header == null || !header.startsWith("Bearer ")) {
+            if (request.getCookies() != null) {
+                for (Cookie c : request.getCookies()) {
+                    if ("Auth".equals(c.getName())) {
+                        header = "Bearer " + c.getValue();
+                    }
+                }
+            }
+        }
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            try {
+                username = tokenGenerator.extractUsername(token);
+            } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+                // Token muddati tugagan, SecurityContext bo'lmaydi
+                System.out.println("JWT expired: " + ex.getMessage());
+            } catch (Exception e) {
+                System.out.println("JWT error: " + e.getMessage());
+            }
+        }
+        if (username != null) {
+            Optional<Users> user = usersRepository.findByUsername(username);
+            return user.get();
+        }
+        return null;
+    }
+
+    public ApiResponse updateMyData(Users user) {
+        Optional<Users> byUsername = usersRepository.findByUsername(user.getUsername());
+//        if(byUsername.isEmpty()){
+//            return new ApiResponse("User topilmadi",false);
+//        }
+        Users users = byUsername.get();
+        users.setFish(user.getFish());
+        users.setAddress(user.getAddress());
+        users.setTel(user.getTel());
+        users.setIzoh(user.getIzoh());
+        usersRepository.save(users);
+        return new ApiResponse("Muvaffaqiyatli o'zgartirildi",true);
+    }
+
+    public ApiResponse changePassword(Users users) {
+        Users users1 = usersRepository.findByUsername(users.getUsername()).get();
+        users1.setPassword(passwordEncoder.encode(users.getPassword()));
+        usersRepository.save(users1);
+        return new ApiResponse("Parol o'zgartirildi",true);
+    }
+
+    public Object getMagazinlar() {
+        List<Nomlar> nomlars = new ArrayList<>();
+        for (Magazin magazin : magazinRepository.findAll()) {
+            Nomlar nomlar = new Nomlar();
+            nomlar.setId(magazin.getId());
+            nomlar.setNomi(magazin.getNomi());
+            nomlars.add(nomlar);
+        }
+        return nomlars;
     }
 }
