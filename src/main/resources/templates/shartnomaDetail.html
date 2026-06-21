@@ -133,6 +133,10 @@
         [data-theme="dark"] .pay-status.pending { background:#3a2e18; color:#f0a830; }
         [data-theme="dark"] .pay-status.overdue { background:#3a1a1a; color:#e07070; }
 
+        .schedule-table td.qolgan-col { font-weight:600; }
+        .schedule-table td.tulangan-col { color: #1a7a50; }
+        [data-theme="dark"] .schedule-table td.tulangan-col { color: #4dc886; }
+
         .btn-pay { background:#1a6fa8; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:12.5px; font-weight:600; cursor:pointer; }
         .btn-pay:hover { background:#155d8e; }
         .btn-pay:disabled { opacity:0.5; cursor:default; }
@@ -339,10 +343,19 @@
         return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
     }
 
-    function payStatusInfo(status){
-        if(status === 'Tolangan' || status === "To'langan") return { cls:'paid', label:"To'langan" };
-        if(status === "Muddati o'tgan" || status === 'Overdue') return { cls:'overdue', label:"Muddati o'tgan" };
+    function payStatusInfo(holat){
+        if(holat === "To'langan") return { cls:'paid', label:"To'langan" };
+        if(holat === "Muddati o'tgan") return { cls:'overdue', label:"Muddati o'tgan" };
         return { cls:'pending', label:'Kutilmoqda' };
+    }
+
+    function fmtDate(sana){
+        if(!sana) return '—';
+        // backend LocalDateTime -> ISO string, masalan "2026-07-15T00:00:00"
+        const d = new Date(sana);
+        if(isNaN(d.getTime())) return sana;
+        const oyNomlari = ['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'];
+        return `${d.getDate()}-${oyNomlari[d.getMonth()]}, ${d.getFullYear()}`;
     }
 
     function renderPhoto(boxId, photoSrc){
@@ -403,22 +416,27 @@
         badgeEl.className = 'badge-status ' + b.cls;
         document.getElementById('v_statusLabel').textContent = b.label;
 
-        const grafik = c.tolovGrafigi || c.grafik || [];
+        const grafik = c.jadvalList || [];
         const scheduleWrap = document.getElementById('scheduleWrap');
 
         if(grafik.length){
             scheduleWrap.innerHTML = `
                 <table class="schedule-table">
-                    <thead><tr><th>#</th><th>To'lov sanasi</th><th>Summasi</th><th>Holati</th><th></th></tr></thead>
+                    <thead><tr><th>#</th><th>To'lov sanasi</th><th>Summasi</th><th>To'langan</th><th>Qolgan</th><th>Holati</th><th></th></tr></thead>
                     <tbody>
                         ${grafik.map((g, i) => {
-                const ps = payStatusInfo(g.status || g.holat);
+                const ps = payStatusInfo(g.holat);
                 const isPaid = ps.cls === 'paid';
+                const summa = Number(g.summa) || 0;
+                const tulangan = Number(g.tulangan) || 0;
+                const qolgan = summa - tulangan;
                 return `
                             <tr>
                                 <td>${i+1}</td>
-                                <td>${g.sana || g.date || '—'}</td>
-                                <td>${fmtSumma(g.summa || g.amount)}</td>
+                                <td>${fmtDate(g.sana)}</td>
+                                <td>${fmtSumma(summa)}</td>
+                                <td class="tulangan-col">${fmtSumma(tulangan)}</td>
+                                <td class="qolgan-col">${fmtSumma(qolgan)}</td>
                                 <td><span class="pay-status ${ps.cls}">${ps.label}</span></td>
                                 <td><button class="btn-pay" ${isPaid ? 'disabled' : ''} onclick="payInstallment(${g.id ?? "''"})">${isPaid ? "To'landi" : "To'lash"}</button></td>
                             </tr>`;
@@ -448,6 +466,7 @@
         fetch(`/admin/shartnoma-detail/${shartnomaId}`)
             .then(r => r.ok ? r.json() : Promise.reject(r.status))
             .then(data => {
+                console.log("Shartnoma ma'lumotlari yuklandi:", data);
                 renderMijoz(data.mijoz);
                 renderShartnoma(data);
                 document.getElementById('pageContent').style.display = 'block';

@@ -2,10 +2,13 @@ package com.example.gilam888.Entity;
 
 import com.example.gilam888.Configurations.AbstractLongEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +22,9 @@ public class Shartnoma extends AbstractLongEntity {
     private Mijoz mijoz;
 
     private String status;
+
+    @ManyToMany
+    List<Jadval> jadvalList;
 
     @ManyToOne
     private FaylBayt kafolat;

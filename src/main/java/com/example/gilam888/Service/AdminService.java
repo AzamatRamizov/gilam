@@ -29,8 +29,9 @@ public class AdminService {
     private final ShartnomaRepository shartnomaRepository;
     private final MagazinRepository magazinRepository;
     private final TokenGenerator tokenGenerator;
+    private final JadvalRepository jadvalRepository;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
@@ -38,6 +39,7 @@ public class AdminService {
         this.shartnomaRepository = shartnomaRepository;
         this.magazinRepository = magazinRepository;
         this.tokenGenerator = tokenGenerator;
+        this.jadvalRepository = jadvalRepository;
     }
 
     public ApiResponse addHodim(Users user) {
@@ -98,6 +100,7 @@ public class AdminService {
         mijoz1.setMuljal(mijoz.getMuljal());
         mijoz1.setPassport(mijoz.getPassport());
 
+
         FaylBayt passportRasm = new FaylBayt();
         passportRasm.setOriginalNomi(passport.getOriginalFilename());
         passportRasm.setHajmiFayl(passport.getSize());
@@ -123,7 +126,19 @@ public class AdminService {
         shartnoma.setSumma(mijoz.getSumma());
         shartnoma.setStatus("ochiq");
         shartnoma.setMuddat(mijoz.getMuddat());
-
+        shartnoma.setCreatedTime(LocalDateTime.now());
+        long tulov=mijoz.getSumma()/mijoz.getMuddat();
+        List<Jadval> jadvalList = new ArrayList<>();
+        for (long i = 0; i < mijoz.getMuddat(); i++) {
+            Jadval jadval = new Jadval();
+            jadval.setSana(LocalDateTime.now().plusMonths(i+1));
+            jadval.setSumma(tulov);
+            jadval.setTulangan(0);
+            jadval.setHolat("To'lanmagan");
+            jadval = jadvalRepository.save(jadval);
+            jadvalList.add(jadval);
+        }
+        shartnoma.setJadvalList(jadvalList);
         FaylBayt kafolatRasm = new FaylBayt();
         kafolatRasm.setOriginalNomi(kafolat.getOriginalFilename());
         kafolatRasm.setHajmiFayl(kafolat.getSize());
@@ -268,5 +283,20 @@ public class AdminService {
             nomlars.add(nomlar);
         }
         return nomlars;
+    }
+
+    public ApiResponse tulov(Long id, long summa, String turi) {
+        Optional<Jadval> byId = jadvalRepository.findById(id);
+        if(byId.isEmpty()){
+            return new ApiResponse("Jadval topilmadi",false);
+        }
+        Jadval jadval = byId.get();
+        jadval.setTulangan(summa);
+        jadval.setTulovSana(LocalDateTime.now());
+        jadval.setTuri(turi);
+        if(summa==jadval.getSumma()){
+            jadval.setHolat("To'langan");
+        }
+        return new ApiResponse("Muvaffaqiyatli tulov qilindi",true);
     }
 }

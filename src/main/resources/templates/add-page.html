@@ -142,6 +142,40 @@
         [data-theme="dark"] .form-msg.error { background:#3a1a1a; color:#e07070; }
         .form-msg.success { background:#d8f5e8; color:#1a7a50; }
         [data-theme="dark"] .form-msg.success { background:#1a3a28; color:#4dc886; }
+
+        /* Print / Share buttons under schedule */
+        .schedule-actions { display:flex; gap:10px; margin-top:14px; }
+        .btn-action {
+            flex:1; display:flex; align-items:center; justify-content:center; gap:7px;
+            border-radius:8px; padding:10px 16px; font-size:13.5px; font-weight:600;
+            border:1px solid var(--color-border); cursor:pointer; background:var(--bg-card); color:var(--color-text);
+        }
+        .btn-action:hover { background:var(--bg-input); }
+        .btn-action.primary { background:#1a6fa8; color:#fff; border-color:#1a6fa8; }
+        .btn-action.primary:hover { background:#155d8e; }
+        .btn-action svg { flex-shrink:0; }
+
+        /* Print-only contract sheet (hidden on screen) */
+        #printArea { display:none; }
+
+        @media print {
+            @page { margin: 12mm; }
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { display:block !important; position:absolute; top:0; left:0; width:100%; padding:20px; }
+            .navbar, .main-card > *:not(#printArea) { display:none !important; }
+        }
+        .print-header { text-align:center; margin-bottom:22px; }
+        .print-header h2 { margin:0 0 4px; font-size:20px; }
+        .print-header p { margin:0; font-size:12px; color:#555; }
+        .print-section { margin-bottom:18px; }
+        .print-section h4 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid #ccc; padding-bottom:6px; margin-bottom:10px; color:#1a6fa8; }
+        .print-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; font-size:13px; }
+        .print-grid div span:first-child { color:#666; display:inline-block; min-width:140px; }
+        .print-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+        .print-table th, .print-table td { border:1px solid #ccc; padding:6px 10px; text-align:left; }
+        .print-table th { background:#f0f0f0; }
+        .print-footer { margin-top:30px; display:flex; justify-content:space-between; font-size:12px; }
     </style>
 </head>
 <body>
@@ -323,9 +357,6 @@
             <label class="form-label">Sotilgan do'kon</label>
             <select class="form-select" id="category">
                 <option value="0" selected disabled>Magazinni tanlang...</option>
-<!--                <option value="3">11-qator</option>-->
-<!--                <option value="1">Zomin</option>-->
-<!--                <option value="2">Darvoza</option>-->
             </select>
         </div>
         <div class="row g-3 mb-3">
@@ -364,6 +395,23 @@
                     </thead>
                     <tbody id="scheduleBody"></tbody>
                 </table>
+
+                <!-- 🖨️ Chop etish va 📤 Yuborish tugmalari -->
+                <div class="schedule-actions">
+                    <button type="button" class="btn-action" onclick="printContract()">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H5zm-3 1.5h2v-1H2v1zm9-1v1h2v-1h-2z"/>
+                        </svg>
+                        Chop etish
+                    </button>
+                    <button type="button" class="btn-action primary" onclick="shareContract()">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                        </svg>
+                        Yuborish
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -413,6 +461,57 @@
     </div>
 </div>
 
+<!-- ══════ Chop etish uchun yashirin shablon ══════ -->
+<div id="printArea">
+    <div class="print-header">
+        <h2>Shartnoma</h2>
+        <p id="print_date"></p>
+    </div>
+
+    <div class="print-section">
+        <h4>Mijoz ma'lumotlari</h4>
+        <div class="print-grid">
+            <div><span>F.I.SH:</span> <b id="p_fish"></b></div>
+            <div><span>Passport:</span> <b id="p_passport"></b></div>
+            <div><span>Telefon:</span> <b id="p_tel1"></b></div>
+            <div><span>Qo'shimcha tel:</span> <b id="p_tel2"></b></div>
+            <div><span>Viloyat / Tuman:</span> <b id="p_region"></b></div>
+            <div><span>Manzil:</span> <b id="p_manzil"></b></div>
+            <div><span>Mo'ljal:</span> <b id="p_muljal"></b></div>
+            <div><span>Do'kon:</span> <b id="p_dokon"></b></div>
+        </div>
+    </div>
+
+    <div class="print-section">
+        <h4>Mahsulot</h4>
+        <p id="p_about" style="font-size:13px;"></p>
+    </div>
+
+    <div class="print-section">
+        <h4>Shartnoma shartlari</h4>
+        <div class="print-grid">
+            <div><span>Summasi:</span> <b id="p_summa"></b></div>
+            <div><span>Foiz:</span> <b id="p_foiz"></b></div>
+            <div><span>Muddat:</span> <b id="p_muddat"></b></div>
+            <div><span>Jami to'lanadigan:</span> <b id="p_jami"></b></div>
+            <div><span>Oylik to'lov:</span> <b id="p_oylik"></b></div>
+        </div>
+    </div>
+
+    <div class="print-section">
+        <h4>To'lov jadvali</h4>
+        <table class="print-table">
+            <thead><tr><th>#</th><th>Sana</th><th>Summa</th></tr></thead>
+            <tbody id="p_scheduleBody"></tbody>
+        </table>
+    </div>
+
+    <div class="print-footer">
+        <div>Sotuvchi imzosi: ______________</div>
+        <div>Xaridor imzosi: ______________</div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -435,8 +534,10 @@
     function applyTheme(theme) {
         html.setAttribute('data-theme', theme);
         localStorage.setItem('mb-theme', theme);
-        document.getElementById('themeIcon').textContent  = theme === 'dark' ? '☀️' : '🌙';
-        document.getElementById('themeLabel').textContent = theme === 'dark' ? 'Kun'  : 'Tun';
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (icon) icon.textContent  = theme === 'dark' ? '☀️' : '🌙';
+        if (label) label.textContent = theme === 'dark' ? 'Kun'  : 'Tun';
     }
     function toggleTheme() {
         applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
@@ -452,8 +553,6 @@
     });
 
     // ── File preview ──
-    // Input butun qutini qoplagani uchun (CSS: position:absolute; inset:0),
-    // qo'shimcha onclick="...click()" KERAK EMAS — aks holda ikki marta ochiladi.
     const uploadedFiles = {}; // id -> File object
 
     function previewFile(event, id){
@@ -495,6 +594,9 @@
         if(v < 1) el.value = 1;
     }
 
+    // Hisoblangan natijalarni saqlab turamiz (chop etish/yuborishda ishlatiladi)
+    let lastCalc = null;
+
     function updateCalc(){
         const summa = parseFloat(document.getElementById('summa').value) || 0;
         const foiz = parseFloat(document.getElementById('foiz').value) || 0;
@@ -503,6 +605,7 @@
         const calcBox = document.getElementById('calcBox');
         if(summa <= 0 || muddat <= 0 || foiz < 0){
             calcBox.style.display = 'none';
+            lastCalc = null;
             return;
         }
         calcBox.style.display = 'block';
@@ -523,6 +626,7 @@
         const oyNomlari = ['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'];
         let rows = '';
         let remaining = jami;
+        const scheduleRows = [];
         for(let i=1; i<=muddat; i++){
             const payDate = new Date(today.getFullYear(), today.getMonth() + i, today.getDate());
             const sana = `${payDate.getDate()}-${oyNomlari[payDate.getMonth()]}, ${payDate.getFullYear()}`;
@@ -530,8 +634,14 @@
             const amount = isLast ? remaining : oylik;
             remaining -= oylik;
             rows += `<tr><td>${i}</td><td>${sana}</td><td>${fmt(amount)}</td></tr>`;
+            scheduleRows.push({ n: i, sana, amount: Math.round(amount) });
         }
         document.getElementById('scheduleBody').innerHTML = rows;
+
+        // Print/Share uchun saqlab qo'yamiz
+        lastCalc = {
+            summa, foiz, muddat, foizSumma, jami, oylik, scheduleRows, fmt
+        };
     }
 
     function clearForm(){
@@ -545,12 +655,125 @@
         document.getElementById('scheduleBody').innerHTML = '';
         document.getElementById('formMsg').className = 'form-msg';
         document.getElementById('formMsg').textContent = '';
+        lastCalc = null;
     }
 
     function showMsg(text, type){
         const msgEl = document.getElementById('formMsg');
         msgEl.textContent = text;
         msgEl.className = 'form-msg ' + type + ' show';
+    }
+
+    // ══════ 🖨️ Chop etish ══════
+    function printContract(){
+        if(!lastCalc){
+            alert("Avval shartnoma summasi, foizi va muddatini to'g'ri kiriting");
+            return;
+        }
+
+        if(!sessionStorage.getItem('printHintShown')){
+            alert("Eslatma: chop etish oynasida \"Ko'proq sozlamalar\" ichidan \"Sarlavhalar va footerlar\"ni o'chiring — shunda sana/URL qatorlari chiqmaydi.");
+            sessionStorage.setItem('printHintShown', '1');
+        }
+
+        const ism = $('#ism').val().trim();
+        const familiya = $('#familiya').val().trim();
+        const sharif = $('#sharif').val().trim();
+        const tel1 = $('#tel1').val().trim();
+        const tel2 = $('#tel2').val().trim();
+        const viloyat = $('#viloyat').val().trim();
+        const tuman = $('#tuman').val().trim();
+        const manzil = $('#manzil').val().trim();
+        const muljal = $('#muljal').val().trim();
+        const passport = $('#passport').val().trim();
+        const about = $('#about').val().trim();
+        const dokonNomi = $('#category option:selected').text();
+
+        document.getElementById('print_date').textContent =
+            'Sana: ' + new Date().toLocaleDateString('uz-UZ');
+        document.getElementById('p_fish').textContent = [familiya, ism, sharif].filter(Boolean).join(' ') || '—';
+        document.getElementById('p_passport').textContent = passport || '—';
+        document.getElementById('p_tel1').textContent = tel1 || '—';
+        document.getElementById('p_tel2').textContent = tel2 || '—';
+        document.getElementById('p_region').textContent = [viloyat, tuman].filter(Boolean).join(' / ') || '—';
+        document.getElementById('p_manzil').textContent = manzil || '—';
+        document.getElementById('p_muljal').textContent = muljal || '—';
+        document.getElementById('p_dokon').textContent = (dokonNomi && dokonNomi !== "Magazinni tanlang...") ? dokonNomi : '—';
+        document.getElementById('p_about').textContent = about || '—';
+
+        const fmt = lastCalc.fmt;
+        document.getElementById('p_summa').textContent = fmt(lastCalc.summa);
+        document.getElementById('p_foiz').textContent = lastCalc.foiz + ' %';
+        document.getElementById('p_muddat').textContent = lastCalc.muddat + ' oy';
+        document.getElementById('p_jami').textContent = fmt(lastCalc.jami);
+        document.getElementById('p_oylik').textContent = fmt(lastCalc.oylik);
+
+        document.getElementById('p_scheduleBody').innerHTML = lastCalc.scheduleRows
+            .map(r => `<tr><td>${r.n}</td><td>${r.sana}</td><td>${fmt(r.amount)}</td></tr>`)
+            .join('');
+
+        window.print();
+    }
+
+    // ══════ 📤 Yuborish (Web Share API — Telegram, SMS va h.k.) ══════
+    function buildScheduleText(){
+        const ism = $('#ism').val().trim();
+        const familiya = $('#familiya').val().trim();
+        const fish = [familiya, ism].filter(Boolean).join(' ') || 'Mijoz';
+
+        if(!lastCalc){
+            return `${fish} uchun shartnoma ma'lumotlari hali to'liq emas.`;
+        }
+
+        const fmt = lastCalc.fmt;
+        let text = `📋 ${fish} — to'lov jadvali\n\n`;
+        text += `Shartnoma summasi: ${fmt(lastCalc.summa)}\n`;
+        text += `Muddat: ${lastCalc.muddat} oy\n`;
+        text += `Jami to'lanadigan: ${fmt(lastCalc.jami)}\n`;
+        text += `Oylik to'lov: ${fmt(lastCalc.oylik)}\n\n`;
+        text += `To'lov jadvali:\n`;
+        lastCalc.scheduleRows.forEach(r=>{
+            text += `${r.n}) ${r.sana} — ${fmt(r.amount)}\n`;
+        });
+        return text;
+    }
+
+    async function shareContract(){
+        if(!lastCalc){
+            alert("Avval shartnoma summasi, foizi va muddatini to'g'ri kiriting");
+            return;
+        }
+
+        const ism = $('#ism').val().trim();
+        const familiya = $('#familiya').val().trim();
+        const fish = [familiya, ism].filter(Boolean).join(' ') || 'Mijoz';
+        const text = buildScheduleText();
+
+        // Web Share API mavjud bo'lsa — qurilmaning standart ulashish oynasi ochiladi
+        // (Telegram, WhatsApp, SMS va h.k. shu yerdan tanlanadi)
+        if(navigator.share){
+            try{
+                await navigator.share({
+                    title: `${fish} — to'lov jadvali`,
+                    text: text
+                });
+            }catch(err){
+                // Foydalanuvchi bekor qilgan bo'lsa, hech narsa qilmaymiz
+                if(err.name !== 'AbortError'){
+                    console.error('Share xatolik:', err);
+                }
+            }
+        } else {
+            // Web Share API qo'llamaydigan brauzerlar uchun zaxira variant:
+            // matnni clipboard'ga nusxalab, foydalanuvchiga xabar beramiz
+            try{
+                await navigator.clipboard.writeText(text);
+                showMsg("Bu brauzerda ulashish oynasi mavjud emas — matn buferga nusxalandi", 'success');
+            }catch(e){
+                // Clipboard ham ishlamasa, oddiy prompt orqali ko'rsatamiz
+                window.prompt("Matnni nusxalang:", text);
+            }
+        }
     }
 
     function saveForm(){

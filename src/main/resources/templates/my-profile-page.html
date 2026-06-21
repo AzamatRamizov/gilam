@@ -406,16 +406,6 @@
 
                 <div class="row g-3">
 
-                    <!-- Joriy parol -->
-                    <div class="col-12">
-                        <label class="form-label-custom">Joriy parol</label>
-                        <div class="input-wrapper">
-                            <input type="password" class="form-control-custom" id="oldPwd"
-                                   placeholder="Joriy parolni kiriting" />
-                            <span class="eye-icon" onclick="togglePwd('oldPwd', this)">👁</span>
-                        </div>
-                    </div>
-
                     <!-- Yangi parol -->
                     <div class="col-sm-6">
                         <label class="form-label-custom">Yangi parol</label>
@@ -557,7 +547,7 @@
         document.getElementById('avatarInitials').textContent = initials || '?';
     }
 
-    /* ============ Asosiy ma'lumotlarni saqlash: PUT /admin/update-my-data ============ */
+    /* ============ Asosiy ma'lumotlarni saqlash: POST /admin/update-my-data ============ */
     function saveInfo() {
         const btn = document.getElementById('saveInfoBtn');
         const succ = document.getElementById('infoSuccess');
@@ -669,22 +659,21 @@
     /* ============ Parolni almashtirish: PUT /admin/change-my-password ============ */
     function changePwd() {
         const btn = document.getElementById('changePwdBtn');
-        const old  = document.getElementById('oldPwd').value;
         const n    = document.getElementById('newPwd').value;
         const c    = document.getElementById('confPwd').value;
-        const username    = document.getElementById('usernameField').value.trim();
+        const username = document.getElementById('usernameField').value.trim();
         const succ = document.getElementById('pwdSuccess');
         const err  = document.getElementById('pwdError');
 
         succ.style.display = 'none';
         err.style.display  = 'none';
 
-        if (!old || !n || !c) {
+        if (!n || !c) {
             err.textContent = '⚠️ Barcha maydonlarni to\'ldiring';
             err.style.display = 'block'; return;
         }
         if (n !== c) {
-            err.textContent = '⚠️ Yangi parollar mos kelmadi';
+            err.textContent = '⚠️ Parollar mos kelmadi';
             err.style.display = 'block'; return;
         }
         if (n.length < 8) {
@@ -699,7 +688,6 @@
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                oldPassword: old,
                 password: n,
                 username: username
             })
@@ -717,7 +705,6 @@
             .then(function (data) {
                 succ.textContent = '✅ ' + (data.message || 'Parol muvaffaqiyatli yangilandi');
                 succ.style.display = 'block';
-                document.getElementById('oldPwd').value = '';
                 document.getElementById('newPwd').value = '';
                 document.getElementById('confPwd').value = '';
                 document.getElementById('strengthBar').style.width = '0';

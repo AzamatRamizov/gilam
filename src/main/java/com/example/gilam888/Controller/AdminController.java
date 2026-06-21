@@ -169,7 +169,7 @@ public class AdminController {
         ApiResponse apiResponse=adminService.updateMyData(user);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
-    @PostMapping("/change-my-password")
+    @PutMapping("/change-my-password")
     public ResponseEntity<?> changePassword(@RequestBody Users users){
         ApiResponse apiResponse=adminService.changePassword(users);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
@@ -178,5 +178,9 @@ public class AdminController {
     public ResponseEntity<?> magazinlar(){
         return ResponseEntity.ok(adminService.getMagazinlar());
     }
-
+    @PutMapping("/tulov/{id}")
+    public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi){
+        ApiResponse apiResponse=adminService.tulov(id,summa,turi);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
 }
