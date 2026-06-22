@@ -2,12 +2,9 @@ package com.example.gilam888.Controller;
 
 import com.example.gilam888.Configurations.ApiResponse;
 import com.example.gilam888.Dto.MijozDataDto;
-import com.example.gilam888.Entity.FaylBayt;
-import com.example.gilam888.Entity.Magazin;
-import com.example.gilam888.Entity.Users;
-import com.example.gilam888.Repository.FaylBaytRepository;
-import com.example.gilam888.Repository.MijozRepository;
-import com.example.gilam888.Repository.UsersRepository;
+import com.example.gilam888.Dto.YaqinJadvalDto;
+import com.example.gilam888.Entity.*;
+import com.example.gilam888.Repository.*;
 import com.example.gilam888.Service.AdminService;
 import com.example.gilam888.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -30,13 +31,17 @@ public class AdminController {
     private final MijozRepository mijozRepository;
     private final UserService userService;
     private final FaylBaytRepository faylBaytRepository;
+    private final JadvalRepository jadvalRepository;
+    private final ShartnomaRepository shartnomaRepository;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
         this.userService = userService;
         this.faylBaytRepository = faylBaytRepository;
+        this.jadvalRepository = jadvalRepository;
+        this.shartnomaRepository = shartnomaRepository;
     }
 
 //    @PreAuthorize("hasRole('owner')")
@@ -129,7 +134,6 @@ public class AdminController {
 
     @GetMapping("/fayl/{id}")
     public ResponseEntity<byte[]> getFayl(@PathVariable Long id) {
-        System.out.println(id);
         Optional<FaylBayt> optional = faylBaytRepository.findById(id);
         if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -182,5 +186,53 @@ public class AdminController {
     public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi){
         ApiResponse apiResponse=adminService.tulov(id,summa,turi);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
+    @GetMapping("/get-last-muddat")
+    public ResponseEntity<?> getLastMuddat(){
+        LocalDate bugun   = LocalDate.now();
+        LocalDateTime oyBoshi  = bugun.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime oyOxiri  = oyBoshi.plusMonths(1);
+
+        List<Jadval> jadvallar = jadvalRepository.findCurrentMonthUnpaid(oyBoshi, oyOxiri);
+
+        List<YaqinJadvalDto> result = new ArrayList<>();
+
+        for (Jadval jadval : jadvallar) {
+            // Shu jadval qaysi shartnomaga tegishli?
+            Shartnoma shartnoma = shartnomaRepository
+                    .findByJadvalListContaining(jadval)
+                    .orElse(null);
+
+            if (shartnoma == null) continue;
+
+            var mijoz = shartnoma.getMijoz();
+            if (mijoz == null) continue;
+
+            String fish = String.join(" ",
+                    nvl(mijoz.getFamiliya()),
+                    nvl(mijoz.getIsm()),
+                    nvl(mijoz.getSharif())
+            ).trim();
+
+            YaqinJadvalDto dto = new YaqinJadvalDto();
+            dto.setJadvalId(jadval.getId());
+            dto.setSumma(jadval.getSumma());
+            dto.setTulangan(jadval.getTulangan());
+            dto.setHolat(jadval.getHolat());
+            dto.setSana(jadval.getSana());
+            dto.setMijozFish(fish);
+            dto.setMijozTel(nvl(mijoz.getTel1()));
+            dto.setShartnomaId(shartnoma.getId());
+            dto.setShartnomaSumma(shartnoma.getSumma());
+            dto.setShartnomaMuddat(shartnoma.getMuddat() + " oy");
+
+            result.add(dto);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    private String nvl(String s) {
+        return s != null ? s : "";
     }
 }

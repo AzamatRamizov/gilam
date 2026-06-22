@@ -367,166 +367,208 @@
         </div>
     </div>
 
-<!--    <div class="row g-3 mb-4">-->
+    <div class="row g-3 mb-4">
+        <div class="main-card mt-3">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <p class="section-title mb-0">⏰ Bu oy to'lov muddati kelganlar</p>
+                    <span id="unpaidBadge" style="display:none; font-size:11px; background:#fde8e8; color:#c0392b; border-radius:20px; padding:2px 10px; font-weight:700;"></span>
+                </div>
+            </div>
 
-<!--        &lt;!&ndash; Quick Actions &ndash;&gt;-->
-<!--        <div class="col-lg-4">-->
-<!--            <div class="main-card h-100">-->
-<!--                <p class="section-title">⚡ Tezkor harakatlar</p>-->
-<!--                <div class="row g-2">-->
-<!--                    <div class="col-6">-->
-<!--                        <a href="#" class="quick-btn">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>-->
-<!--                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>-->
-<!--                            </svg>-->
-<!--                            Foydalanuvchi qo'sh-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                    <div class="col-6">-->
-<!--                        <a href="#" class="quick-btn">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>-->
-<!--                            </svg>-->
-<!--                            Ro'yxatni ko'r-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                    <div class="col-6">-->
-<!--                        <a href="#" class="quick-btn">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>-->
-<!--                            </svg>-->
-<!--                            Statistika-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                    <div class="col-6">-->
-<!--                        <a href="#" class="quick-btn">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>-->
-<!--                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>-->
-<!--                            </svg>-->
-<!--                            Excel eksport-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                    <div class="col-6">-->
-<!--                        <a href="#" class="quick-btn">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>-->
-<!--                                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.901-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>-->
-<!--                            </svg>-->
-<!--                            Sozlamalar-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                    <div class="col-6">-->
-<!--                        <a href="#" class="quick-btn">-->
-<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>-->
-<!--                            </svg>-->
-<!--                            Xabar yuborish-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
+            <div id="unpaidLoading" style="text-align:center; padding:28px 0; color:var(--color-sub); font-size:13px;">
+                ⏳ Yuklanmoqda...
+            </div>
 
-<!--        &lt;!&ndash; Progress / Summary &ndash;&gt;-->
-<!--        <div class="col-lg-4">-->
-<!--            <div class="main-card h-100">-->
-<!--                <p class="section-title">📌 Oylik maqsad</p>-->
+            <div id="unpaidEmpty" style="display:none; text-align:center; padding:28px 0;">
+                <div style="font-size:36px; margin-bottom:8px;">✅</div>
+                <p style="color:var(--color-sub); font-size:13px; margin:0;">Bu oyda muddati kelgan to'lanmagan jadvallar yo'q</p>
+            </div>
 
-<!--                <div class="mb-3">-->
-<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
-<!--                        <span>Yangi foydalanuvchilar</span><span style="font-weight:600;">68%</span>-->
-<!--                    </div>-->
-<!--                    <div class="progress-slim"><div class="progress-fill" style="width:68%;"></div></div>-->
-<!--                </div>-->
-<!--                <div class="mb-3">-->
-<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
-<!--                        <span>Faollik darajasi</span><span style="font-weight:600;">79%</span>-->
-<!--                    </div>-->
-<!--                    <div class="progress-slim"><div class="progress-fill" style="width:79%; background:#1a9a5a;"></div></div>-->
-<!--                </div>-->
-<!--                <div class="mb-3">-->
-<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
-<!--                        <span>Arizalar hal qilindi</span><span style="font-weight:600;">45%</span>-->
-<!--                    </div>-->
-<!--                    <div class="progress-slim"><div class="progress-fill" style="width:45%; background:#c87800;"></div></div>-->
-<!--                </div>-->
-<!--                <div class="mb-1">-->
-<!--                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(&#45;&#45;color-text);">-->
-<!--                        <span>Bloklangan kamaydi</span><span style="font-weight:600;">92%</span>-->
-<!--                    </div>-->
-<!--                    <div class="progress-slim"><div class="progress-fill" style="width:92%; background:#1a6fa8;"></div></div>-->
-<!--                </div>-->
+            <div class="table-responsive" id="unpaidTableWrap" style="display:none;">
+                <table class="table-custom">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mijoz</th>
+                        <th>Telefon</th>
+                        <th>To'lov sanasi</th>
+                        <th>Shartnoma</th>
+                        <th>To'lov summasi</th>
+                        <th>To'langan</th>
+                        <th>Qoldiq</th>
+                        <th>Holat</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="unpaidTableBody"></tbody>
+                </table>
+            </div>
 
-<!--                <hr style="border-color:var(&#45;&#45;color-divider); margin:18px 0 14px;">-->
-<!--                <p class="section-title">🔔 Tizim holati</p>-->
-<!--                <div class="d-flex flex-column gap-2" style="font-size:13px;">-->
-<!--                    <div class="d-flex justify-content-between align-items-center">-->
-<!--                        <span style="color:var(&#45;&#45;color-sub);">Server holati</span>-->
-<!--                        <span class="badge-status badge-active">Ishlayapti</span>-->
-<!--                    </div>-->
-<!--                    <div class="d-flex justify-content-between align-items-center">-->
-<!--                        <span style="color:var(&#45;&#45;color-sub);">Ma'lumotlar bazasi</span>-->
-<!--                        <span class="badge-status badge-active">Ulangan</span>-->
-<!--                    </div>-->
-<!--                    <div class="d-flex justify-content-between align-items-center">-->
-<!--                        <span style="color:var(&#45;&#45;color-sub);">Backup</span>-->
-<!--                        <span class="badge-status badge-pending">Kutilmoqda</span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
+            <div id="unpaidError" style="display:none; background:#fde8e8; border-left:4px solid #c0392b; border-radius:8px; padding:12px 16px; font-size:13px; color:#8b1a1a;">
+                ⚠️ Ma'lumotlarni yuklab bo'lmadi. Sahifani yangilang.
+            </div>
+        </div>
 
-<!--        &lt;!&ndash; Recent Activity &ndash;&gt;-->
-<!--        <div class="col-lg-4">-->
-<!--            <div class="main-card h-100">-->
-<!--                <p class="section-title">🕐 So'nggi faoliyat</p>-->
-<!--                <div class="d-flex flex-column gap-3" style="font-size:13px;">-->
-<!--                    <div class="d-flex gap-3 align-items-start">-->
-<!--                        <div class="avatar-sm">A</div>-->
-<!--                        <div>-->
-<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Alisher Karimov</div>-->
-<!--                            <div style="color:var(&#45;&#45;color-sub);">Yangi hisob yaratildi</div>-->
-<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">5 daqiqa oldin</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="d-flex gap-3 align-items-start">-->
-<!--                        <div class="avatar-sm" style="background:#d8f5e8; color:#1a7a50;">M</div>-->
-<!--                        <div>-->
-<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Malika Yusupova</div>-->
-<!--                            <div style="color:var(&#45;&#45;color-sub);">Profil yangilandi</div>-->
-<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">22 daqiqa oldin</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="d-flex gap-3 align-items-start">-->
-<!--                        <div class="avatar-sm" style="background:#fff0dc; color:#b07000;">B</div>-->
-<!--                        <div>-->
-<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Bobur Toshmatov</div>-->
-<!--                            <div style="color:var(&#45;&#45;color-sub);">Ariza yuborildi</div>-->
-<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">1 soat oldin</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="d-flex gap-3 align-items-start">-->
-<!--                        <div class="avatar-sm" style="background:#fde8e8; color:#b03030;">Z</div>-->
-<!--                        <div>-->
-<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Zulfiya Norova</div>-->
-<!--                            <div style="color:var(&#45;&#45;color-sub);">Hisobot yuklab olindi</div>-->
-<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">2 soat oldin</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="d-flex gap-3 align-items-start">-->
-<!--                        <div class="avatar-sm">S</div>-->
-<!--                        <div>-->
-<!--                            <div style="font-weight:600; color:var(&#45;&#45;color-text);">Sardor Raxmatullayev</div>-->
-<!--                            <div style="color:var(&#45;&#45;color-sub);">Yangi hisob yaratildi</div>-->
-<!--                            <div style="font-size:11px; color:var(&#45;&#45;color-sub); margin-top:2px;">3 soat oldin</div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="main-card h-100">
+                <p class="section-title">⚡ Tezkor harakatlar</p>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="#" class="quick-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                            Foydalanuvchi qo'sh
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="quick-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                            </svg>
+                            Ro'yxatni ko'r
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="quick-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
+                            </svg>
+                            Statistika
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="quick-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                            </svg>
+                            Excel eksport
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="quick-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.901-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>
+                            </svg>
+                            Sozlamalar
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" class="quick-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
+                            </svg>
+                            Xabar yuborish
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress / Summary -->
+        <div class="col-lg-4">
+            <div class="main-card h-100">
+                <p class="section-title">📌 Oylik maqsad</p>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
+                        <span>Yangi foydalanuvchilar</span><span style="font-weight:600;">68%</span>
+                    </div>
+                    <div class="progress-slim"><div class="progress-fill" style="width:68%;"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
+                        <span>Faollik darajasi</span><span style="font-weight:600;">79%</span>
+                    </div>
+                    <div class="progress-slim"><div class="progress-fill" style="width:79%; background:#1a9a5a;"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
+                        <span>Arizalar hal qilindi</span><span style="font-weight:600;">45%</span>
+                    </div>
+                    <div class="progress-slim"><div class="progress-fill" style="width:45%; background:#c87800;"></div></div>
+                </div>
+                <div class="mb-1">
+                    <div class="d-flex justify-content-between" style="font-size:13px; color:var(--color-text);">
+                        <span>Bloklangan kamaydi</span><span style="font-weight:600;">92%</span>
+                    </div>
+                    <div class="progress-slim"><div class="progress-fill" style="width:92%; background:#1a6fa8;"></div></div>
+                </div>
+
+                <hr style="border-color:var(--color-divider); margin:18px 0 14px;">
+                <p class="section-title">🔔 Tizim holati</p>
+                <div class="d-flex flex-column gap-2" style="font-size:13px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="color:var(--color-sub);">Server holati</span>
+                        <span class="badge-status badge-active">Ishlayapti</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="color:var(--color-sub);">Ma'lumotlar bazasi</span>
+                        <span class="badge-status badge-active">Ulangan</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="color:var(--color-sub);">Backup</span>
+                        <span class="badge-status badge-pending">Kutilmoqda</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-lg-4">
+            <div class="main-card h-100">
+                <p class="section-title">🕐 So'nggi faoliyat</p>
+                <div class="d-flex flex-column gap-3" style="font-size:13px;">
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="avatar-sm">A</div>
+                        <div>
+                            <div style="font-weight:600; color:var(--color-text);">Alisher Karimov</div>
+                            <div style="color:var(--color-sub);">Yangi hisob yaratildi</div>
+                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">5 daqiqa oldin</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="avatar-sm" style="background:#d8f5e8; color:#1a7a50;">M</div>
+                        <div>
+                            <div style="font-weight:600; color:var(--color-text);">Malika Yusupova</div>
+                            <div style="color:var(--color-sub);">Profil yangilandi</div>
+                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">22 daqiqa oldin</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="avatar-sm" style="background:#fff0dc; color:#b07000;">B</div>
+                        <div>
+                            <div style="font-weight:600; color:var(--color-text);">Bobur Toshmatov</div>
+                            <div style="color:var(--color-sub);">Ariza yuborildi</div>
+                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">1 soat oldin</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="avatar-sm" style="background:#fde8e8; color:#b03030;">Z</div>
+                        <div>
+                            <div style="font-weight:600; color:var(--color-text);">Zulfiya Norova</div>
+                            <div style="color:var(--color-sub);">Hisobot yuklab olindi</div>
+                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">2 soat oldin</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="avatar-sm">S</div>
+                        <div>
+                            <div style="font-weight:600; color:var(--color-text);">Sardor Raxmatullayev</div>
+                            <div style="color:var(--color-sub);">Yangi hisob yaratildi</div>
+                            <div style="font-size:11px; color:var(--color-sub); margin-top:2px;">3 soat oldin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Table -->
 <!--    <div class="main-card">-->
@@ -638,6 +680,8 @@
 <!--        </div>-->
 <!--    </div>-->
 
+    <!-- ===== Bu oy to'lov muddati kelgan, to'lanmaganlar ===== -->
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -646,6 +690,74 @@
     const d = new Date();
     document.getElementById('currentDate').textContent =
         d.toLocaleDateString('uz-UZ', { year:'numeric', month:'long', day:'numeric' });
+
+    // ===== To'lanmagan jadvallarni yuklash =====
+    function loadUnpaid() {
+        fetch('/admin/get-last-muddat', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                document.getElementById('unpaidLoading').style.display = 'none';
+
+                if (!data || data.length === 0) {
+                    document.getElementById('unpaidEmpty').style.display = 'block';
+                    return;
+                }
+
+                // Badge — nechta ekanini ko'rsatamiz
+                var badge = document.getElementById('unpaidBadge');
+                badge.textContent = data.length + ' ta';
+                badge.style.display = 'inline-block';
+
+                var oyNomlari = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+                var fmt = function(n) {
+                    return Math.round(n).toLocaleString('uz-UZ') + " so'm";
+                };
+                var fmtSana = function(iso) {
+                    var dt = new Date(iso);
+                    return dt.getDate() + '-' + oyNomlari[dt.getMonth()] + ', ' + dt.getFullYear();
+                };
+
+                var rows = '';
+                data.forEach(function(item, i) {
+                    var qoldiq = item.summa - item.tulangan;
+                    var holatClass = item.holat === "tulanmagan" ? 'badge-inactive' : 'badge-pending';
+
+                    rows += '<tr>' +
+                        '<td style="color:var(--color-sub);">' + (i + 1) + '</td>' +
+                        '<td>' +
+                        '<div class="d-flex align-items-center">' +
+                        '<div class="avatar-sm">' + (item.mijozFish ? item.mijozFish[0] : '?') + '</div>' +
+                        '<div style="font-weight:600;">' + (item.mijozFish || '—') + '</div>' +
+                        '</div>' +
+                        '</td>' +
+                        '<td>' + (item.mijozTel || '—') + '</td>' +
+                        '<td>' + fmtSana(item.sana) + '</td>' +
+                        '<td style="color:var(--color-sub);">' + fmt(item.shartnomaSumma) + ' / ' + item.shartnomaMuddat + '</td>' +
+                        '<td style="font-weight:600;">' + fmt(item.summa) + '</td>' +
+                        '<td style="color:#1a9a5a;">' + fmt(item.tulangan) + '</td>' +
+                        '<td style="color:#c0392b; font-weight:600;">' + fmt(qoldiq) + '</td>' +
+                        '<td><span class="badge-status ' + holatClass + '">' + item.holat + '</span></td>' +
+                        '<td><a href="/admin/shartnoma-detail?id=' + item.shartnomaId + '" style="color:#1a6fa8; font-size:12px; text-decoration:none; font-weight:500;">Ko\'rish →</a></td>' +
+                        '</tr>';
+                });
+
+                document.getElementById('unpaidTableBody').innerHTML = rows;
+                document.getElementById('unpaidTableWrap').style.display = 'block';
+            })
+            .catch(function(err) {
+                document.getElementById('unpaidLoading').style.display = 'none';
+                document.getElementById('unpaidError').style.display = 'block';
+                console.error('dashboard-data xatolik:', err);
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUnpaid);
 
     // Theme
     const html = document.documentElement;

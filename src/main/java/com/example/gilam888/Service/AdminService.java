@@ -134,7 +134,7 @@ public class AdminService {
             jadval.setSana(LocalDateTime.now().plusMonths(i+1));
             jadval.setSumma(tulov);
             jadval.setTulangan(0);
-            jadval.setHolat("To'lanmagan");
+            jadval.setHolat("tulanmagan");
             jadval = jadvalRepository.save(jadval);
             jadvalList.add(jadval);
         }
