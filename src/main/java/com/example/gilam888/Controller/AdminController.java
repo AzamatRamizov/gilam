@@ -183,8 +183,8 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getMagazinlar());
     }
     @PutMapping("/tulov/{id}")
-    public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi){
-        ApiResponse apiResponse=adminService.tulov(id,summa,turi);
+    public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi, @RequestParam("sana") LocalDateTime sana, @RequestParam("dokon") Long dokonId){
+        ApiResponse apiResponse=adminService.tulov(id,summa,turi,sana);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
     @GetMapping("/get-last-muddat")

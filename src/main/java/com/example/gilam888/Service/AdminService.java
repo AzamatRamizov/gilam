@@ -285,18 +285,20 @@ public class AdminService {
         return nomlars;
     }
 
-    public ApiResponse tulov(Long id, long summa, String turi) {
+    public ApiResponse tulov(Long id, long summa, String turi, LocalDateTime sana) {
         Optional<Jadval> byId = jadvalRepository.findById(id);
         if(byId.isEmpty()){
             return new ApiResponse("Jadval topilmadi",false);
         }
         Jadval jadval = byId.get();
-        jadval.setTulangan(summa);
-        jadval.setTulovSana(LocalDateTime.now());
+
+        jadval.setTulangan(jadval.getTulangan()+summa);
+        jadval.setTulovSana(sana);
         jadval.setTuri(turi);
-        if(summa==jadval.getSumma()){
-            jadval.setHolat("To'langan");
+        if(jadval.getTulangan()>=jadval.getSumma()){
+            jadval.setHolat("tulangan");
         }
+        jadvalRepository.save(jadval);
         return new ApiResponse("Muvaffaqiyatli tulov qilindi",true);
     }
 }
