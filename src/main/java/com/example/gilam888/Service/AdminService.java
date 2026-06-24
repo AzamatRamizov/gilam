@@ -2,10 +2,7 @@ package com.example.gilam888.Service;
 
 import com.example.gilam888.Configurations.ApiResponse;
 import com.example.gilam888.Configurations.TokenGenerator;
-import com.example.gilam888.Dto.MijozDataDto;
-import com.example.gilam888.Dto.MijozRoyxat;
-import com.example.gilam888.Dto.Nomlar;
-import com.example.gilam888.Dto.ShartnomaRoyxat;
+import com.example.gilam888.Dto.*;
 import com.example.gilam888.Entity.*;
 import com.example.gilam888.Repository.*;
 import jakarta.servlet.http.Cookie;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,12 +124,12 @@ public class AdminService {
         shartnoma.setSumma(mijoz.getSumma());
         shartnoma.setStatus("ochiq");
         shartnoma.setMuddat(mijoz.getMuddat());
-        shartnoma.setCreatedTime(LocalDateTime.now());
+        shartnoma.setCreatedTime(mijoz.getShartnomaSana());
         long tulov=mijoz.getSumma()/mijoz.getMuddat();
         List<Jadval> jadvalList = new ArrayList<>();
         for (long i = 0; i < mijoz.getMuddat(); i++) {
             Jadval jadval = new Jadval();
-            jadval.setSana(LocalDateTime.now().plusMonths(i+1));
+            jadval.setSana(mijoz.getTulovSana().plusMonths(i));
             jadval.setSumma(tulov);
             jadval.setTulangan(0);
             jadval.setHolat("tulanmagan");
@@ -285,7 +283,7 @@ public class AdminService {
         return nomlars;
     }
 
-    public ApiResponse tulov(Long id, long summa, String turi, LocalDateTime sana) {
+    public ApiResponse tulov(Long id, long summa, String turi, LocalDateTime sana, Long dokonId) {
         Optional<Jadval> byId = jadvalRepository.findById(id);
         if(byId.isEmpty()){
             return new ApiResponse("Jadval topilmadi",false);
@@ -295,10 +293,27 @@ public class AdminService {
         jadval.setTulangan(jadval.getTulangan()+summa);
         jadval.setTulovSana(sana);
         jadval.setTuri(turi);
+        jadval.setDokonId(dokonId);
         if(jadval.getTulangan()>=jadval.getSumma()){
             jadval.setHolat("tulangan");
         }
         jadvalRepository.save(jadval);
         return new ApiResponse("Muvaffaqiyatli tulov qilindi",true);
+    }
+
+    public Object getTodayPayment() {
+        LocalDateTime boshi = LocalDate.now().atStartOfDay();           // 2026-06-24T00:00:00
+        LocalDateTime oxiri = boshi.plusDays(1);                        // 2026-06-25T00:00:00
+
+        List<Jadval> bugungiTolovlar = jadvalRepository.findTodayPayments(boshi, oxiri);
+        List<Statistikaga> statistikagas=new ArrayList<>();
+        for (Jadval jadval : bugungiTolovlar) {
+            Statistikaga statistikaga = new Statistikaga();
+            Optional<Magazin> dokon = magazinRepository.findById(jadval.getDokonId());
+            statistikaga.setDokon(dokon.get().getNomi());
+            statistikaga.setTuri(jadval.getTuri());
+            statistikaga.setShartnomaId();
+            statistikaga.setMijoz();
+        }
     }
 }

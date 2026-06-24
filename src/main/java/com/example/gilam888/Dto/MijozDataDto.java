@@ -2,6 +2,8 @@ package com.example.gilam888.Dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class MijozDataDto {
     private String ism;
@@ -20,4 +22,6 @@ public class MijozDataDto {
     private long summa;
     private long foiz;
     private long muddat;
+    private LocalDateTime shartnomaSana;
+    private LocalDateTime tulovSana;
 }

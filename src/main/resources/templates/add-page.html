@@ -353,11 +353,21 @@
             <label class="form-label">Mahsulot haqida</label>
             <textarea id="about" class="form-control" placeholder="Mahsulot nomi" rows="3"></textarea>
         </div>
+        <!-- To'lov sanasi -->
+        <div class="mb-3">
+            <label class="form-label">Shartnoma sanasi <span class="required-star">*</span></label>
+            <input type="datetime-local" id="sana_input" class="form-control">
+        </div>
         <div class="mb-3">
             <label class="form-label">Sotilgan do'kon</label>
             <select class="form-select" id="category">
                 <option value="0" selected disabled>Magazinni tanlang...</option>
             </select>
+        </div>
+        <!-- To'lov sanasi -->
+        <div class="mb-3">
+            <label class="form-label">To'lov sanasi <span class="required-star">*</span></label>
+            <input type="datetime-local" id="tulov_sana_input" class="form-control">
         </div>
         <div class="row g-3 mb-3">
             <div class="col-md-5">
@@ -528,6 +538,28 @@
         });
     }
     loadMagazinlar();
+
+    const now = new Date();
+    const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+    document.getElementById('sana_input').value = localISO;
+
+    const notnow = new Date();
+    notnow.setDate(notnow.getDate() + 1);
+    const localISO2 = new Date(notnow.getTime() - notnow.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+    document.getElementById('tulov_sana_input').value = localISO2;
+    document.getElementById('sana_input').addEventListener('change', function() {
+        if (!this.value) return;
+        const selected = new Date(this.value);
+        selected.setMonth(selected.getMonth() + 1);
+        const localISO = new Date(selected.getTime() - selected.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16);
+        document.getElementById('tulov_sana_input').value = localISO;
+    });
     // ── Theme ──
     const html = document.documentElement;
     applyTheme(localStorage.getItem('mb-theme') || 'light');
@@ -687,6 +719,8 @@
         const muljal = $('#muljal').val().trim();
         const passport = $('#passport').val().trim();
         const about = $('#about').val().trim();
+        const sana= $('#sana_input').val().trim();
+        const shartnomaSana = sana.length === 16 ? sana + ':00' : sana;
         const dokonNomi = $('#category option:selected').text();
 
         document.getElementById('print_date').textContent =
@@ -791,6 +825,10 @@
         const manzil = $('#manzil').val().trim();
         const muljal = $('#muljal').val().trim();
         const passport = $('#passport').val().trim();
+        const sana= $('#sana_input').val().trim();
+        const shartnomaSana = sana.length === 16 ? sana + ':00' : sana;
+        const tsana= $('#tulov_sana_input').val().trim();
+        const tulovSana = tsana.length === 16 ? tsana + ':00' : tsana;
 
         // 2-qism: shartnoma
         const about = $('#about').val().trim();
@@ -842,6 +880,8 @@
             viloyat, tuman, manzil, muljal,
             passport,
             about,
+            shartnomaSana,
+            tulovSana,
             dokonId: category,
             summa: Number(summa),
             foiz: Number(foiz),

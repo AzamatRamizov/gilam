@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Kassa — Gilam888</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --color-hint:    #90b8cc;
+            --bg-input:      #f5fafd;
+            --bg-input-grp:  #daeef9;
+            --accent:        #1a6fa8;
+            --accent-light:  #e8f4fd;
+            --transition:    0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --color-hint:    #4a7a94;
+            --bg-input:      #1c2f40;
+            --bg-input-grp:  #1a3048;
+            --accent-light:  #1a3048;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body { background: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+
+        /* Navbar */
+        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:700; color:#fff !important; }
+        .navbar-brand .logo-icon { width:36px; height:36px; background:rgba(255,255,255,0.18); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+        .navbar-brand .brand-accent { color:#a8dcf5; }
+        .navbar-nav .nav-link { color:rgba(255,255,255,0.88) !important; font-size:14px; font-weight:500; padding:20px 14px !important; border-bottom:2px solid transparent; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color:#fff !important; border-bottom-color:rgba(255,255,255,0.6); }
+        .theme-toggle { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:20px; color:#fff; padding:5px 14px; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px; margin-left:10px; }
+        .theme-toggle:hover { background:rgba(255,255,255,0.25); }
+
+        /* Page header */
+        .page-header { margin-bottom: 1.8rem; }
+        .page-header h1 { font-size:22px; font-weight:700; color:var(--color-text); margin:0 0 3px; }
+        .page-header p  { font-size:13px; color:var(--color-sub); margin:0; }
+
+        /* Period tabs */
+        .period-tabs { display:flex; gap:6px; background:var(--bg-card); border:1px solid var(--color-card-bdr); border-radius:10px; padding:4px; width:fit-content; margin-bottom:1.6rem; }
+        .period-tab { border:none; background:transparent; color:var(--color-sub); font-size:13px; font-weight:500; padding:7px 18px; border-radius:7px; cursor:pointer; transition:all 0.18s; white-space:nowrap; }
+        .period-tab:hover { background:var(--bg-input); color:var(--color-text); }
+        .period-tab.active { background:var(--accent); color:#fff; font-weight:600; }
+
+        /* Stat cards */
+        .stat-card { background:var(--bg-card); border:1px solid var(--color-card-bdr); border-radius:12px; padding:1.3rem 1.5rem; box-shadow:0 2px 10px rgba(26,111,168,0.06); position:relative; overflow:hidden; }
+        [data-theme="dark"] .stat-card { box-shadow:0 2px 14px rgba(0,0,0,0.2); }
+        .stat-card .stat-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; margin-bottom:12px; }
+        .stat-card .stat-label { font-size:11.5px; color:var(--color-sub); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; }
+        .stat-card .stat-value { font-size:22px; font-weight:700; color:var(--color-text); line-height:1; margin-bottom:6px; }
+        .stat-card .stat-value .stat-unit { font-size:13px; font-weight:500; color:var(--color-sub); margin-left:3px; }
+        .stat-card .stat-sub { font-size:12px; color:var(--color-sub); }
+        .stat-card .stat-sub .up   { color:#1a7a50; font-weight:600; }
+        .stat-card .stat-sub .down { color:#c0392b; font-weight:600; }
+        .stat-card::after { content:''; position:absolute; right:-12px; top:-12px; width:72px; height:72px; border-radius:50%; opacity:0.08; }
+
+        .icon-green  { background:#d8f5e8; color:#1a7a50; }
+        .icon-blue   { background:var(--accent-light); color:var(--accent); }
+        .icon-orange { background:#fff0dc; color:#b07000; }
+        .icon-red    { background:#fde8e8; color:#c0392b; }
+        .icon-purple { background:#f0e8fd; color:#7030a0; }
+        [data-theme="dark"] .icon-green  { background:#1a3a28; color:#4dc886; }
+        [data-theme="dark"] .icon-orange { background:#3a2e18; color:#f0a830; }
+        [data-theme="dark"] .icon-red    { background:#3a1a1a; color:#e07070; }
+        [data-theme="dark"] .icon-purple { background:#2a1a3a; color:#c070f0; }
+
+        /* Section title */
+        .section-title { font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+        [data-theme="dark"] .section-title { color:#5ab4dc; }
+        .section-title::after { content:''; flex:1; height:1px; background:var(--color-divider); }
+
+        /* Main card */
+        .main-card { background:var(--bg-card); border:1px solid var(--color-card-bdr); border-radius:12px; padding:1.5rem; box-shadow:0 2px 10px rgba(26,111,168,0.06); }
+        [data-theme="dark"] .main-card { box-shadow:0 2px 14px rgba(0,0,0,0.2); }
+
+        /* Chart bar */
+        .bar-chart { display:flex; align-items:flex-end; gap:6px; height:120px; padding:0 4px; }
+        .bar-wrap { display:flex; flex-direction:column; align-items:center; flex:1; height:100%; justify-content:flex-end; gap:4px; }
+        .bar { background:var(--accent); border-radius:4px 4px 0 0; width:100%; min-height:3px; transition:height 0.5s ease; position:relative; cursor:default; }
+        .bar.dim { background:var(--color-border); }
+        .bar.today { background:#1a9a50; }
+        .bar:hover::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); background:#1a3a52; color:#fff; font-size:11px; padding:3px 8px; border-radius:5px; white-space:nowrap; pointer-events:none; }
+        [data-theme="dark"] .bar:hover::after { background:#d0e8f5; color:#0f1e2b; }
+        .bar-label { font-size:10px; color:var(--color-sub); font-weight:500; }
+
+        /* To'lovlar table */
+        .pay-table { width:100%; border-collapse:collapse; font-size:13px; }
+        .pay-table thead th { background:var(--bg-input); color:var(--color-sub); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:9px 12px; text-align:left; border-bottom:1px solid var(--color-border); }
+        .pay-table tbody td { padding:10px 12px; border-bottom:1px solid var(--color-divider); color:var(--color-text); vertical-align:middle; }
+        .pay-table tbody tr:last-child td { border-bottom:none; }
+        .pay-table tbody tr:hover td { background:var(--bg-input); }
+        .pay-table .empty-row td { text-align:center; color:var(--color-hint); padding:2rem; }
+
+        /* Badges */
+        .badge-turi { font-size:11px; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap; display:inline-block; }
+        .badge-naqd     { background:#d8f5e8; color:#1a7a50; }
+        .badge-terminal { background:var(--accent-light); color:var(--accent); }
+        .badge-otkazma  { background:#f0e8fd; color:#7030a0; }
+        [data-theme="dark"] .badge-naqd     { background:#1a3a28; color:#4dc886; }
+        [data-theme="dark"] .badge-otkazma  { background:#2a1a3a; color:#c070f0; }
+
+        /* Debt table */
+        .debt-row td { padding:10px 12px; border-bottom:1px solid var(--color-divider); vertical-align:middle; }
+        .debt-row:last-child td { border-bottom:none; }
+        .debt-row:hover td { background:var(--bg-input); }
+        .debt-days { font-size:11px; padding:2px 8px; border-radius:20px; font-weight:700; white-space:nowrap; }
+        .debt-days.mild  { background:#fff0dc; color:#b07000; }
+        .debt-days.bad   { background:#fde8e8; color:#c0392b; }
+        .debt-days.critical { background:#c0392b; color:#fff; }
+        [data-theme="dark"] .debt-days.mild { background:#3a2e18; color:#f0a830; }
+        [data-theme="dark"] .debt-days.bad  { background:#3a1a1a; color:#e07070; }
+
+        /* Summary pills */
+        .sum-pill { display:inline-flex; align-items:center; gap:6px; background:var(--bg-input); border:1px solid var(--color-border); border-radius:8px; padding:7px 14px; font-size:13px; }
+        .sum-pill span:first-child { color:var(--color-sub); }
+        .sum-pill span:last-child  { font-weight:700; color:var(--color-text); }
+
+        /* Divider */
+        .divider { border:none; border-top:1px solid var(--color-divider); margin:1.5rem 0; }
+
+        /* Donut mini */
+        .donut-wrap { display:flex; align-items:center; gap:18px; }
+        .donut-svg { flex-shrink:0; }
+        .donut-legend { display:flex; flex-direction:column; gap:6px; }
+        .donut-legend-item { display:flex; align-items:center; gap:7px; font-size:12.5px; }
+        .donut-legend-item .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+        /* Do'kon group table */
+        .dokon-group { margin-bottom: 1.2rem; border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; }
+        .dokon-group:last-child { margin-bottom: 0; }
+
+        .dokon-group-header {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 8px;
+            background: var(--bg-input); padding: 10px 14px;
+            cursor: pointer; user-select: none;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .dokon-group-header:hover { background: var(--bg-input-grp); }
+        .dokon-group-header .dokon-name { font-size:14px; font-weight:700; color:var(--color-text); display:flex; align-items:center; gap:8px; }
+        .dokon-group-header .dokon-name .store-icon { width:26px; height:26px; background:var(--accent-light); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; }
+        .dokon-group-header .dokon-pills { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+        .dokon-pill { font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+        .dokon-pill-naqd     { background:#d8f5e8; color:#1a7a50; }
+        .dokon-pill-terminal { background:var(--accent-light); color:var(--accent); }
+        .dokon-pill-otkazma  { background:#f0e8fd; color:#7030a0; }
+        .dokon-pill-jami     { background:var(--bg-card); border:1px solid var(--color-border); color:var(--color-text); }
+        [data-theme="dark"] .dokon-pill-naqd    { background:#1a3a28; color:#4dc886; }
+        [data-theme="dark"] .dokon-pill-otkazma { background:#2a1a3a; color:#c070f0; }
+        [data-theme="dark"] .dokon-pill-jami    { background:var(--bg-input); }
+
+        .dokon-chevron { font-size:12px; color:var(--color-sub); transition:transform 0.2s; flex-shrink:0; }
+        .dokon-group.collapsed .dokon-chevron { transform: rotate(-90deg); }
+        .dokon-group-body { display:block; }
+        .dokon-group.collapsed .dokon-group-body { display:none; }
+
+        /* Footer row */
+        .dokon-footer td { background:var(--bg-input); font-weight:700; font-size:12.5px; padding:8px 12px; border-top:1px solid var(--color-border); color:var(--color-text); }
+        .dokon-footer td.naqd-col    { color:#1a7a50; }
+        .dokon-footer td.terminal-col{ color:var(--accent); }
+        .dokon-footer td.otkazma-col { color:#7030a0; }
+
+        /* Grand total row */
+        .grand-total { background:var(--bg-input-grp); border:1px solid var(--color-card-bdr); border-radius:10px; padding:10px 16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:1rem; }
+        .grand-total .gt-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-sub); margin-right:4px; }
+        .grand-total .gt-item { display:flex; align-items:center; gap:6px; font-size:13px; }
+        .grand-total .gt-item span:last-child { font-weight:700; }
+
+        /* Responsive */
+        @media(max-width:576px) {
+            .period-tabs { flex-wrap:wrap; }
+            .stat-value  { font-size:18px !important; }
+            .dokon-pills { gap:4px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar (Thymeleaf) -->
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<!-- Fallback navbar -->
+
+<div class="container py-4" style="max-width:1200px;">
+
+    <!-- Page header -->
+    <div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+            <h1>&#128179; Kassa</h1>
+            <p>To'lovlar va moliyaviy hisobot</p>
+        </div>
+        <div id="currentDate" style="font-size:13px; color:var(--color-sub); text-align:right; padding-top:4px;"></div>
+    </div>
+
+    <!-- Period tabs -->
+    <div class="period-tabs" id="periodTabs">
+        <button class="period-tab active" data-period="bugun"   onclick="setPeriod(this)">Bugun</button>
+        <button class="period-tab"        data-period="hafta"   onclick="setPeriod(this)">Hafta</button>
+        <button class="period-tab"        data-period="oy"      onclick="setPeriod(this)">Oy</button>
+        <button class="period-tab"        data-period="yil"     onclick="setPeriod(this)">Yil</button>
+        <button class="period-tab"        data-period="barchasi" onclick="setPeriod(this)">Barchasi</button>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-green">&#128176;</div>
+                <div class="stat-label">Jami tushum</div>
+                <div class="stat-value" id="s_jami">
+                    <span id="s_jami_val">124.5</span><span class="stat-unit">mln</span>
+                </div>
+                <div class="stat-sub"><span class="up" id="s_jami_diff">+12.4%</span> <span id="s_jami_prev">o'tgan davrga nisbatan</span></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue">&#128202;</div>
+                <div class="stat-label">To'lovlar soni</div>
+                <div class="stat-value" id="s_son">
+                    <span id="s_son_val">48</span><span class="stat-unit">ta</span>
+                </div>
+                <div class="stat-sub">O'rtacha <span style="font-weight:600;color:var(--color-text)" id="s_ortacha">2.6 mln so'm</span></div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-orange">&#9203;</div>
+                <div class="stat-label">Kutilayotgan</div>
+                <div class="stat-value">
+                    <span id="s_kutilayotgan_val">38.2</span><span class="stat-unit">mln</span>
+                </div>
+                <div class="stat-sub"><span id="s_kutilayotgan_son" style="font-weight:600;color:var(--color-text)">17 ta</span> to'lov</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-red">&#9888;</div>
+                <div class="stat-label">Muddati o'tgan</div>
+                <div class="stat-value" style="color:#c0392b;">
+                    <span id="s_overdue_val">12.8</span><span class="stat-unit" style="color:var(--color-sub);">mln</span>
+                </div>
+                <div class="stat-sub"><span id="s_overdue_son" style="font-weight:600;color:#c0392b;">9 ta</span> qarzdor</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CHART + TURI ── -->
+    <div class="row g-3 mb-4">
+        <!-- Bar chart -->
+        <div class="col-lg-8">
+            <div class="main-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <p class="section-title" style="margin:0;">&#128200; Kunlik tushum (so'm)</p>
+                    <span style="font-size:12px;color:var(--color-sub);" id="chartPeriodLabel">Joriy hafta</span>
+                </div>
+                <div class="bar-chart" id="barChart"></div>
+                <div style="display:flex; gap:12px; margin-top:10px; flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--color-sub);">
+                        <div style="width:10px;height:10px;border-radius:2px;background:#1a6fa8;"></div> O'tgan kunlar
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--color-sub);">
+                        <div style="width:10px;height:10px;border-radius:2px;background:#1a9a50;"></div> Bugun
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--color-sub);">
+                        <div style="width:10px;height:10px;border-radius:2px;background:var(--color-border);"></div> Kutilmoqda
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- To'lov turi donut -->
+        <div class="col-lg-4">
+            <div class="main-card h-100">
+                <p class="section-title">&#128260; To'lov turi</p>
+                <div class="donut-wrap justify-content-center">
+                    <svg class="donut-svg" viewBox="0 0 80 80" width="110" height="110">
+                        <!-- Naqd 55% -->
+                        <circle cx="40" cy="40" r="28" fill="none" stroke="#1a6fa8" stroke-width="14"
+                                stroke-dasharray="96.8 99.2" stroke-dashoffset="0" transform="rotate(-90 40 40)"/>
+                        <!-- Terminal 30% -->
+                        <circle cx="40" cy="40" r="28" fill="none" stroke="#1a9a50" stroke-width="14"
+                                stroke-dasharray="52.8 143.2" stroke-dashoffset="-96.8" transform="rotate(-90 40 40)"/>
+                        <!-- O'tkazma 15% -->
+                        <circle cx="40" cy="40" r="28" fill="none" stroke="#7030a0" stroke-width="14"
+                                stroke-dasharray="26.4 169.6" stroke-dashoffset="-149.6" transform="rotate(-90 40 40)"/>
+                        <text x="40" y="44" text-anchor="middle" font-size="9" font-weight="700"
+                              fill="var(--color-text)" font-family="Segoe UI,sans-serif" id="donutCenter">48 ta</text>
+                    </svg>
+                    <div class="donut-legend">
+                        <div class="donut-legend-item">
+                            <div class="dot" style="background:#1a6fa8;"></div>
+                            <div>
+                                <div style="font-weight:600;font-size:13px;" id="d_naqd_pct">55%</div>
+                                <div style="font-size:11px;color:var(--color-sub);">Naqd</div>
+                            </div>
+                        </div>
+                        <div class="donut-legend-item">
+                            <div class="dot" style="background:#1a9a50;"></div>
+                            <div>
+                                <div style="font-weight:600;font-size:13px;" id="d_terminal_pct">30%</div>
+                                <div style="font-size:11px;color:var(--color-sub);">Terminal</div>
+                            </div>
+                        </div>
+                        <div class="donut-legend-item">
+                            <div class="dot" style="background:#7030a0;"></div>
+                            <div>
+                                <div style="font-weight:600;font-size:13px;" id="d_otkazma_pct">15%</div>
+                                <div style="font-size:11px;color:var(--color-sub);">O'tkazma</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="divider" style="margin:1rem 0;">
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div class="sum-pill" style="width:100%;justify-content:space-between;">
+                        <span>Naqd</span><span id="d_naqd_sum">68.4 mln</span>
+                    </div>
+                    <div class="sum-pill" style="width:100%;justify-content:space-between;">
+                        <span>Terminal</span><span id="d_terminal_sum">37.4 mln</span>
+                    </div>
+                    <div class="sum-pill" style="width:100%;justify-content:space-between;">
+                        <span>O'tkazma</span><span id="d_otkazma_sum">18.7 mln</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── BUGUNGI TO'LOVLAR (do'kon bo'yicha) ── -->
+    <div class="main-card mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <p class="section-title" style="margin:0;flex:1;">&#128197; <span id="payTableTitle">Bugungi to'lovlar</span></p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="summaryPills">
+                <div class="sum-pill"><span>Jami</span><span id="sp_jami">12 ta</span></div>
+                <div class="sum-pill"><span>Summa</span><span id="sp_summa">18.4 mln so'm</span></div>
+            </div>
+        </div>
+        <div id="dokonGroups"></div>
+        <div class="grand-total" id="grandTotal" style="display:none;"></div>
+    </div>
+
+    <!-- ── KECHIKKAN QARZDORLAR ── -->
+    <div class="main-card">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <p class="section-title" style="margin:0;flex:1;">&#128680; Muddati o'tgan qarzdorlar</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <div class="sum-pill"><span>Jami</span><span id="debt_son">9 ta</span></div>
+                <div class="sum-pill"><span>Summa</span><span id="debt_summa" style="color:#c0392b;">12.8 mln so'm</span></div>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="pay-table" id="debtTable">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Mijoz</th>
+                    <th>Telefon</th>
+                    <th>Qolgan summa</th>
+                    <th>Muddat o'tgan</th>
+                    <th>Oxirgi to'lov</th>
+                    <th>Shartnoma</th>
+                </tr>
+                </thead>
+                <tbody id="debtTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── Theme ──
+    const html = document.documentElement;
+    applyTheme(localStorage.getItem('mb-theme') || 'light');
+    function applyTheme(t) {
+        html.setAttribute('data-theme', t);
+        localStorage.setItem('mb-theme', t);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (icon)  icon.textContent  = t === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+        if (label) label.textContent = t === 'dark' ? 'Kun' : 'Tun';
+    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+
+    // ── Current date ──
+    (function() {
+        const d    = new Date();
+        const oylar = ['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'];
+        const kunlar = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+        document.getElementById('currentDate').innerHTML =
+            '<b>'+kunlar[d.getDay()]+'</b>, '+d.getDate()+' '+oylar[d.getMonth()]+' '+d.getFullYear();
+    })();
+
+    // ── Formatters ──
+    function fmtSumma(n) {
+        return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
+    }
+    function fmtMln(n) {
+        const v = Number(n)||0;
+        if (v >= 1000000) return (v/1000000).toFixed(1).replace('.0','') + ' mln so\'m';
+        return fmtSumma(v);
+    }
+    function fmtDate(s) {
+        if (!s) return '—';
+        const d = new Date(s);
+        if (isNaN(d.getTime())) return s;
+        const oy = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+        return d.getDate()+'-'+oy[d.getMonth()]+', '+d.getFullYear();
+    }
+    function fmtDateTime(s) {
+        if (!s) return '—';
+        const d = new Date(s);
+        if (isNaN(d.getTime())) return s;
+        const oy = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+        const hh = String(d.getHours()).padStart(2,'0');
+        const mm = String(d.getMinutes()).padStart(2,'0');
+        return d.getDate()+'-'+oy[d.getMonth()]+' '+hh+':'+mm;
+    }
+    function turiBadge(turi) {
+        if (!turi) return '<span class="badge-turi" style="background:var(--bg-input);color:var(--color-sub);">—</span>';
+        const map = {
+            'Naqd':     'badge-naqd',
+            'Terminal': 'badge-terminal',
+            "O'tkazma": 'badge-otkazma'
+        };
+        return '<span class="badge-turi '+(map[turi]||'badge-terminal')+'">'+turi+'</span>';
+    }
+
+    // ── Demo data ──
+    const DEMO = {
+        bugun: {
+            jami: 18400000, son: 12, kutilayotgan: 38200000, kutilayotgan_son: 17,
+            overdue: 12800000, overdue_son: 9,
+            ortacha: 1533333,
+            jami_diff: '+8.3%',
+            naqd_pct:55, terminal_pct:30, otkazma_pct:15,
+            naqd_sum:10120000, terminal_sum:5520000, otkazma_sum:2760000,
+            chart: [
+                {label:'Du',  val:14200000, state:'past'},
+                {label:'Se',  val:18700000, state:'past'},
+                {label:'Ch',  val:9800000,  state:'past'},
+                {label:'Pa',  val:21300000, state:'past'},
+                {label:'Ju',  val:16400000, state:'past'},
+                {label:'Sh',  val:18400000, state:'today'},
+                {label:'Ya',  val:0,        state:'dim'}
+            ],
+            chartLabel: 'Joriy hafta',
+            payments: [
+                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000,  turi:'Naqd',     shartnoma:142},
+                {id:2, sana:'2026-06-24T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000,  turi:'Terminal', shartnoma:138},
+                {id:3, sana:'2026-06-24T10:45', mijoz:'Toshmatov Bobur',  dokon:"Sergeli",    summa:4500000,  turi:'Naqd',     shartnoma:155},
+                {id:4, sana:'2026-06-24T11:30', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,   turi:"O'tkazma", shartnoma:121},
+                {id:5, sana:'2026-06-24T13:05', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163},
+                {id:6, sana:'2026-06-24T13:58', mijoz:'Xolmatova Dildora',dokon:'Yunusobod',  summa:1600000,  turi:'Naqd',     shartnoma:109},
+                {id:7, sana:'2026-06-24T14:40', mijoz:'Ruziyev Akbar',    dokon:'Sergeli',    summa:2800000,  turi:'Naqd',     shartnoma:177},
+                {id:8, sana:'2026-06-24T15:22', mijoz:'Mirzayeva Sarvar', dokon:'Chilonzor',  summa:1500000,  turi:'Terminal', shartnoma:148}
+            ]
+        },
+        hafta: {
+            jami: 98700000, son: 58, kutilayotgan: 38200000, kutilayotgan_son: 17,
+            overdue: 12800000, overdue_son: 9,
+            ortacha: 1701724, jami_diff: '+5.1%',
+            naqd_pct:52, terminal_pct:32, otkazma_pct:16,
+            naqd_sum:51324000, terminal_sum:31584000, otkazma_sum:15792000,
+            chart: [
+                {label:'Du',  val:14200000, state:'past'},
+                {label:'Se',  val:18700000, state:'past'},
+                {label:'Ch',  val:9800000,  state:'past'},
+                {label:'Pa',  val:21300000, state:'past'},
+                {label:'Ju',  val:16400000, state:'past'},
+                {label:'Sh',  val:18400000, state:'today'},
+                {label:'Ya',  val:0,        state:'dim'}
+            ],
+            chartLabel: 'Joriy hafta',
+            payments: [
+                {id:1, sana:'2026-06-23T10:10', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000, turi:'Naqd',     shartnoma:142},
+                {id:2, sana:'2026-06-22T09:30', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000, turi:'Terminal', shartnoma:138},
+                {id:3, sana:'2026-06-21T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',    summa:4500000, turi:'Naqd',     shartnoma:155},
+                {id:4, sana:'2026-06-20T11:45', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,  turi:"O'tkazma", shartnoma:121},
+                {id:5, sana:'2026-06-19T08:55', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163}
+            ]
+        },
+        oy: {
+            jami: 412000000, son: 214, kutilayotgan: 38200000, kutilayotgan_son: 17,
+            overdue: 12800000, overdue_son: 9,
+            ortacha: 1925234, jami_diff: '+18.2%',
+            naqd_pct:50, terminal_pct:33, otkazma_pct:17,
+            naqd_sum:206000000, terminal_sum:135960000, otkazma_sum:70040000,
+            chart: [
+                {label:'1-h',  val:88000000,  state:'past'},
+                {label:'2-h',  val:102000000, state:'past'},
+                {label:'3-h',  val:118000000, state:'past'},
+                {label:'4-h',  val:104000000, state:'today'},
+            ],
+            chartLabel: 'Haftalik (joriy oy)',
+            payments: [
+                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000,  turi:'Naqd',     shartnoma:142},
+                {id:2, sana:'2026-06-22T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000,  turi:'Terminal', shartnoma:138},
+                {id:3, sana:'2026-06-18T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',    summa:4500000,  turi:'Naqd',     shartnoma:155},
+                {id:4, sana:'2026-06-15T11:45', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,   turi:"O'tkazma", shartnoma:121},
+                {id:5, sana:'2026-06-10T08:55', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163},
+                {id:6, sana:'2026-06-05T15:20', mijoz:'Xolmatova Dildora',dokon:'Yunusobod',  summa:1600000,  turi:'Naqd',     shartnoma:109}
+            ]
+        },
+        yil: {
+            jami: 4820000000, son: 2418, kutilayotgan: 38200000, kutilayotgan_son: 17,
+            overdue: 12800000, overdue_son: 9,
+            ortacha: 1993383, jami_diff: '+24.7%',
+            naqd_pct:48, terminal_pct:35, otkazma_pct:17,
+            naqd_sum:2313600000, terminal_sum:1687000000, otkazma_sum:819400000,
+            chart: [
+                {label:'Y',   val:310000000, state:'past'},
+                {label:'F',   val:290000000, state:'past'},
+                {label:'M',   val:420000000, state:'past'},
+                {label:'A',   val:380000000, state:'past'},
+                {label:'May', val:450000000, state:'past'},
+                {label:'I',   val:412000000, state:'today'},
+                {label:'Iy',  val:0,         state:'dim'},
+                {label:'Av',  val:0,         state:'dim'},
+                {label:'S',   val:0,         state:'dim'},
+                {label:'O',   val:0,         state:'dim'},
+                {label:'N',   val:0,         state:'dim'},
+                {label:'D',   val:0,         state:'dim'}
+            ],
+            chartLabel: 'Oylik (joriy yil)',
+            payments: [
+                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000, turi:'Naqd',     shartnoma:142},
+                {id:2, sana:'2026-05-15T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000, turi:'Terminal', shartnoma:138},
+                {id:3, sana:'2026-04-10T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',    summa:4500000, turi:'Naqd',     shartnoma:155},
+                {id:4, sana:'2026-03-22T11:45', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,  turi:"O'tkazma", shartnoma:121},
+                {id:5, sana:'2026-02-14T08:55', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163}
+            ]
+        },
+        barchasi: {
+            jami: 18640000000, son: 9841, kutilayotgan: 38200000, kutilayotgan_son: 17,
+            overdue: 12800000, overdue_son: 9,
+            ortacha: 1894104, jami_diff: '',
+            naqd_pct:49, terminal_pct:34, otkazma_pct:17,
+            naqd_sum:9133600000, terminal_sum:6337600000, otkazma_sum:3168800000,
+            chart: [
+                {label:'2022', val:2100000000, state:'past'},
+                {label:'2023', val:3800000000, state:'past'},
+                {label:'2024', val:5200000000, state:'past'},
+                {label:'2025', val:7540000000, state:'past'},
+                {label:'2026', val:4820000000, state:'today'}
+            ],
+            chartLabel: 'Yillik',
+            payments: [
+                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor', summa:3200000, turi:'Naqd',     shartnoma:142},
+                {id:2, sana:'2026-05-15T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod', summa:1800000, turi:'Terminal', shartnoma:138},
+                {id:3, sana:'2025-12-10T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',   summa:4500000, turi:'Naqd',     shartnoma:155}
+            ]
+        }
+    };
+
+    const DEMO_DEBTS = [
+        {n:1, mijoz:'Aliyev Sardor',     tel:'+998 90 123 45 67', qolgan:3200000,  kun:45,  oxirgi:'2026-05-10'},
+        {n:2, mijoz:'Tursunova Barno',   tel:'+998 91 234 56 78', qolgan:1800000,  kun:32,  oxirgi:'2026-05-23'},
+        {n:3, mijoz:'Xasanov Ulugbek',   tel:'+998 93 345 67 89', qolgan:4100000,  kun:68,  oxirgi:'2026-04-17'},
+        {n:4, mijoz:'Qodirov Mansur',    tel:'+998 94 456 78 90', qolgan:650000,   kun:12,  oxirgi:'2026-06-12'},
+        {n:5, mijoz:'Ismoilova Zulfiya', tel:'+998 90 567 89 01', qolgan:900000,   kun:21,  oxirgi:'2026-06-03'},
+        {n:6, mijoz:'Jurayev Dilshod',   tel:'+998 97 678 90 12', qolgan:2150000,  kun:90,  oxirgi:'2026-03-26'},
+        {n:7, mijoz:'Nazarova Mohira',   tel:'+998 99 789 01 23', qolgan:780000,   kun:8,   oxirgi:'2026-06-16'},
+        {n:8, mijoz:'Raximov Akmal',     tel:'+998 91 890 12 34', qolgan:1920000,  kun:55,  oxirgi:'2026-04-30'},
+        {n:9, mijoz:'Sobirov Elmurod',   tel:'+998 93 901 23 45', qolgan:3100000,  kun:38,  oxirgi:'2026-05-17'}
+    ];
+
+    // ── Render ──
+    let currentPeriod = 'bugun';
+
+    function setPeriod(btn) {
+        document.querySelectorAll('.period-tab').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentPeriod = btn.getAttribute('data-period');
+        renderPage(currentPeriod);
+    }
+
+    function renderPage(period) {
+        const d = DEMO[period];
+        if (!d) return;
+
+        // Stat cards
+        document.getElementById('s_jami_val').textContent      = fmtMln(d.jami).replace(' so\'m','').replace(' mln','');
+        document.getElementById('s_son_val').textContent       = d.son.toLocaleString();
+        document.getElementById('s_kutilayotgan_val').textContent = fmtMln(d.kutilayotgan).replace(" so'm",'').replace(' mln','');
+        document.getElementById('s_kutilayotgan_son').textContent = d.kutilayotgan_son + ' ta';
+        document.getElementById('s_overdue_val').textContent   = fmtMln(d.overdue).replace(" so'm",'').replace(' mln','');
+        document.getElementById('s_overdue_son').textContent   = d.overdue_son + ' ta';
+        document.getElementById('s_ortacha').textContent       = fmtMln(d.ortacha);
+
+        const diffEl = document.getElementById('s_jami_diff');
+        if (d.jami_diff) {
+            diffEl.textContent  = d.jami_diff;
+            diffEl.className    = d.jami_diff.startsWith('+') ? 'up' : 'down';
+            diffEl.parentElement.style.display = '';
+        } else {
+            diffEl.parentElement.style.display = 'none';
+        }
+
+        // Donut
+        document.getElementById('d_naqd_pct').textContent    = d.naqd_pct + '%';
+        document.getElementById('d_terminal_pct').textContent= d.terminal_pct + '%';
+        document.getElementById('d_otkazma_pct').textContent = d.otkazma_pct + '%';
+        document.getElementById('d_naqd_sum').textContent    = fmtMln(d.naqd_sum);
+        document.getElementById('d_terminal_sum').textContent= fmtMln(d.terminal_sum);
+        document.getElementById('d_otkazma_sum').textContent = fmtMln(d.otkazma_sum);
+        document.getElementById('donutCenter').textContent   = d.son + ' ta';
+        renderDonut(d.naqd_pct, d.terminal_pct, d.otkazma_pct);
+
+        // Bar chart
+        document.getElementById('chartPeriodLabel').textContent = d.chartLabel;
+        renderBarChart(d.chart);
+
+        // Payments table
+        const titles = {bugun:"Bugungi to'lovlar", hafta:"Haftalik to'lovlar", oy:"Oylik to'lovlar", yil:"Yillik to'lovlar", barchasi:"Barcha to'lovlar"};
+        document.getElementById('payTableTitle').textContent = titles[period] || "To'lovlar";
+        document.getElementById('sp_jami').textContent  = d.payments.length + ' ta';
+        document.getElementById('sp_summa').textContent = fmtMln(d.payments.reduce(function(s,p){ return s+p.summa; }, 0));
+        renderDokonGroups(d.payments);
+
+        // Debts
+        renderDebts();
+    }
+
+    function renderDebts() {
+        const debtBody = document.getElementById('debtTableBody');
+        debtBody.innerHTML = DEMO_DEBTS.map(function(d) {
+            let cls = 'mild';
+            if (d.kun >= 60) cls = 'critical';
+            else if (d.kun >= 30) cls = 'bad';
+            return '<tr class="debt-row">'+
+                '<td style="color:var(--color-sub);font-weight:600;">'+d.n+'</td>'+
+                '<td style="font-weight:600;">'+d.mijoz+'</td>'+
+                '<td style="color:var(--color-sub);">'+d.tel+'</td>'+
+                '<td style="font-weight:700;color:#c0392b;">'+fmtSumma(d.qolgan)+'</td>'+
+                '<td><span class="debt-days '+cls+'">'+d.kun+' kun</span></td>'+
+                '<td style="color:var(--color-sub);">'+fmtDate(d.oxirgi)+'</td>'+
+                '<td><a href="/shartnomalar" style="color:var(--accent);font-size:12px;font-weight:600;text-decoration:none;">Ko\'rish</a></td>'+
+                '</tr>';
+        }).join('');
+        document.getElementById('debt_son').textContent   = DEMO_DEBTS.length + ' ta';
+        document.getElementById('debt_summa').textContent = fmtMln(DEMO_DEBTS.reduce(function(s,d){ return s+d.qolgan; },0));
+    }
+
+    function toggleDokonGroup(el) {
+        el.closest('.dokon-group').classList.toggle('collapsed');
+    }
+
+    function renderDokonGroups(payments) {
+        const wrap = document.getElementById('dokonGroups');
+        const gtEl = document.getElementById('grandTotal');
+
+        if (!payments || payments.length === 0) {
+            wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--color-hint);font-size:13px;">To\'lovlar mavjud emas</div>';
+            gtEl.style.display = 'none';
+            return;
+        }
+
+        // Group by dokon
+        const groups = {};
+        payments.forEach(function(p) {
+            const key = p.dokon || 'Noaniq';
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(p);
+        });
+
+        // Totals for grand total
+        let grandNaqd = 0, grandTerminal = 0, grandOtkazma = 0, grandJami = 0;
+
+        let html = '';
+        Object.keys(groups).forEach(function(dokon) {
+            const list = groups[dokon];
+            let naqd = 0, terminal = 0, otkazma = 0;
+            list.forEach(function(p) {
+                if (p.turi === 'Naqd')          naqd     += p.summa;
+                else if (p.turi === 'Terminal')  terminal += p.summa;
+                else                             otkazma  += p.summa;
+            });
+            const jami = naqd + terminal + otkazma;
+            grandNaqd += naqd; grandTerminal += terminal; grandOtkazma += otkazma; grandJami += jami;
+
+            const naqdPill     = naqd     ? '<span class="dokon-pill dokon-pill-naqd">\uD83D\uDCB5 Naqd: '+fmtMln(naqd)+'</span>' : '';
+            const terminalPill = terminal ? '<span class="dokon-pill dokon-pill-terminal">\uD83D\uDCB3 Terminal: '+fmtMln(terminal)+'</span>' : '';
+            const otkazmaPill  = otkazma  ? '<span class="dokon-pill dokon-pill-otkazma">\uD83C\uDFE6 O\'tkazma: '+fmtMln(otkazma)+'</span>' : '';
+            const jamiPill     = '<span class="dokon-pill dokon-pill-jami">Jami: '+fmtMln(jami)+'</span>';
+
+            const rows = list.map(function(p, i) {
+                return '<tr>'+
+                    '<td style="color:var(--color-sub);font-weight:600;">'+(i+1)+'</td>'+
+                    '<td style="white-space:nowrap;">'+fmtDateTime(p.sana)+'</td>'+
+                    '<td style="font-weight:500;">'+p.mijoz+'</td>'+
+                    '<td style="font-weight:600;">'+fmtSumma(p.summa)+'</td>'+
+                    '<td>'+turiBadge(p.turi)+'</td>'+
+                    '<td><a href="/shartnoma-detail?id='+p.shartnoma+'" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">\u2116'+p.shartnoma+'</a></td>'+
+                    '</tr>';
+            }).join('');
+
+            // Footer row: per-turi subtotals
+            const footerCells =
+                '<td colspan="2" style="color:var(--color-sub);font-size:11.5px;">'+list.length+' ta to\'lov</td>'+
+                '<td class="naqd-col">'+(naqd ? fmtMln(naqd) : '—')+'</td>'+
+                '<td></td>'+
+                '<td></td>'+
+                '<td></td>';
+
+            html += '<div class="dokon-group">'+
+                '<div class="dokon-group-header" onclick="toggleDokonGroup(this)">'+
+                '<div class="dokon-name">'+
+                '<div class="store-icon">\uD83C\uDFEA</div>'+
+                dokon+
+                '<span style="font-size:12px;font-weight:500;color:var(--color-sub);">('+list.length+' ta)</span>'+
+                '</div>'+
+                '<div class="dokon-pills">'+naqdPill+terminalPill+otkazmaPill+jamiPill+'</div>'+
+                '<span class="dokon-chevron">&#9660;</span>'+
+                '</div>'+
+                '<div class="dokon-group-body">'+
+                '<div style="overflow-x:auto;">'+
+                '<table class="pay-table">'+
+                '<thead><tr>'+
+                '<th>#</th><th>Sana</th><th>Mijoz</th><th>Summa</th><th>Turi</th><th>Shartnoma</th>'+
+                '</tr></thead>'+
+                '<tbody>'+rows+'</tbody>'+
+                '<tfoot><tr class="dokon-footer">'+footerCells+'</tr></tfoot>'+
+                '</table>'+
+                '</div>'+
+                '</div>'+
+                '</div>';
+        });
+
+        wrap.innerHTML = html;
+
+        // Grand total
+        const dokonCount = Object.keys(groups).length;
+        gtEl.style.display = 'flex';
+        gtEl.innerHTML =
+            '<span class="gt-label">Jami ('+dokonCount+' do\'kon):</span>'+
+            (grandNaqd     ? '<div class="gt-item"><span style="color:var(--color-sub);">Naqd</span> <span style="color:#1a7a50;">'+fmtMln(grandNaqd)+'</span></div>' : '')+
+            (grandTerminal ? '<div class="gt-item"><span style="color:var(--color-sub);">Terminal</span> <span style="color:var(--accent);">'+fmtMln(grandTerminal)+'</span></div>' : '')+
+            (grandOtkazma  ? '<div class="gt-item"><span style="color:var(--color-sub);">O\'tkazma</span> <span style="color:#7030a0;">'+fmtMln(grandOtkazma)+'</span></div>' : '')+
+            '<div class="gt-item" style="margin-left:auto;border-left:1px solid var(--color-border);padding-left:12px;">'+
+            '<span style="color:var(--color-sub);">Umumiy</span> '+
+            '<span style="font-size:15px;color:var(--color-text);">'+fmtMln(grandJami)+'</span>'+
+            '</div>';
+    }
+
+    function renderBarChart(data) {
+        const chart = document.getElementById('barChart');
+        const maxVal = Math.max.apply(null, data.map(function(d){ return d.val||0; })) || 1;
+        chart.innerHTML = data.map(function(d) {
+            const pct = Math.round((d.val / maxVal) * 100);
+            const cls = d.state === 'today' ? 'today' : (d.state === 'dim' ? 'dim' : '');
+            const tip = d.val > 0 ? fmtMln(d.val) : 'Ma\'lumot yo\'q';
+            return '<div class="bar-wrap">'+
+                '<div class="bar '+cls+'" style="height:'+pct+'%" data-tip="'+tip+'"></div>'+
+                '<div class="bar-label">'+d.label+'</div>'+
+                '</div>';
+        }).join('');
+    }
+
+    function renderDonut(naqd, terminal, otkazma) {
+        const r = 28, circ = 2 * Math.PI * r;
+        const n_len = circ * naqd / 100;
+        const t_len = circ * terminal / 100;
+        const o_len = circ * otkazma / 100;
+        const svg = document.querySelector('.donut-svg');
+        const circles = svg.querySelectorAll('circle');
+        // naqd
+        circles[0].setAttribute('stroke-dasharray', n_len.toFixed(1)+' '+(circ-n_len).toFixed(1));
+        circles[0].setAttribute('stroke-dashoffset', '0');
+        // terminal
+        circles[1].setAttribute('stroke-dasharray', t_len.toFixed(1)+' '+(circ-t_len).toFixed(1));
+        circles[1].setAttribute('stroke-dashoffset', (-n_len).toFixed(1));
+        // otkazma
+        circles[2].setAttribute('stroke-dasharray', o_len.toFixed(1)+' '+(circ-o_len).toFixed(1));
+        circles[2].setAttribute('stroke-dashoffset', (-(n_len+t_len)).toFixed(1));
+    }
+
+    // Initial render
+    renderPage('bugun');
+</script>
+</body>
+</html>

@@ -20,4 +20,10 @@ public interface JadvalRepository extends JpaRepository<Jadval, Long> {
             @Param("oyBoshi") LocalDateTime oyBoshi,
             @Param("oyOxiri") LocalDateTime oyOxiri
     );
+
+    @Query("SELECT j FROM Jadval j WHERE j.tulovSana >= :boshi AND j.tulovSana < :oxiri")
+    List<Jadval> findTodayPayments(
+            @Param("boshi") LocalDateTime boshi,
+            @Param("oxiri") LocalDateTime oxiri
+    );
 }

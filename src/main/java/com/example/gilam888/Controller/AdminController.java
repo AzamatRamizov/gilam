@@ -184,7 +184,7 @@ public class AdminController {
     }
     @PutMapping("/tulov/{id}")
     public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi, @RequestParam("sana") LocalDateTime sana, @RequestParam("dokon") Long dokonId){
-        ApiResponse apiResponse=adminService.tulov(id,summa,turi,sana);
+        ApiResponse apiResponse=adminService.tulov(id,summa,turi,sana,dokonId);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
     @GetMapping("/get-last-muddat")
@@ -235,4 +235,17 @@ public class AdminController {
     private String nvl(String s) {
         return s != null ? s : "";
     }
+
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/kassa")
+    public String kassa(){
+        return "Admin/kassa";
+    }
+
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/get-today-payment")
+    public ResponseEntity<?> getTodayPay(){
+        return ResponseEntity.ok(adminService.getTodayPayment());
+    }
+
 }
