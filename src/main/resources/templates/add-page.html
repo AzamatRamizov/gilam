@@ -386,7 +386,7 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label">Muddati (oy) <span class="required-star">*</span></label>
-                <input type="number" id="muddat" class="form-control text-center" placeholder="1-6" min="1" max="6" oninput="clampMuddat(this);updateCalc()">
+                <input type="number" id="muddat" class="form-control text-center" placeholder="1-6" min="1" oninput="clampMuddat(this);updateCalc()">
             </div>
         </div>
 
@@ -621,9 +621,7 @@
     // ── Contract calculation preview ──
     function clampMuddat(el){
         let v = parseInt(el.value);
-        if(isNaN(v)) return;
-        if(v > 6) el.value = 6;
-        if(v < 1) el.value = 1;
+        if(isNaN(v) || v < 1) el.value = 1;
     }
 
     // Hisoblangan natijalarni saqlab turamiz (chop etish/yuborishda ishlatiladi)
@@ -860,7 +858,7 @@
         if(!foiz){
             document.getElementById('foiz').classList.add('is-invalid'); valid=false;
         }
-        if(!muddat || Number(muddat) < 1 || Number(muddat) > 6){
+        if(!muddat || Number(muddat) < 1){
             document.getElementById('muddat').classList.add('is-invalid'); valid=false;
         }
         if(!category || category === '0'){

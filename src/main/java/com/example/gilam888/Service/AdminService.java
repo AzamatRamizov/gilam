@@ -293,7 +293,7 @@ public class AdminService {
         jadval.setTulangan(jadval.getTulangan()+summa);
         jadval.setTulovSana(sana);
         jadval.setTuri(turi);
-        jadval.setDokonId(dokonId);
+        jadval.setDokonId(dokonId.toString());
         if(jadval.getTulangan()>=jadval.getSumma()){
             jadval.setHolat("tulangan");
         }
@@ -309,11 +309,16 @@ public class AdminService {
         List<Statistikaga> statistikagas=new ArrayList<>();
         for (Jadval jadval : bugungiTolovlar) {
             Statistikaga statistikaga = new Statistikaga();
-            Optional<Magazin> dokon = magazinRepository.findById(jadval.getDokonId());
+            Optional<Magazin> dokon = magazinRepository.findById(Long.valueOf(jadval.getDokonId()));
             statistikaga.setDokon(dokon.get().getNomi());
             statistikaga.setTuri(jadval.getTuri());
-            statistikaga.setShartnomaId();
-            statistikaga.setMijoz();
+            statistikaga.setSana(jadval.getTulovSana());
+            Shartnoma shartnoma = shartnomaRepository.findByJadvalListContaining(jadval).get();
+            statistikaga.setShartnomaId(shartnoma.getId());
+            statistikaga.setMijoz(shartnoma.getMijoz().getIsm()+" "+shartnoma.getMijoz().getFamiliya()+" "+shartnoma.getMijoz().getSharif());
+            statistikaga.setSumma(jadval.getSumma());
+            statistikagas.add(statistikaga);
         }
+        return statistikagas;
     }
 }

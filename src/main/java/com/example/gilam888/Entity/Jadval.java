@@ -19,5 +19,5 @@ public class Jadval extends AbstractLongEntity {
     private long tulangan;
     private String turi;
     private LocalDateTime tulovSana;
-    private long dokonId;
+    private String dokonId;
 }

@@ -413,10 +413,10 @@
     function fmtSumma(n) {
         return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
     }
+
     function fmtMln(n) {
-        const v = Number(n)||0;
-        if (v >= 1000000) return (v/1000000).toFixed(1).replace('.0','') + ' mln so\'m';
-        return fmtSumma(v);
+        const v = Number(n) || 0;
+        return v.toLocaleString('uz-UZ') + " so'm";
     }
     function fmtDate(s) {
         if (!s) return '—';
@@ -634,7 +634,7 @@
         document.getElementById('payTableTitle').textContent = titles[period] || "To'lovlar";
         document.getElementById('sp_jami').textContent  = d.payments.length + ' ta';
         document.getElementById('sp_summa').textContent = fmtMln(d.payments.reduce(function(s,p){ return s+p.summa; }, 0));
-        renderDokonGroups(d.payments);
+        loadAndRender(period)
 
         // Debts
         renderDebts();
@@ -709,7 +709,7 @@
                     '<td style="font-weight:500;">'+p.mijoz+'</td>'+
                     '<td style="font-weight:600;">'+fmtSumma(p.summa)+'</td>'+
                     '<td>'+turiBadge(p.turi)+'</td>'+
-                    '<td><a href="/shartnoma-detail?id='+p.shartnoma+'" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">\u2116'+p.shartnoma+'</a></td>'+
+                    '<td><a href="/admin/shartnoma-detail?id='+p.shartnoma+'" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">\u2116'+p.shartnoma+'</a></td>'+
                     '</tr>';
             }).join('');
 
@@ -791,6 +791,36 @@
         // otkazma
         circles[2].setAttribute('stroke-dasharray', o_len.toFixed(1)+' '+(circ-o_len).toFixed(1));
         circles[2].setAttribute('stroke-dashoffset', (-(n_len+t_len)).toFixed(1));
+    }
+    function loadAndRender(period) {
+        // faqat bugun uchun real endpoint bor hozircha
+        if (period === 'bugun') {
+            fetch('/admin/get-today-payment')
+                .then(r => r.json())
+                .then(data => {
+                    // backend Statistikaga -> frontend payment formatiga o'tkazish
+                    const payments = data.map(function(p) {
+                        return {
+                            sana:       p.sana,
+                            mijoz:      p.mijoz,
+                            dokon:      p.dokon,
+                            summa:      p.summa,
+                            turi:       p.turi,
+                            shartnoma:  p.shartnomaId
+                        };
+                    });
+                    renderDokonGroups(payments);
+                    document.getElementById('sp_jami').textContent  = payments.length + ' ta';
+                    document.getElementById('sp_summa').textContent = fmtMln(
+                        payments.reduce(function(s,p){ return s + p.summa; }, 0)
+                    );
+                })
+                .catch(function() {
+                    renderDokonGroups(DEMO.bugun.payments); // fallback
+                });
+        } else {
+            renderDokonGroups(DEMO[period].payments);
+        }
     }
 
     // Initial render

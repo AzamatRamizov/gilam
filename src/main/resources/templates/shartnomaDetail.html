@@ -7,260 +7,244 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
     <style>
         :root {
-            --bg-body:       #dceef8;
-            --bg-card:       #ffffff;
-            --color-text:    #1a3a52;
-            --color-sub:     #5a8fa8;
-            --color-border:  #b3d6ee;
-            --color-divider: #d0e9f5;
-            --color-card-bdr:#c5dff0;
-            --color-hint:    #90b8cc;
-            --bg-input:      #f5fafd;
-            --bg-input-grp:  #daeef9;
-            --transition: 0.25s ease;
+            --bg-body:#dceef8; --bg-card:#ffffff; --color-text:#1a3a52; --color-sub:#5a8fa8;
+            --color-border:#b3d6ee; --color-divider:#d0e9f5; --color-card-bdr:#c5dff0;
+            --color-hint:#90b8cc; --bg-input:#f5fafd; --bg-input-grp:#daeef9; --transition:0.25s ease;
         }
         [data-theme="dark"] {
-            --bg-body:       #0f1e2b;
-            --bg-card:       #162534;
-            --color-text:    #d0e8f5;
-            --color-sub:     #5a8fa8;
-            --color-border:  #2a4f6a;
-            --color-divider: #1e3d55;
-            --color-card-bdr:#1e3d55;
-            --color-hint:    #4a7a94;
-            --bg-input:      #1c2f40;
-            --bg-input-grp:  #1a3048;
+            --bg-body:#0f1e2b; --bg-card:#162534; --color-text:#d0e8f5; --color-sub:#5a8fa8;
+            --color-border:#2a4f6a; --color-divider:#1e3d55; --color-card-bdr:#1e3d55;
+            --color-hint:#4a7a94; --bg-input:#1c2f40; --bg-input-grp:#1a3048;
         }
-        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
-        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+        *{box-sizing:border-box;transition:background-color var(--transition),color var(--transition),border-color var(--transition);}
+        body{background-color:var(--bg-body);font-family:'Segoe UI',sans-serif;color:var(--color-text);min-height:100vh;}
 
-        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
-        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
-        .navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #fff !important; }
-        .navbar-brand .logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .navbar-brand span { color: #a8dcf5; }
-        .navbar-nav .nav-link { color: rgba(255,255,255,0.88) !important; font-size: 14px; font-weight: 500; padding: 20px 14px !important; border-bottom: 2px solid transparent; }
-        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #fff !important; border-bottom-color: rgba(255,255,255,0.6); }
-        .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
-        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+        .navbar{background:#1a6fa8!important;box-shadow:0 2px 10px rgba(26,111,168,0.3);padding:0;}
+        [data-theme="dark"] .navbar{background:#0e3f60!important;}
+        .navbar-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:#fff!important;}
+        .navbar-brand .logo-icon{width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+        .navbar-brand span{color:#a8dcf5;}
+        .navbar-nav .nav-link{color:rgba(255,255,255,0.88)!important;font-size:14px;font-weight:500;padding:20px 14px!important;border-bottom:2px solid transparent;}
+        .navbar-nav .nav-link:hover,.navbar-nav .nav-link.active{color:#fff!important;border-bottom-color:rgba(255,255,255,0.6);}
+        .theme-toggle{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;padding:5px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;margin-left:10px;}
+        .theme-toggle:hover{background:rgba(255,255,255,0.25);}
 
-        .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(26,111,168,0.07); }
-        [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.25); }
-        .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1a6fa8; margin-bottom: 16px; }
-        [data-theme="dark"] .section-title { color: #5ab4dc; }
-        .part-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:1.4rem; flex-wrap:wrap; }
-        .part-header-left { display:flex; align-items:center; gap:12px; }
-        .part-number { width:32px; height:32px; border-radius:50%; background:#1a6fa8; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
-        .part-title { font-size:17px; font-weight:700; color:var(--color-text); margin:0; }
-        .part-subtitle { font-size:12px; color:var(--color-sub); margin:1px 0 0; }
-        .info-row { margin-bottom: 1rem; }
-        .info-label { font-size: 11px; color: var(--color-sub); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px; }
-        .info-value { font-size: 14.5px; color: var(--color-text); font-weight: 500; min-height: 21px; }
-        .info-value.empty { color: var(--color-hint); font-weight: 400; font-style: italic; }
-        .info-value a { color: #1a6fa8; text-decoration: none; }
-        .info-value a:hover { text-decoration: underline; }
-        .divider { border: none; border-top: 1px solid var(--color-divider); margin: 2rem 0; }
-        .btn-primary-c { background-color: #1a6fa8; color: #fff; border: none; border-radius: 8px; padding: 10px 26px; font-size: 14px; font-weight: 600; cursor:pointer; transition: background 0.2s; }
-        .btn-primary-c:hover { background-color: #155d8e; }
-        .page-title { font-size: 20px; font-weight: 700; color: var(--color-text); margin: 0; }
-        .page-subtitle { font-size: 13px; color: var(--color-sub); margin: 2px 0 0; }
-        .avatar-icon { width: 56px; height: 56px; background: var(--bg-input-grp); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight:700; color: #1a6fa8; flex-shrink: 0; }
-        [data-theme="dark"] .avatar-icon { color: #5ab4dc; }
+        .main-card{background:var(--bg-card);border:1px solid var(--color-card-bdr);border-radius:12px;padding:2rem;box-shadow:0 2px 12px rgba(26,111,168,0.07);}
+        [data-theme="dark"] .main-card{box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+        .section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a6fa8;margin-bottom:16px;}
+        [data-theme="dark"] .section-title{color:#5ab4dc;}
+        .part-header{display:flex;align-items:center;gap:12px;margin-bottom:1.4rem;}
+        .part-number{width:32px;height:32px;border-radius:50%;background:#1a6fa8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+        .part-title{font-size:17px;font-weight:700;color:var(--color-text);margin:0;}
+        .part-subtitle{font-size:12px;color:var(--color-sub);margin:1px 0 0;}
+        .divider{border:none;border-top:1px solid var(--color-divider);margin:2rem 0;}
+        .btn-primary-c{background-color:#1a6fa8;color:#fff;border:none;border-radius:8px;padding:10px 26px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;}
+        .btn-primary-c:hover{background-color:#155d8e;}
+        .page-title{font-size:20px;font-weight:700;color:var(--color-text);margin:0;}
+        .page-subtitle{font-size:13px;color:var(--color-sub);margin:2px 0 0;}
+        .avatar-icon{width:56px;height:56px;background:var(--bg-input-grp);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#1a6fa8;flex-shrink:0;}
+        [data-theme="dark"] .avatar-icon{color:#5ab4dc;}
 
-        .photo-box { border: 1px solid var(--color-border); border-radius: 10px; background: var(--bg-input); overflow:hidden; min-height: 150px; display:flex; align-items:center; justify-content:center; }
-        .photo-box img { width:100%; height:100%; max-height:220px; object-fit:contain; display:block; background:var(--bg-card); }
-        .photo-box .no-photo { text-align:center; color: var(--color-hint); font-size:12.5px; padding: 30px 10px; }
-        .photo-box .no-photo svg { margin-bottom:6px; opacity:0.5; display:block; margin-left:auto; margin-right:auto; }
-        .photo-label { font-size:13px; color:var(--color-sub); margin-bottom:6px; font-weight:500; display:block; }
+        /* Form inputs */
+        .form-label-c{font-size:12px;color:var(--color-sub);font-weight:600;margin-bottom:5px;display:block;}
+        .form-control-c{width:100%;padding:9px 12px;font-size:14px;color:var(--color-text);background:var(--bg-input);border:1px solid var(--color-border);border-radius:8px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .form-control-c:focus{border-color:#1a6fa8;box-shadow:0 0 0 3px rgba(26,111,168,0.12);background:var(--bg-card);}
+        .form-control-c::placeholder{color:var(--color-hint);}
 
-        .loading-state { text-align:center; padding:4rem 1rem; color:var(--color-sub); }
-        .spinner-border-custom { width:36px; height:36px; border:3px solid var(--color-divider); border-top-color:#1a6fa8; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
-        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        .error-banner { background:#fde8e8; color:#b03030; border-radius:8px; padding:10px 16px; font-size:13px; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
-        [data-theme="dark"] .error-banner { background:#3a1a1a; color:#e07070; }
+        /* Save button */
+        .btn-save-c{background:#1a6fa8;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background 0.2s;}
+        .btn-save-c:hover{background:#155d8e;}
+        .btn-save-c:disabled{opacity:0.6;cursor:not-allowed;}
+        .alert-success-c{font-size:12px;color:#1a9a5a;display:none;}
+        .alert-danger-c{font-size:12px;color:#c0392b;display:none;}
 
-        .contract-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:1rem; }
-        .contract-no { font-family: monospace; font-weight: 700; color: #1a6fa8; font-size:15px; }
-        [data-theme="dark"] .contract-no { color: #6ab8e8; }
-        .badge-status { font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 600; display: inline-flex; align-items:center; gap:5px; white-space:nowrap; }
-        .badge-status .dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; flex-shrink:0; }
-        .badge-active  { background:#d8f5e8; color:#1a7a50; }
-        .badge-closed  { background:#e4e9ee; color:#5a6b7d; }
-        .badge-overdue { background:#fde8e8; color:#b03030; }
-        [data-theme="dark"] .badge-active  { background:#1a3a28; color:#4dc886; }
-        [data-theme="dark"] .badge-closed  { background:#28333d; color:#97a7b8; }
-        [data-theme="dark"] .badge-overdue { background:#3a1a1a; color:#e07070; }
+        /* Photo box */
+        .photo-box{border:1px solid var(--color-border);border-radius:10px;background:var(--bg-input);overflow:hidden;min-height:150px;display:flex;align-items:center;justify-content:center;}
+        .photo-box img{width:100%;height:100%;max-height:220px;object-fit:contain;display:block;background:var(--bg-card);cursor:zoom-in;transition:opacity 0.15s;}
+        .photo-box img:hover{opacity:0.88;}
+        .photo-box .no-photo{text-align:center;color:var(--color-hint);font-size:12.5px;padding:30px 10px;}
+        .photo-box .no-photo svg{margin-bottom:6px;opacity:0.5;display:block;margin-left:auto;margin-right:auto;}
+        .photo-label{font-size:13px;color:var(--color-sub);margin-bottom:6px;font-weight:500;display:block;}
+        .photo-actions{display:flex;gap:6px;margin-top:8px;}
+        .btn-photo-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--color-border);background:var(--bg-card);color:var(--color-sub);border-radius:7px;padding:6px 10px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.15s;}
+        .btn-photo-action:hover{border-color:#1a6fa8;color:#1a6fa8;background:var(--bg-input-grp);}
 
-        .summary-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.2rem; }
-        .summary-item { background:var(--bg-input); border:1px solid var(--color-border); border-radius:8px; padding:8px 14px; font-size:13px; display:flex; gap:6px; align-items:center; }
-        .summary-item span:first-child { color:var(--color-sub); }
-        .summary-item span:last-child  { font-weight:600; color:var(--color-text); }
+        /* Lightbox */
+        .lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;flex-direction:column;}
+        .lightbox.show{display:flex;}
+        .lb-toolbar{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;z-index:2010;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,transparent 100%);}
+        .lb-title{color:rgba(255,255,255,0.85);font-size:13.5px;font-weight:500;}
+        .lb-actions{display:flex;gap:8px;}
+        .lb-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;transition:background 0.15s;}
+        .lb-btn:hover{background:rgba(255,255,255,0.22);color:#fff;}
+        .lb-btn.close-btn{background:rgba(220,50,50,0.25);border-color:rgba(220,50,50,0.4);}
+        .lb-btn.close-btn:hover{background:rgba(220,50,50,0.45);}
+        .lb-img-wrap{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:64px 60px 48px;}
+        .lb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);}
+        .lb-arrow{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2010;font-size:18px;}
+        .lb-arrow:hover{background:rgba(255,255,255,0.28);}
+        .lb-arrow.prev{left:10px;} .lb-arrow.next{right:10px;}
+        .lb-arrow.hidden{opacity:0;pointer-events:none;}
+        .lb-counter{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2010;}
+        .lb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.3);cursor:pointer;}
+        .lb-dot.active{background:#fff;}
 
-        .schedule-table { width:100%; border-collapse:collapse; font-size:13px; }
-        .schedule-table thead th { background:var(--bg-input); color:var(--color-sub); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:9px 12px; text-align:left; border-bottom:1px solid var(--color-border); }
-        .schedule-table tbody td { padding:10px 12px; border-bottom:1px solid var(--color-divider); color:var(--color-text); vertical-align:middle; }
-        .schedule-table tbody tr:last-child td { border-bottom:none; }
-        .schedule-table tbody tr:hover td { background:var(--bg-input); }
-        .schedule-table td.tulangan-col { color:#1a7a50; font-weight:600; }
-        [data-theme="dark"] .schedule-table td.tulangan-col { color:#4dc886; }
-        .schedule-empty { text-align:center; padding:1.5rem; color:var(--color-hint); font-size:13px; }
+        /* Loading/error */
+        .loading-state{text-align:center;padding:4rem 1rem;color:var(--color-sub);}
+        .spinner-border-custom{width:36px;height:36px;border:3px solid var(--color-divider);border-top-color:#1a6fa8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .error-banner{background:#fde8e8;color:#b03030;border-radius:8px;padding:10px 16px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+        [data-theme="dark"] .error-banner{background:#3a1a1a;color:#e07070;}
 
-        .pay-status { font-size:11.5px; padding:3px 10px; border-radius:20px; font-weight:600; white-space:nowrap; display:inline-block; }
-        .pay-status.paid    { background:#d8f5e8; color:#1a7a50; }
-        .pay-status.pending { background:#fff0dc; color:#b07000; }
-        .pay-status.overdue { background:#fde8e8; color:#c0392b; }
-        [data-theme="dark"] .pay-status.paid    { background:#1a3a28; color:#4dc886; }
-        [data-theme="dark"] .pay-status.pending { background:#3a2e18; color:#f0a830; }
-        [data-theme="dark"] .pay-status.overdue { background:#3a1a1a; color:#e07070; }
+        /* Contract */
+        .contract-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1rem;}
+        .contract-no{font-family:monospace;font-weight:700;color:#1a6fa8;font-size:15px;}
+        [data-theme="dark"] .contract-no{color:#6ab8e8;}
+        .badge-status{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+        .badge-status .dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0;}
+        .badge-active{background:#d8f5e8;color:#1a7a50;} .badge-closed{background:#e4e9ee;color:#5a6b7d;} .badge-overdue{background:#fde8e8;color:#b03030;}
+        [data-theme="dark"] .badge-active{background:#1a3a28;color:#4dc886;} [data-theme="dark"] .badge-closed{background:#28333d;color:#97a7b8;} [data-theme="dark"] .badge-overdue{background:#3a1a1a;color:#e07070;}
 
-        .btn-pay { background:#1a6fa8; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:12.5px; font-weight:600; cursor:pointer; transition:background 0.2s; white-space:nowrap; }
-        .btn-pay:hover:not(:disabled) { background:#155d8e; }
-        .btn-pay:disabled { opacity:0.45; cursor:default; }
+        .summary-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.2rem;}
+        .summary-item{background:var(--bg-input);border:1px solid var(--color-border);border-radius:8px;padding:8px 14px;font-size:13px;display:flex;gap:6px;align-items:center;}
+        .summary-item span:first-child{color:var(--color-sub);} .summary-item span:last-child{font-weight:600;}
 
-        /* Modal */
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.48); z-index:1050; align-items:center; justify-content:center; padding:16px; }
-        .modal-overlay.show { display:flex; }
-        .modal-box { background:var(--bg-card); border-radius:14px; padding:1.8rem; max-width:460px; width:100%; box-shadow:0 8px 40px rgba(0,0,0,0.22); animation:modalIn 0.18s ease; max-height:90vh; overflow-y:auto; }
-        @keyframes modalIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-        .modal-title { font-size:17px; font-weight:700; color:var(--color-text); margin:0 0 1.2rem; display:flex; align-items:center; gap:8px; }
+        /* Schedule table */
+        .schedule-table{width:100%;border-collapse:collapse;font-size:13px;}
+        .schedule-table thead th{background:var(--bg-input);color:var(--color-sub);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:9px 12px;text-align:left;border-bottom:1px solid var(--color-border);}
+        .schedule-table tbody td{padding:10px 12px;border-bottom:1px solid var(--color-divider);vertical-align:middle;}
+        .schedule-table tbody tr:last-child td{border-bottom:none;}
+        .schedule-table tbody tr:hover td{background:var(--bg-input);}
+        .schedule-table td.tulangan-col{color:#1a7a50;font-weight:600;}
+        [data-theme="dark"] .schedule-table td.tulangan-col{color:#4dc886;}
+        .schedule-empty{text-align:center;padding:1.5rem;color:var(--color-hint);font-size:13px;}
+        .pay-status{font-size:11.5px;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block;}
+        .pay-status.paid{background:#d8f5e8;color:#1a7a50;} .pay-status.pending{background:#fff0dc;color:#b07000;} .pay-status.overdue{background:#fde8e8;color:#c0392b;}
+        [data-theme="dark"] .pay-status.paid{background:#1a3a28;color:#4dc886;} [data-theme="dark"] .pay-status.pending{background:#3a2e18;color:#f0a830;} [data-theme="dark"] .pay-status.overdue{background:#3a1a1a;color:#e07070;}
+        .btn-pay{background:#1a6fa8;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:12.5px;font-weight:600;cursor:pointer;transition:background 0.2s;white-space:nowrap;}
+        .btn-pay:hover:not(:disabled){background:#155d8e;} .btn-pay:disabled{opacity:0.45;cursor:default;}
 
-        .pay-info-box { background:var(--bg-input); border-radius:8px; padding:10px 14px; margin-bottom:1.1rem; }
-        .pay-info-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:5px 0; }
-        .pay-info-row:not(:last-child) { border-bottom:1px solid var(--color-divider); }
-        .pay-info-row span:first-child { color:var(--color-sub); }
-        .pay-info-row span:last-child  { font-weight:600; color:var(--color-text); }
+        /* Calc box */
+        .calc-box{background:var(--bg-input-grp);border-radius:10px;padding:14px 16px;margin-top:1rem;}
+        .calc-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--color-text);}
+        .calc-row span:first-child{color:var(--color-sub);}
+        .calc-row.total{border-top:1px solid var(--color-border);margin-top:6px;padding-top:8px;font-weight:700;font-size:14px;}
+        .calc-row.monthly{background:#1a6fa8;color:#fff;border-radius:8px;padding:10px 12px;margin-top:10px;font-weight:700;font-size:15px;}
+        .calc-row.monthly span:first-child{color:#cfe8fa;font-weight:600;}
+        .schedule-mini{margin-top:12px;}
+        .schedule-mini-title{font-size:11px;font-weight:700;color:var(--color-sub);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:7px;}
+        .schedule-mini-table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--bg-card);border-radius:8px;overflow:hidden;}
+        .schedule-mini-table thead th{background:var(--bg-input);color:var(--color-sub);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:7px 10px;text-align:left;}
+        .schedule-mini-table tbody td{padding:7px 10px;border-top:1px solid var(--color-divider);}
 
-        .form-label { font-size:13px; color:var(--color-sub); margin-bottom:5px; font-weight:500; display:block; }
-        .form-control, .form-select { font-size:14px; border:1px solid var(--color-border); border-radius:8px; padding:9px 12px; color:var(--color-text); background-color:var(--bg-input); width:100%; outline:none; transition:border-color 0.2s,box-shadow 0.2s; }
-        .form-control:focus, .form-select:focus { border-color:#1a6fa8; box-shadow:0 0 0 3px rgba(26,111,168,0.14); background-color:var(--bg-card); color:var(--color-text); }
-        .form-control::placeholder { color:var(--color-hint); }
-        .form-select option { background:var(--bg-card); color:var(--color-text); }
+        /* File upload */
+        .file-upload-box{border:2px dashed var(--color-border);border-radius:10px;background:var(--bg-input);text-align:center;padding:18px 14px;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:110px;overflow:hidden;transition:border-color 0.2s,background 0.2s;}
+        .file-upload-box:hover{border-color:#1a6fa8;background:var(--bg-input-grp);}
+        .file-upload-box input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+        .file-upload-box .upload-placeholder p{margin:4px 0 0;font-size:12.5px;color:var(--color-sub);font-weight:500;}
+        .file-upload-box .upload-placeholder span{font-size:11px;color:var(--color-hint);}
+        .file-preview{display:none;position:relative;width:100%;}
+        .file-preview img{width:100%;max-height:180px;object-fit:contain;border-radius:8px;border:1px solid var(--color-border);display:block;background:var(--bg-card);}
+        .file-preview .file-name{font-size:11px;color:var(--color-sub);margin-top:5px;word-break:break-all;}
+        .file-preview .remove-file-btn{position:absolute;top:-8px;right:-8px;width:22px;height:22px;background:#e74c3c;color:#fff;border:none;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
 
-        .input-group { display:flex; }
-        .input-group .form-control { border-radius:8px 0 0 8px; border-right:none; flex:1; }
-        .input-group-text { background:var(--bg-input-grp); border:1px solid var(--color-border); border-left:none; color:#1a6fa8; font-size:13px; font-weight:600; border-radius:0 8px 8px 0; padding:0 14px; display:flex; align-items:center; white-space:nowrap; }
-        [data-theme="dark"] .input-group-text { color:#5ab4dc; }
-
-        .required-star { color:#e05555; margin-left:2px; }
-
-        .form-msg { font-size:13px; padding:9px 13px; border-radius:8px; margin-bottom:12px; display:none; }
-        .form-msg.show { display:block; }
-        .form-msg.error   { background:#fde8e8; color:#b03030; }
-        .form-msg.success { background:#d8f5e8; color:#1a7a50; }
-        [data-theme="dark"] .form-msg.error   { background:#3a1a1a; color:#e07070; }
-        [data-theme="dark"] .form-msg.success { background:#1a3a28; color:#4dc886; }
-
-        .btn-save-form { background:#1a6fa8; color:#fff; border:none; border-radius:8px; padding:9px 22px; font-size:14px; font-weight:600; cursor:pointer; transition:background 0.2s; }
-        .btn-save-form:hover:not(:disabled) { background:#155d8e; }
-        .btn-save-form:disabled { opacity:0.6; cursor:default; }
-        .btn-cancel-form { background:var(--bg-input); color:var(--color-text); border:1px solid var(--color-border); border-radius:8px; padding:9px 18px; font-size:14px; cursor:pointer; transition:background 0.2s; }
-        .btn-cancel-form:hover { background:var(--color-divider); }
-
-        .pay-type-group { display:flex; gap:8px; flex-wrap:wrap; }
-        .pay-type-btn { flex:1; min-width:90px; border:1.5px solid var(--color-border); background:var(--bg-input); color:var(--color-text); border-radius:8px; padding:9px 10px; font-size:13px; font-weight:500; cursor:pointer; text-align:center; transition:all 0.15s; }
-        .pay-type-btn:hover { border-color:#1a6fa8; background:var(--bg-input-grp); }
-        .pay-type-btn.selected { border-color:#1a6fa8; background:#e8f4fd; color:#1a6fa8; font-weight:700; }
-        [data-theme="dark"] .pay-type-btn.selected { background:#1a3048; color:#6ab8e8; border-color:#3a7ab8; }
-
-        /* Dokon loading spinner */
-        .select-wrap { position:relative; }
-        .select-wrap .sel-spinner { display:none; position:absolute; right:36px; top:50%; transform:translateY(-50%); width:14px; height:14px; border:2px solid var(--color-border); border-top-color:#1a6fa8; border-radius:50%; animation:spin 0.7s linear infinite; pointer-events:none; }
-        .select-wrap.loading .sel-spinner { display:block; }
+        /* Modals shared */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.48);z-index:1050;align-items:center;justify-content:center;padding:16px;}
+        .modal-overlay.show{display:flex;}
+        .modal-box{background:var(--bg-card);border-radius:14px;padding:1.8rem;max-width:480px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.22);animation:modalIn 0.18s ease;max-height:92vh;overflow-y:auto;}
+        .modal-box.wide{max-width:580px;}
+        @keyframes modalIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .modal-title{font-size:17px;font-weight:700;color:var(--color-text);margin:0 0 1.2rem;display:flex;align-items:center;gap:8px;}
+        .pay-info-box{background:var(--bg-input);border-radius:8px;padding:10px 14px;margin-bottom:1.1rem;}
+        .pay-info-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;}
+        .pay-info-row:not(:last-child){border-bottom:1px solid var(--color-divider);}
+        .pay-info-row span:first-child{color:var(--color-sub);} .pay-info-row span:last-child{font-weight:600;}
+        .form-label{font-size:13px;color:var(--color-sub);margin-bottom:5px;font-weight:500;display:block;}
+        .form-control,.form-select{font-size:14px;border:1px solid var(--color-border);border-radius:8px;padding:9px 12px;color:var(--color-text);background-color:var(--bg-input);width:100%;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+        .form-control:focus,.form-select:focus{border-color:#1a6fa8;box-shadow:0 0 0 3px rgba(26,111,168,0.14);background-color:var(--bg-card);}
+        .form-control::placeholder{color:var(--color-hint);}
+        .form-select option{background:var(--bg-card);color:var(--color-text);}
+        .input-group{display:flex;}
+        .input-group .form-control{border-radius:8px 0 0 8px;border-right:none;flex:1;}
+        .input-group-text{background:var(--bg-input-grp);border:1px solid var(--color-border);border-left:none;color:#1a6fa8;font-size:13px;font-weight:600;border-radius:0 8px 8px 0;padding:0 14px;display:flex;align-items:center;white-space:nowrap;}
+        [data-theme="dark"] .input-group-text{color:#5ab4dc;}
+        .required-star{color:#e05555;margin-left:2px;}
+        .form-msg{font-size:13px;padding:9px 13px;border-radius:8px;margin-bottom:12px;display:none;}
+        .form-msg.show{display:block;}
+        .form-msg.error{background:#fde8e8;color:#b03030;} .form-msg.success{background:#d8f5e8;color:#1a7a50;}
+        [data-theme="dark"] .form-msg.error{background:#3a1a1a;color:#e07070;} [data-theme="dark"] .form-msg.success{background:#1a3a28;color:#4dc886;}
+        .btn-save-form{background:#1a6fa8;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;}
+        .btn-save-form:hover:not(:disabled){background:#155d8e;} .btn-save-form:disabled{opacity:0.6;cursor:default;}
+        .btn-cancel-form{background:var(--bg-input);color:var(--color-text);border:1px solid var(--color-border);border-radius:8px;padding:9px 18px;font-size:14px;cursor:pointer;transition:background 0.2s;}
+        .btn-cancel-form:hover{background:var(--color-divider);}
+        .pay-type-group{display:flex;gap:8px;flex-wrap:wrap;}
+        .pay-type-btn{flex:1;min-width:90px;border:1.5px solid var(--color-border);background:var(--bg-input);color:var(--color-text);border-radius:8px;padding:9px 10px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all 0.15s;}
+        .pay-type-btn:hover{border-color:#1a6fa8;background:var(--bg-input-grp);}
+        .pay-type-btn.selected{border-color:#1a6fa8;background:#e8f4fd;color:#1a6fa8;font-weight:700;}
+        [data-theme="dark"] .pay-type-btn.selected{background:#1a3048;color:#6ab8e8;border-color:#3a7ab8;}
+        .select-wrap{position:relative;}
+        .select-wrap .sel-spinner{display:none;position:absolute;right:36px;top:50%;transform:translateY(-50%);width:14px;height:14px;border:2px solid var(--color-border);border-top-color:#1a6fa8;border-radius:50%;animation:spin 0.7s linear infinite;pointer-events:none;}
+        .select-wrap.loading .sel-spinner{display:block;}
     </style>
 </head>
 <body>
-
 <nav th:replace="~{fragment :: navbar}"></nav>
 
 <div class="container py-4" style="max-width:1000px;">
-    <div id="errorBanner" class="error-banner" style="display:none;">
-        <span>&#9888;&#65039;</span><span id="errorBannerText"></span>
-    </div>
-
-    <div class="loading-state" id="loadingState">
-        <div class="spinner-border-custom"></div>
-        <p style="font-size:14px;">Ma'lumotlar yuklanmoqda...</p>
-    </div>
+    <div id="errorBanner" class="error-banner" style="display:none;"><span>&#9888;&#65039;</span><span id="errorBannerText"></span></div>
+    <div class="loading-state" id="loadingState"><div class="spinner-border-custom"></div><p style="font-size:14px;">Ma'lumotlar yuklanmoqda...</p></div>
 
     <div id="pageContent" style="display:none;">
-
         <div class="d-flex align-items-center gap-3 mb-4">
             <div class="avatar-icon" id="avatarIcon">&#8212;</div>
-            <div>
-                <p class="page-title" id="pageTitle">Shartnoma ma'lumotlari</p>
-                <p class="page-subtitle">Mijoz va shartnoma haqida to'liq ma'lumot</p>
-            </div>
+            <div><p class="page-title" id="pageTitle">Shartnoma ma'lumotlari</p><p class="page-subtitle">Mijoz va shartnoma haqida to'liq ma'lumot</p></div>
         </div>
 
-        <!-- 1-QISM -->
+        <!-- 1-QISM: TAHRIRLASH -->
         <div class="main-card mb-4">
             <div class="part-header">
-                <div class="part-header-left">
-                    <div class="part-number">1</div>
-                    <div>
-                        <p class="part-title">Shaxsiy ma'lumotlar</p>
-                        <p class="part-subtitle">Mijoz va hujjat ma'lumotlari</p>
-                    </div>
-                </div>
-                <button class="btn-primary-c" onclick="alert('Tahrirlash funksiyasi keyinroq qo\'shiladi')">&#9999;&#65039; Tahrirlash</button>
+                <div class="part-number">1</div>
+                <div><p class="part-title">Shaxsiy ma'lumotlar</p><p class="part-subtitle">Maydonlarni to'g'ridan-to'g'ri tahrirlang</p></div>
             </div>
-            <div class="row">
-                <div class="col-md-4 info-row"><div class="info-label">Ism</div><div class="info-value" id="v_ism"></div></div>
-                <div class="col-md-4 info-row"><div class="info-label">Familiya</div><div class="info-value" id="v_familiya"></div></div>
-                <div class="col-md-4 info-row"><div class="info-label">Sharif</div><div class="info-value" id="v_sharif"></div></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4"><label class="form-label-c">Ism</label><input type="text" class="form-control-c" id="f_ism" placeholder="Ism"></div>
+                <div class="col-md-4"><label class="form-label-c">Familiya</label><input type="text" class="form-control-c" id="f_familiya" placeholder="Familiya"></div>
+                <div class="col-md-4"><label class="form-label-c">Sharif</label><input type="text" class="form-control-c" id="f_sharif" placeholder="Sharif"></div>
             </div>
-            <div class="row">
-                <div class="col-md-4 info-row"><div class="info-label">Telefon 1</div><div class="info-value" id="v_tel1"></div></div>
-                <div class="col-md-4 info-row"><div class="info-label">Telefon 2</div><div class="info-value" id="v_tel2"></div></div>
-                <div class="col-md-4 info-row"><div class="info-label">Telefon 3</div><div class="info-value" id="v_tel3"></div></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4"><label class="form-label-c">Telefon 1</label><input type="tel" class="form-control-c" id="f_tel1" placeholder="+998 90 000 00 00"></div>
+                <div class="col-md-4"><label class="form-label-c">Telefon 2</label><input type="tel" class="form-control-c" id="f_tel2" placeholder="+998 90 000 00 00"></div>
+                <div class="col-md-4"><label class="form-label-c">Telefon 3</label><input type="tel" class="form-control-c" id="f_tel3" placeholder="+998 90 000 00 00"></div>
             </div>
-            <div class="row">
-                <div class="col-md-6 info-row"><div class="info-label">Viloyat</div><div class="info-value" id="v_viloyat"></div></div>
-                <div class="col-md-6 info-row"><div class="info-label">Tuman</div><div class="info-value" id="v_tuman"></div></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6"><label class="form-label-c">Viloyat</label><input type="text" class="form-control-c" id="f_viloyat"></div>
+                <div class="col-md-6"><label class="form-label-c">Tuman</label><input type="text" class="form-control-c" id="f_tuman"></div>
             </div>
-            <div class="row">
-                <div class="col-md-6 info-row"><div class="info-label">Manzil</div><div class="info-value" id="v_manzil"></div></div>
-                <div class="col-md-6 info-row"><div class="info-label">Mo'ljal</div><div class="info-value" id="v_muljal"></div></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6"><label class="form-label-c">Manzil</label><input type="text" class="form-control-c" id="f_manzil"></div>
+                <div class="col-md-6"><label class="form-label-c">Mo'ljal</label><input type="text" class="form-control-c" id="f_muljal"></div>
             </div>
-            <div class="row">
-                <div class="col-md-6 info-row"><div class="info-label">Lokatsiya</div><div class="info-value" id="v_lokatsiya"></div></div>
-                <div class="col-md-6 info-row"><div class="info-label">Passport seriya va raqami</div><div class="info-value" id="v_passport"></div></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6"><label class="form-label-c">Passport</label><input type="text" class="form-control-c" id="f_passport" placeholder="AB1234567" maxlength="9" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()"></div>
             </div>
             <hr class="divider">
             <p class="section-title">&#128206; Passport rasmlari</p>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <span class="photo-label">Passport rasmi (1-bet)</span>
-                    <div class="photo-box" id="passportPhoto1Box">
-                        <div class="no-photo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
-                            <div>Rasm mavjud emas</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <span class="photo-label">Passport rasmi (2-bet)</span>
-                    <div class="photo-box" id="passportPhoto2Box">
-                        <div class="no-photo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
-                            <div>Rasm mavjud emas</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="row g-3 mb-4" id="passportPhotosWrap"></div>
+            <div class="d-flex align-items-center justify-content-end gap-3 flex-wrap">
+                <p class="alert-success-c mb-0" id="mijozSaveSuccess">&#9989; Muvaffaqiyatli saqlandi</p>
+                <p class="alert-danger-c mb-0" id="mijozSaveError"></p>
+                <button class="btn-save-c" id="mijozSaveBtn" onclick="saveMijoz()">&#128190; Saqlash</button>
             </div>
         </div>
 
-        <!-- 2-QISM -->
+        <!-- 2-QISM: SHARTNOMA -->
         <div class="main-card">
-            <div class="part-header">
-                <div class="part-header-left">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.4rem;">
+                <div class="part-header" style="margin:0;">
                     <div class="part-number">2</div>
-                    <div>
-                        <p class="part-title">Shartnoma</p>
-                        <p class="part-subtitle">To'lov shartlari va kafolat hujjati</p>
-                    </div>
+                    <div><p class="part-title">Shartnoma</p><p class="part-subtitle">To'lov shartlari va kafolat hujjati</p></div>
                 </div>
-                <button class="btn-primary-c" onclick="alert('Yangi shartnoma ochish funksiyasi keyinroq qo\'shiladi')">&#10133; Yangi shartnoma</button>
+                <button class="btn-primary-c" onclick="openNewShartnoma()">&#10133; Yangi shartnoma</button>
             </div>
             <div class="contract-head">
                 <span class="contract-no" id="v_contractNo">&#8470;&#8212;</span>
@@ -270,47 +254,149 @@
             <div id="scheduleWrap"></div>
             <hr class="divider" style="margin:1.5rem 0;">
             <p class="section-title">&#128737;&#65039; Kafolat xati rasmlari</p>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <span class="photo-label">Kafolat xati (1-bet)</span>
-                    <div class="photo-box" id="kafolatPhoto1Box">
-                        <div class="no-photo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
-                            <div>Rasm mavjud emas</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <span class="photo-label">Kafolat xati (2-bet)</span>
-                    <div class="photo-box" id="kafolatPhoto2Box">
-                        <div class="no-photo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
-                            <div>Rasm mavjud emas</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="row g-3" id="kafolatPhotosWrap"></div>
         </div>
     </div>
 </div>
 
-<!-- PAYMENT MODAL -->
+<!-- ══════ LIGHTBOX ══════ -->
+<div class="lightbox" id="lightbox">
+    <div class="lb-toolbar">
+        <span class="lb-title" id="lbTitle">Rasm</span>
+        <div class="lb-actions">
+            <a class="lb-btn" id="lbDownload" download><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg> Yuklab olish</a>
+            <a class="lb-btn" id="lbOpen" target="_blank"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/></svg> Yangi tab</a>
+            <button class="lb-btn close-btn" onclick="closeLightbox()"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854z"/></svg> Yopish</button>
+        </div>
+    </div>
+    <div class="lb-img-wrap"><img id="lbImg" src="" alt="Rasm"></div>
+    <button class="lb-arrow prev" id="lbPrev" onclick="lbNavigate(-1)">&#8249;</button>
+    <button class="lb-arrow next" id="lbNext" onclick="lbNavigate(1)">&#8250;</button>
+    <div class="lb-counter" id="lbCounter"></div>
+</div>
+
+<!-- ══════ YANGI SHARTNOMA MODAL ══════ -->
+<div class="modal-overlay" id="newShartnomaModal">
+    <div class="modal-box wide" onclick="event.stopPropagation()">
+        <p class="modal-title">&#10133; Yangi shartnoma</p>
+        <div class="form-msg" id="nsMsg"></div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Shartnoma sanasi <span class="required-star">*</span></label>
+                <input type="datetime-local" id="ns_sana" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Birinchi to'lov sanasi <span class="required-star">*</span></label>
+                <input type="datetime-local" id="ns_tulov_sana" class="form-control">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Do'kon <span class="required-star">*</span></label>
+            <div class="select-wrap" id="nsDokonWrap">
+                <select class="form-select" id="ns_dokon"><option value="" disabled selected>Yuklanmoqda...</option></select>
+                <div class="sel-spinner"></div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mahsulot haqida</label>
+            <textarea id="ns_about" class="form-control" rows="2" placeholder="Mahsulot nomi yoki tavsifi"></textarea>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-5">
+                <label class="form-label">Summa <span class="required-star">*</span></label>
+                <div class="input-group">
+                    <input type="number" id="ns_summa" class="form-control" placeholder="0" min="0" oninput="nsUpdateCalc()">
+                    <span class="input-group-text">so'm</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Foiz (%) <span class="required-star">*</span></label>
+                <div class="input-group">
+                    <input type="number" id="ns_foiz" class="form-control" placeholder="0" min="0" step="0.1" oninput="nsUpdateCalc()">
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Muddat <span class="required-star">*</span></label>
+                <div class="input-group">
+                    <input type="number" id="ns_muddat" class="form-control" placeholder="oy" min="1" oninput="nsUpdateCalc()">
+                    <span class="input-group-text">oy</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calc preview -->
+        <div id="nsCalcBox" style="display:none;" class="calc-box mb-3">
+            <div class="calc-row"><span>Shartnoma summasi</span><span id="ns_c_summa">—</span></div>
+            <div class="calc-row"><span>Foiz miqdori</span><span id="ns_c_foiz">—</span></div>
+            <div class="calc-row total"><span>Jami to'lanadigan</span><span id="ns_c_jami">—</span></div>
+            <div class="calc-row monthly"><span>Oylik to'lov</span><span id="ns_c_oylik">—</span></div>
+            <div class="schedule-mini" id="nsScheduleMini">
+                <p class="schedule-mini-title">&#128197; To'lov jadvali</p>
+                <table class="schedule-mini-table">
+                    <thead><tr><th>#</th><th>Sana</th><th>Summa</th></tr></thead>
+                    <tbody id="nsScheduleBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Kafolat rasmlari -->
+        <hr class="divider" style="margin:1rem 0;">
+        <p class="section-title" style="margin-bottom:12px;">&#128737;&#65039; Kafolat xati (ixtiyoriy)</p>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <span class="photo-label">Kafolat xati (1-bet)</span>
+                <div class="file-upload-box" id="ns_kaf1_box">
+                    <input type="file" id="ns_kaf1" accept="image/*,.pdf" onchange="nsPreviewFile(event,'ns_kaf1')">
+                    <div class="upload-placeholder" id="ns_kaf1_ph">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/><path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/></svg>
+                        <p>Rasm yuklash</p><span>JPG, PNG yoki PDF</span>
+                    </div>
+                    <div class="file-preview" id="ns_kaf1_prev">
+                        <button class="remove-file-btn" onclick="nsRemoveFile('ns_kaf1')">&#10005;</button>
+                        <img id="ns_kaf1_img"><div class="file-name" id="ns_kaf1_name"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <span class="photo-label">Kafolat xati (2-bet)</span>
+                <div class="file-upload-box" id="ns_kaf2_box">
+                    <input type="file" id="ns_kaf2" accept="image/*,.pdf" onchange="nsPreviewFile(event,'ns_kaf2')">
+                    <div class="upload-placeholder" id="ns_kaf2_ph">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/><path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"/></svg>
+                        <p>Rasm yuklash</p><span>JPG, PNG yoki PDF</span>
+                    </div>
+                    <div class="file-preview" id="ns_kaf2_prev">
+                        <button class="remove-file-btn" onclick="nsRemoveFile('ns_kaf2')">&#10005;</button>
+                        <img id="ns_kaf2_img"><div class="file-name" id="ns_kaf2_name"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            <button class="btn-cancel-form" onclick="closeNewShartnoma()">Bekor qilish</button>
+            <button class="btn-save-form" id="nsSaveBtn" onclick="saveNewShartnoma()">&#128190; Shartnoma yaratish</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════ PAYMENT MODAL ══════ -->
 <div class="modal-overlay" id="payModal">
     <div class="modal-box" onclick="event.stopPropagation()">
         <p class="modal-title">&#128179; To'lov qilish</p>
-
         <div class="form-msg" id="payFormMsg"></div>
-
         <div class="pay-info-box">
             <div class="pay-info-row"><span>Jadval sanasi</span><span id="pay_sana_jadval">&#8212;</span></div>
             <div class="pay-info-row"><span>Belgilangan summa</span><span id="pay_belgilangan">&#8212;</span></div>
             <div class="pay-info-row"><span>Hozirgacha to'langan</span><span id="pay_tulangan">&#8212;</span></div>
             <div class="pay-info-row"><span>Qolgan</span><span id="pay_qolgan" style="color:#c0392b;font-weight:700;">&#8212;</span></div>
         </div>
-
         <input type="hidden" id="pay_jadvalId">
-
-        <!-- Summa -->
         <div class="mb-3">
             <label class="form-label">To'lov summasi <span class="required-star">*</span></label>
             <div class="input-group">
@@ -318,25 +404,17 @@
                 <span class="input-group-text">so'm</span>
             </div>
         </div>
-
-        <!-- To'lov sanasi -->
         <div class="mb-3">
             <label class="form-label">To'lov sanasi <span class="required-star">*</span></label>
             <input type="datetime-local" id="pay_sana_input" class="form-control">
         </div>
-
-        <!-- Do'kon -->
         <div class="mb-3">
             <label class="form-label">Do'kon <span class="required-star">*</span></label>
             <div class="select-wrap" id="dokonSelectWrap">
-                <select class="form-select" id="pay_dokon">
-                    <option value="" disabled selected>Yuklanmoqda...</option>
-                </select>
+                <select class="form-select" id="pay_dokon"><option value="" disabled selected>Yuklanmoqda...</option></select>
                 <div class="sel-spinner"></div>
             </div>
         </div>
-
-        <!-- To'lov turi -->
         <div class="mb-1">
             <label class="form-label" style="margin-bottom:8px;">To'lov turi <span class="required-star">*</span></label>
             <div class="pay-type-group">
@@ -346,7 +424,6 @@
             </div>
             <input type="hidden" id="pay_turi_hidden">
         </div>
-
         <div class="d-flex justify-content-end gap-2 mt-4">
             <button class="btn-cancel-form" onclick="closePayModal()">Bekor qilish</button>
             <button class="btn-save-form" id="paySaveBtn" onclick="submitPayment()">&#128190; Saqlash</button>
@@ -356,7 +433,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Theme
+    // ── Theme ──
     const html = document.documentElement;
     applyTheme(localStorage.getItem('mb-theme') || 'light');
     function applyTheme(t) {
@@ -364,331 +441,436 @@
         localStorage.setItem('mb-theme', t);
         const icon  = document.getElementById('themeIcon');
         const label = document.getElementById('themeLabel');
-        if (icon)  icon.textContent  = t === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+        if (icon)  icon.textContent  = t === 'dark' ? '☀️' : '🌙';
         if (label) label.textContent = t === 'dark' ? 'Kun' : 'Tun';
     }
-    function toggleTheme() {
-        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
 
-    // URL param
     const params      = new URLSearchParams(window.location.search);
     const shartnomaId = params.get('id');
 
-    // Global state
-    let _currentGrafik = [];
-    let _magazinlar    = [];
-    let _magazinLoaded = false;
+    let _currentGrafik  = [];
+    let _magazinlar     = [];
+    let _magazinLoaded  = false;
+    let _currentMijozId = null;
+    let _nsFiles        = {};
 
-    // Helpers
-    function setVal(id, val) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (val === undefined || val === null || val === '') {
-            el.textContent = '\u2014'; el.classList.add('empty');
-        } else {
-            el.textContent = val; el.classList.remove('empty');
-        }
+    // ══════ LIGHTBOX ══════
+    let _lbImages = [], _lbIndex = 0;
+    function openLightbox(images, startIndex) {
+        _lbImages = images; _lbIndex = startIndex || 0;
+        document.getElementById('lightbox').classList.add('show');
+        document.body.style.overflow = 'hidden';
+        lbRender();
     }
-    function initialsOf(a, b) { return ((a?.[0]||'')+(b?.[0]||'')).toUpperCase(); }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    function lbRender() {
+        const img = _lbImages[_lbIndex], total = _lbImages.length;
+        document.getElementById('lbImg').src = img.url;
+        document.getElementById('lbTitle').textContent = img.title + (total > 1 ? ' ('+((_lbIndex+1))+'/'+total+')' : '');
+        document.getElementById('lbDownload').href = img.url;
+        document.getElementById('lbDownload').setAttribute('download', img.title.replace(/\s+/g,'_')+'.jpg');
+        document.getElementById('lbOpen').href = img.url;
+        document.getElementById('lbPrev').classList.toggle('hidden', _lbIndex === 0);
+        document.getElementById('lbNext').classList.toggle('hidden', _lbIndex === total-1);
+        const counter = document.getElementById('lbCounter');
+        counter.innerHTML = total > 1 ? _lbImages.map(function(_,i){
+            return '<div class="lb-dot'+(i===_lbIndex?' active':'')+'" onclick="lbGoTo('+i+')"></div>';
+        }).join('') : '';
+    }
+    function lbNavigate(dir) { const n = _lbIndex+dir; if(n>=0&&n<_lbImages.length){_lbIndex=n;lbRender();} }
+    function lbGoTo(i) { _lbIndex=i; lbRender(); }
+    document.getElementById('lightbox').addEventListener('click', function(e){ if(e.target===this) closeLightbox(); });
+    document.addEventListener('keydown', function(e){
+        if (!document.getElementById('lightbox').classList.contains('show')) return;
+        if (e.key==='ArrowLeft') lbNavigate(-1);
+        if (e.key==='ArrowRight') lbNavigate(1);
+        if (e.key==='Escape') closeLightbox();
+    });
+
+    // ══════ PHOTO RENDERING ══════
+    function photoUrl(src) {
+        if (!src) return null;
+        if (typeof src==='object' && src.id) return '/admin/fayl/'+src.id;
+        if (typeof src==='number') return '/admin/fayl/'+src;
+        if (typeof src==='string') return src;
+        return null;
+    }
+    function renderPhotoGroup(wrapId, photos) {
+        const wrap  = document.getElementById(wrapId);
+        const valid = photos.filter(function(p){ return !!p.url; });
+        const noSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>';
+        wrap.innerHTML = photos.map(function(p){
+            if (!p.url) return '<div class="col-md-6"><span class="photo-label">'+p.title+'</span><div class="photo-box"><div class="no-photo">'+noSvg+'<div>Rasm mavjud emas</div></div></div></div>';
+            const vi = valid.findIndex(function(v){ return v.url===p.url; });
+            return '<div class="col-md-6"><span class="photo-label">'+p.title+'</span>'+
+                '<div class="photo-box"><img src="'+p.url+'" alt="'+p.title+'" onclick="openLightbox('+JSON.stringify(valid)+','+vi+')"></div>'+
+                '<div class="photo-actions">'+
+                '<a class="btn-photo-action" href="'+p.url+'" download="'+p.title.replace(/\s+/g,'_')+'.jpg">'+
+                '<svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>Yuklab olish</a>'+
+                '<a class="btn-photo-action" href="'+p.url+'" target="_blank">'+
+                '<svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/><path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/></svg>Yangi tab</a>'+
+                '</div></div>';
+        }).join('');
+    }
+
+    // ── Helpers ──
     function showError(msg) {
         document.getElementById('errorBannerText').textContent = msg;
         document.getElementById('errorBanner').style.display = 'flex';
     }
     function badgeInfo(s) {
-        if (s === 'Faol')           return {cls:'badge-active', label:'Faol'};
-        if (s === 'Yopilgan')       return {cls:'badge-closed', label:'Yopilgan'};
-        if (s === "Muddati o'tgan") return {cls:'badge-overdue', label:"Muddati o'tgan"};
-        return {cls:'badge-closed', label: s || '\u2014'};
+        if (s==='Faol') return {cls:'badge-active',label:'Faol'};
+        if (s==='Yopilgan') return {cls:'badge-closed',label:'Yopilgan'};
+        if (s==="Muddati o'tgan") return {cls:'badge-overdue',label:"Muddati o'tgan"};
+        return {cls:'badge-closed',label:s||'—'};
     }
     function fmtSumma(n) {
-        if (n === undefined || n === null || n === '') return '\u2014';
-        return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
+        if (n===undefined||n===null||n==='') return '—';
+        return (Number(n)||0).toLocaleString('uz-UZ')+" so'm";
     }
     function fmtSummaShort(n) {
-        const v = Math.round(Number(n)||0);
-        if (v >= 1000000) return (v/1000000).toFixed(1).replace('.0','') + " mln so'm";
-        return v.toLocaleString('uz-UZ') + " so'm";
+        const v=Number(n)||0;
+        if (v>=1000000) return (v/1000000).toFixed(1).replace('.0','')+" mln so'm";
+        return v.toLocaleString('uz-UZ')+" so'm";
     }
     function payStatusInfo(h) {
-        if (h === "tulangan")        return {cls:'paid',    label:"To'langan"};
-        if (h === "Muddati o'tgan")   return {cls:'overdue', label:"Muddati o'tgan"};
-        return {cls:'pending', label:'Kutilmoqda'};
+        if (h==='tulangan') return {cls:'paid',label:"To'langan"};
+        if (h==="Muddati o'tgan") return {cls:'overdue',label:"Muddati o'tgan"};
+        return {cls:'pending',label:'Kutilmoqda'};
     }
     function fmtDate(sana) {
-        if (!sana) return '\u2014';
-        const d = new Date(sana);
+        if (!sana) return '—';
+        const d=new Date(sana);
         if (isNaN(d.getTime())) return sana;
-        const oy = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+        const oy=['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
         return d.getDate()+'-'+oy[d.getMonth()]+', '+d.getFullYear();
     }
     function nowLocalISO() {
-        const now = new Date();
-        return new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+        const now=new Date();
+        return new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
     }
-    function renderPhoto(boxId, src) {
-        const box = document.getElementById(boxId);
-        if (!src) return;
-        let url = src;
-        if (typeof src === 'object' && src.id) url = '/admin/fayl/'+src.id;
-        else if (typeof src === 'number')      url = '/admin/fayl/'+src;
-        box.innerHTML = '<img src="'+url+'" alt="Hujjat rasmi">';
+    function localISOwithMonthOffset(months) {
+        const d=new Date();
+        d.setMonth(d.getMonth()+months);
+        return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
     }
 
-    // Load magazinlar (bir marta)
-    function loadMagazinlar() {
-        if (_magazinLoaded) return Promise.resolve();
-        const wrap = document.getElementById('dokonSelectWrap');
-        wrap.classList.add('loading');
+    // ── Magazinlar ──
+    function loadMagazinlar(selId, wrapId) {
+        if (_magazinLoaded) { buildDokonSelect(selId); return Promise.resolve(); }
+        const wrap = document.getElementById(wrapId);
+        if (wrap) wrap.classList.add('loading');
         return fetch('/admin/get-magazinlar')
-            .then(r => r.ok ? r.json() : Promise.reject(r.status))
-            .then(data => {
-                _magazinlar    = Array.isArray(data) ? data : [];
-                _magazinLoaded = true;
-                buildDokonSelect();
-            })
-            .catch(err => {
-                console.error('Magazinlar yuklanmadi:', err);
-                _magazinlar    = [];
-                _magazinLoaded = true;
-                buildDokonSelect();
-            })
-            .finally(() => wrap.classList.remove('loading'));
+            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data){ _magazinlar=Array.isArray(data)?data:[]; _magazinLoaded=true; buildDokonSelect(selId); })
+            .catch(function(){ _magazinlar=[]; _magazinLoaded=true; buildDokonSelect(selId); })
+            .finally(function(){ if(wrap) wrap.classList.remove('loading'); });
     }
-    function buildDokonSelect() {
-        const sel = document.getElementById('pay_dokon');
+    function buildDokonSelect(selId) {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
         sel.innerHTML = '<option value="" disabled selected>Do\'konni tanlang...</option>';
-        _magazinlar.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value       = m.id;
-            opt.textContent = m.nomi;
-            sel.appendChild(opt);
+        _magazinlar.forEach(function(m){
+            const opt=document.createElement('option');
+            opt.value=m.id; opt.textContent=m.nomi; sel.appendChild(opt);
         });
     }
 
-    // Render mijoz
-    function renderMijoz(m) {
-        m = m || {};
-        setVal('v_ism',      m.ism);
-        setVal('v_familiya', m.familiya);
-        setVal('v_sharif',   m.sharif);
-        setVal('v_tel1',     m.tel1);
-        setVal('v_tel2',     m.tel2);
-        setVal('v_tel3',     m.tel3);
-        setVal('v_viloyat',  m.viloyat);
-        setVal('v_tuman',    m.tuman);
-        setVal('v_manzil',   m.manzil);
-        setVal('v_muljal',   m.muljal);
-        setVal('v_passport', m.passport);
-        const lok = document.getElementById('v_lokatsiya');
-        if (m.lokatsiya) {
-            lok.innerHTML = '<a href="'+m.lokatsiya+'" target="_blank">'+m.lokatsiya+'</a>';
-            lok.classList.remove('empty');
-        } else if (m.lat && m.lng) {
-            lok.innerHTML = '<a href="https://maps.google.com/?q='+m.lat+','+m.lng+'" target="_blank">'+m.lat+', '+m.lng+'</a>';
-            lok.classList.remove('empty');
-        } else { lok.textContent = '\u2014'; lok.classList.add('empty'); }
-        const name = ((m.familiya||'')+' '+(m.ism||'')+' '+(m.sharif||'')).trim();
-        document.getElementById('pageTitle').textContent  = name || "Shartnoma ma'lumotlari";
-        document.getElementById('avatarIcon').textContent = initialsOf(m.ism, m.familiya) || '\u2014';
-        renderPhoto('passportPhoto1Box', m.passportRasm  || m.passportRasm1);
-        renderPhoto('passportPhoto2Box', m.passportRasm2 || m.katm);
+    // ── Mijoz fill & save ──
+    function fillMijoz(m) {
+        m=m||{};
+        _currentMijozId=m.id||null;
+        ['ism','familiya','sharif','tel1','tel2','tel3','viloyat','tuman','manzil','muljal','passport'].forEach(function(k){
+            const el=document.getElementById('f_'+k);
+            if (el) el.value=m[k]||'';
+        });
+        const fish=[m.familiya,m.ism,m.sharif].filter(Boolean).join(' ');
+        document.getElementById('pageTitle').textContent  = fish||"Shartnoma ma'lumotlari";
+        document.getElementById('avatarIcon').textContent = (((m.ism||'')[0]||'')+((m.familiya||'')[0]||'')).toUpperCase()||'—';
+        renderPhotoGroup('passportPhotosWrap',[
+            {url:photoUrl(m.passportRasm||m.passportRasm1),title:'Passport rasmi (1-bet)'},
+            {url:photoUrl(m.passportRasm2||m.katm),        title:'Passport rasmi (2-bet)'}
+        ]);
+    }
+    function saveMijoz() {
+        const btn=document.getElementById('mijozSaveBtn');
+        const succ=document.getElementById('mijozSaveSuccess');
+        const errEl=document.getElementById('mijozSaveError');
+        succ.style.display='none'; errEl.style.display='none';
+        const payload={id:_currentMijozId};
+        ['ism','familiya','sharif','tel1','tel2','tel3','viloyat','tuman','manzil','muljal','passport'].forEach(function(k){
+            payload[k]=document.getElementById('f_'+k).value.trim();
+        });
+        if (!payload.ism||!payload.familiya){errEl.textContent='⚠️ Ism va familiya majburiy';errEl.style.display='block';return;}
+        btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
+        fetch('/admin/update-mijoz',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+            .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw b.message||'Xatolik: '+r.status; return b; }); })
+            .then(function(data){ if(data&&data.ism) fillMijoz(data); succ.style.display='block'; setTimeout(function(){succ.style.display='none';},3000); })
+            .catch(function(msg){ errEl.textContent='⚠️ '+msg; errEl.style.display='block'; })
+            .finally(function(){ btn.disabled=false; btn.innerHTML='💾 Saqlash'; });
     }
 
-    // Render shartnoma
+    // ── Shartnoma render ──
     function renderShartnoma(c) {
-        c = c || {};
-        document.getElementById('v_contractNo').textContent = '\u2116'+(c.id ?? '\u2014');
-        const b  = badgeInfo(c.status);
-        const be = document.getElementById('v_statusBadge');
-        be.className = 'badge-status '+b.cls;
-        document.getElementById('v_statusLabel').textContent = b.label;
-
-        const grafik = c.jadvalList || [];
-        _currentGrafik = grafik;
-
-        const totalSumma   = Number(c.summa)||0;
-        const totalTulandi = grafik.reduce((s,g)=>s+(Number(g.tulangan)||0), 0);
-        const totalQolgan  = Math.max(0, totalSumma - totalTulandi);
-
-        document.getElementById('summaryBar').innerHTML =
+        c=c||{};
+        document.getElementById('v_contractNo').textContent='№'+(c.id??'—');
+        const b=badgeInfo(c.status);
+        const be=document.getElementById('v_statusBadge');
+        be.className='badge-status '+b.cls;
+        document.getElementById('v_statusLabel').textContent=b.label;
+        const grafik=c.jadvalList||[];
+        _currentGrafik=grafik;
+        const totalSumma=Number(c.summa)||0;
+        const totalTulandi=grafik.reduce(function(s,g){return s+(Number(g.tulangan)||0);},0);
+        const totalQolgan=Math.max(0,totalSumma-totalTulandi);
+        document.getElementById('summaryBar').innerHTML=
             '<div class="summary-item"><span>Umumiy summa</span><span>'+fmtSummaShort(totalSumma)+'</span></div>'+
-            '<div class="summary-item"><span>Muddat</span><span>'+(c.muddat ? c.muddat+' oy' : '\u2014')+'</span></div>'+
+            '<div class="summary-item"><span>Muddat</span><span>'+(c.muddat?c.muddat+' oy':'—')+'</span></div>'+
             '<div class="summary-item"><span>To\'langan</span><span style="color:#1a7a50">'+fmtSummaShort(totalTulandi)+'</span></div>'+
             '<div class="summary-item"><span>Qolgan</span><span style="color:'+(totalQolgan>0?'#c0392b':'#1a7a50')+'">'+fmtSummaShort(totalQolgan)+'</span></div>';
-
-        const wrap = document.getElementById('scheduleWrap');
+        const wrap=document.getElementById('scheduleWrap');
         if (grafik.length) {
-            let rows = '';
-            grafik.forEach(function(g, i) {
-                const ps       = payStatusInfo(g.holat);
-                const isPaid   = ps.cls === 'paid';
-                const summa    = Number(g.summa)||0;
-                const tulangan = Number(g.tulangan)||0;
-                const qolgan   = Math.max(0, summa - tulangan);
-                const jid      = JSON.stringify(g.id ?? '');
-                rows += '<tr>'+
+            let rows='';
+            grafik.forEach(function(g,i){
+                const ps=payStatusInfo(g.holat);
+                const isPaid=ps.cls==='paid';
+                const summa=Number(g.summa)||0;
+                const tulangan=Number(g.tulangan)||0;
+                const qolgan=Math.max(0,summa-tulangan);
+                rows+='<tr>'+
                     '<td style="color:var(--color-sub);font-weight:600;">'+(i+1)+'</td>'+
                     '<td>'+fmtDate(g.sana)+'</td>'+
                     '<td>'+fmtSumma(summa)+'</td>'+
                     '<td class="tulangan-col">'+fmtSumma(tulangan)+'</td>'+
                     '<td style="font-weight:600;color:'+(qolgan>0?'#c0392b':'var(--color-text)')+'">'+fmtSumma(qolgan)+'</td>'+
                     '<td><span class="pay-status '+ps.cls+'">'+ps.label+'</span></td>'+
-                    '<td><button class="btn-pay" '+(isPaid?'disabled':'')+' onclick="payInstallment('+jid+')">'+(isPaid ? "\u2705 To'landi" : "\uD83D\uDCB3 To'lash")+'</button></td>'+
-                    '</tr>';
+                    '<td><button class="btn-pay" '+(isPaid?'disabled':'')+' onclick="payInstallment('+JSON.stringify(g.id??'')+')">'+
+                    (isPaid?'✅ To\'landi':'💳 To\'lash')+'</button></td></tr>';
             });
-            wrap.innerHTML =
-                '<div style="overflow-x:auto;">'+
-                '<table class="schedule-table">'+
+            wrap.innerHTML='<div style="overflow-x:auto;"><table class="schedule-table">'+
                 '<thead><tr><th>#</th><th>To\'lov sanasi</th><th>Summasi</th><th>To\'langan</th><th>Qolgan</th><th>Holati</th><th></th></tr></thead>'+
                 '<tbody>'+rows+'</tbody></table></div>';
         } else {
-            wrap.innerHTML = '<div class="schedule-empty">To\'lov grafigi mavjud emas</div>';
+            wrap.innerHTML='<div class="schedule-empty">To\'lov grafigi mavjud emas</div>';
         }
-
-        renderPhoto('kafolatPhoto1Box', c.kafolat);
-        renderPhoto('kafolatPhoto2Box', c.kafolat2);
+        renderPhotoGroup('kafolatPhotosWrap',[
+            {url:photoUrl(c.kafolat),  title:'Kafolat xati (1-bet)'},
+            {url:photoUrl(c.kafolat2), title:'Kafolat xati (2-bet)'}
+        ]);
     }
 
-    // Payment modal
+    // ══════ YANGI SHARTNOMA MODAL ══════
+    function openNewShartnoma() {
+        // Reset
+        ['ns_sana','ns_tulov_sana','ns_about','ns_summa','ns_foiz','ns_muddat'].forEach(function(id){
+            const el=document.getElementById(id);
+            if(el) el.value='';
+        });
+        document.getElementById('ns_sana').value       = nowLocalISO();
+        document.getElementById('ns_tulov_sana').value = localISOwithMonthOffset(1);
+        document.getElementById('ns_sana').addEventListener('change', function(){
+            if (!this.value) return;
+            const d=new Date(this.value);
+            d.setMonth(d.getMonth()+1);
+            document.getElementById('ns_tulov_sana').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+        }, {once:true});
+
+        document.getElementById('nsCalcBox').style.display='none';
+        document.getElementById('nsScheduleBody').innerHTML='';
+        nsRemoveFile('ns_kaf1'); nsRemoveFile('ns_kaf2');
+        _nsFiles={};
+        const msg=document.getElementById('nsMsg');
+        msg.className='form-msg'; msg.textContent='';
+        const btn=document.getElementById('nsSaveBtn');
+        btn.disabled=false; btn.textContent='💾 Shartnoma yaratish';
+
+        loadMagazinlar('ns_dokon','nsDokonWrap');
+        document.getElementById('newShartnomaModal').classList.add('show');
+    }
+    function closeNewShartnoma() {
+        document.getElementById('newShartnomaModal').classList.remove('show');
+    }
+    document.getElementById('newShartnomaModal').addEventListener('click', function(e){ if(e.target===this) closeNewShartnoma(); });
+
+    // Calc preview
+    function nsUpdateCalc() {
+        const summa  = parseFloat(document.getElementById('ns_summa').value)||0;
+        const foiz   = parseFloat(document.getElementById('ns_foiz').value)||0;
+        const muddat = parseInt(document.getElementById('ns_muddat').value)||0;
+        const box    = document.getElementById('nsCalcBox');
+        if (summa<=0||muddat<=0) { box.style.display='none'; return; }
+        box.style.display='block';
+        const foizSumma=summa*(foiz/100);
+        const jami=summa+foizSumma;
+        const oylik=jami/muddat;
+        const fmt=function(n){ return Math.round(n).toLocaleString('uz-UZ')+" so'm"; };
+        document.getElementById('ns_c_summa').textContent=fmt(summa);
+        document.getElementById('ns_c_foiz').textContent=fmt(foizSumma);
+        document.getElementById('ns_c_jami').textContent=fmt(jami);
+        document.getElementById('ns_c_oylik').textContent=fmt(oylik);
+        // Schedule rows
+        const sanaVal=document.getElementById('ns_tulov_sana').value;
+        const baseDate=sanaVal ? new Date(sanaVal) : new Date();
+        const oy=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'];
+        let rows=''; let remaining=jami;
+        for(let i=1;i<=muddat;i++){
+            const pd=new Date(baseDate.getFullYear(),baseDate.getMonth()+(i-1),baseDate.getDate());
+            const sana=pd.getDate()+'-'+oy[pd.getMonth()]+', '+pd.getFullYear();
+            const isLast=i===muddat;
+            const amount=isLast?remaining:oylik;
+            remaining-=oylik;
+            rows+='<tr><td>'+i+'</td><td>'+sana+'</td><td>'+fmt(amount)+'</td></tr>';
+        }
+        document.getElementById('nsScheduleBody').innerHTML=rows;
+    }
+    document.getElementById('ns_tulov_sana').addEventListener('change', nsUpdateCalc);
+
+    // File upload for new shartnoma
+    function nsPreviewFile(event, id) {
+        const file=event.target.files[0];
+        if (!file) return;
+        _nsFiles[id]=file;
+        document.getElementById(id+'_ph').style.display='none';
+        document.getElementById(id+'_prev').style.display='block';
+        document.getElementById(id+'_name').textContent=file.name;
+        const img=document.getElementById(id+'_img');
+        if (file.type.startsWith('image/')) {
+            const r=new FileReader();
+            r.onload=function(e){ img.src=e.target.result; img.style.display='block'; };
+            r.readAsDataURL(file);
+        } else { img.style.display='none'; }
+    }
+    function nsRemoveFile(id) {
+        delete _nsFiles[id];
+        const inp=document.getElementById(id);
+        if (inp) inp.value='';
+        const ph=document.getElementById(id+'_ph');
+        const prev=document.getElementById(id+'_prev');
+        const img=document.getElementById(id+'_img');
+        if (ph)   ph.style.display='';
+        if (prev) prev.style.display='none';
+        if (img)  { img.src=''; img.style.display='none'; }
+    }
+
+    function saveNewShartnoma() {
+        const msg=document.getElementById('nsMsg');
+        const btn=document.getElementById('nsSaveBtn');
+        msg.className='form-msg'; msg.textContent='';
+
+        const sanaVal      = document.getElementById('ns_sana').value;
+        const tulovSanaVal = document.getElementById('ns_tulov_sana').value;
+        const dokonId      = document.getElementById('ns_dokon').value;
+        const summa        = parseFloat(document.getElementById('ns_summa').value)||0;
+        const foiz         = parseFloat(document.getElementById('ns_foiz').value)||0;
+        const muddat       = parseInt(document.getElementById('ns_muddat').value)||0;
+        const about        = document.getElementById('ns_about').value.trim();
+
+        if (!sanaVal)      { msg.className='form-msg error show'; msg.textContent='Shartnoma sanasini kiriting.'; return; }
+        if (!tulovSanaVal) { msg.className='form-msg error show'; msg.textContent='To\'lov sanasini kiriting.'; return; }
+        if (!dokonId)      { msg.className='form-msg error show'; msg.textContent='Do\'konni tanlang.'; return; }
+        if (summa<=0)      { msg.className='form-msg error show'; msg.textContent='Summani kiriting.'; return; }
+        if (muddat<=0)     { msg.className='form-msg error show'; msg.textContent='Muddatni kiriting.'; return; }
+
+        const sana      = sanaVal.length===16      ? sanaVal+':00'      : sanaVal;
+        const tulovSana = tulovSanaVal.length===16 ? tulovSanaVal+':00' : tulovSanaVal;
+
+        const dto = {
+            mijozId:    _currentMijozId,
+            dokonId:    dokonId,
+            summa:      summa,
+            foiz:       foiz,
+            muddat:     muddat,
+            about:      about,
+            shartnomaSana: sana,
+            tulovSana:  tulovSana
+        };
+
+        btn.disabled=true; btn.textContent='⏳ Yaratilmoqda...';
+
+        const fd=new FormData();
+        fd.append('dto', new Blob([JSON.stringify(dto)], {type:'application/json'}));
+        if (_nsFiles['ns_kaf1']) fd.append('kafolat1', _nsFiles['ns_kaf1']);
+        if (_nsFiles['ns_kaf2']) fd.append('kafolat2', _nsFiles['ns_kaf2']);
+
+        fetch('/admin/add-shartnoma', {method:'POST', body:fd})
+            .then(function(r){ if(!r.ok) return r.text().then(function(t){throw t||'Server xatosi: '+r.status;}); return r.text(); })
+            .then(function(resText){
+                msg.className='form-msg success show';
+                msg.textContent=resText||'✅ Shartnoma muvaffaqiyatli yaratildi!';
+                setTimeout(function(){ closeNewShartnoma(); loadData(); }, 1000);
+            })
+            .catch(function(err){ msg.className='form-msg error show'; msg.textContent='Xatolik: '+err; btn.disabled=false; btn.textContent='💾 Shartnoma yaratish'; });
+    }
+
+    // ── Payment modal ──
     function payInstallment(id) {
-        const jadval   = _currentGrafik.find(function(g){ return String(g.id)===String(id); });
-        const summa    = Number(jadval && jadval.summa)||0;
-        const tulangan = Number(jadval && jadval.tulangan)||0;
-        const qolgan   = Math.max(0, summa - tulangan);
-
-        document.getElementById('pay_jadvalId').value          = id;
-        document.getElementById('pay_sana_jadval').textContent = jadval ? fmtDate(jadval.sana) : '\u2014';
-        document.getElementById('pay_belgilangan').textContent = fmtSumma(summa);
-        document.getElementById('pay_tulangan').textContent    = fmtSumma(tulangan);
-        document.getElementById('pay_qolgan').textContent      = fmtSumma(qolgan);
-
-        document.getElementById('pay_summa').value       = qolgan > 0 ? qolgan : '';
-        document.getElementById('pay_sana_input').value  = nowLocalISO();
-        document.getElementById('pay_turi_hidden').value = '';
-        document.querySelectorAll('.pay-type-btn').forEach(function(b){ b.classList.remove('selected'); });
-
-        const msg = document.getElementById('payFormMsg');
-        msg.className   = 'form-msg';
-        msg.textContent = '';
-        const btn = document.getElementById('paySaveBtn');
-        btn.disabled    = false;
-        btn.textContent = '\uD83D\uDCBE Saqlash';
-
-        loadMagazinlar();
-
+        const jadval=_currentGrafik.find(function(g){return String(g.id)===String(id);});
+        const summa=Number(jadval&&jadval.summa)||0;
+        const tulangan=Number(jadval&&jadval.tulangan)||0;
+        const qolgan=Math.max(0,summa-tulangan);
+        document.getElementById('pay_jadvalId').value=id;
+        document.getElementById('pay_sana_jadval').textContent=jadval?fmtDate(jadval.sana):'—';
+        document.getElementById('pay_belgilangan').textContent=fmtSumma(summa);
+        document.getElementById('pay_tulangan').textContent=fmtSumma(tulangan);
+        document.getElementById('pay_qolgan').textContent=fmtSumma(qolgan);
+        document.getElementById('pay_summa').value=qolgan>0?qolgan:'';
+        document.getElementById('pay_sana_input').value=nowLocalISO();
+        document.getElementById('pay_turi_hidden').value='';
+        document.querySelectorAll('.pay-type-btn').forEach(function(b){b.classList.remove('selected');});
+        const msg=document.getElementById('payFormMsg');
+        msg.className='form-msg'; msg.textContent='';
+        const btn=document.getElementById('paySaveBtn');
+        btn.disabled=false; btn.textContent='💾 Saqlash';
+        loadMagazinlar('pay_dokon','dokonSelectWrap');
         document.getElementById('payModal').classList.add('show');
-        setTimeout(function(){ document.getElementById('pay_summa').focus(); }, 120);
+        setTimeout(function(){document.getElementById('pay_summa').focus();},120);
     }
-
     function selectTuri(btn) {
-        document.querySelectorAll('.pay-type-btn').forEach(function(b){ b.classList.remove('selected'); });
+        document.querySelectorAll('.pay-type-btn').forEach(function(b){b.classList.remove('selected');});
         btn.classList.add('selected');
-        document.getElementById('pay_turi_hidden').value = btn.getAttribute('data-turi');
+        document.getElementById('pay_turi_hidden').value=btn.getAttribute('data-turi');
     }
-
-    function closePayModal() {
-        document.getElementById('payModal').classList.remove('show');
-    }
-    document.getElementById('payModal').addEventListener('click', function(e){
-        if (e.target === this) closePayModal();
-    });
-    document.addEventListener('keydown', function(e){
-        if (e.key === 'Escape') closePayModal();
-    });
+    function closePayModal() { document.getElementById('payModal').classList.remove('show'); }
+    document.getElementById('payModal').addEventListener('click', function(e){ if(e.target===this) closePayModal(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closePayModal(); closeNewShartnoma(); } });
 
     function submitPayment() {
-        const jadvalId = document.getElementById('pay_jadvalId').value;
-        const summa    = Math.round(Number(document.getElementById('pay_summa').value)||0);
-        const sanaVal  = document.getElementById('pay_sana_input').value;
-        const dokonId  = document.getElementById('pay_dokon').value;
-        const turi     = document.getElementById('pay_turi_hidden').value;
-        const msg      = document.getElementById('payFormMsg');
-        const btn      = document.getElementById('paySaveBtn');
-
-        msg.className   = 'form-msg';
-        msg.textContent = '';
-
-        if (!summa || summa <= 0) {
-            msg.className   = 'form-msg error show';
-            msg.textContent = "To'lov summasini to'g'ri kiriting (0 dan katta bo'lishi kerak).";
-            document.getElementById('pay_summa').focus();
-            return;
-        }
-        if (!sanaVal) {
-            msg.className   = 'form-msg error show';
-            msg.textContent = "To'lov sanasini kiriting.";
-            return;
-        }
-        if (!dokonId) {
-            msg.className   = 'form-msg error show';
-            msg.textContent = "Do'konni tanlang.";
-            return;
-        }
-        if (!turi) {
-            msg.className   = 'form-msg error show';
-            msg.textContent = "To'lov turini tanlang.";
-            return;
-        }
-
-        // "2026-06-23T14:30" -> "2026-06-23T14:30:00"
-        const sana = sanaVal.length === 16 ? sanaVal + ':00' : sanaVal;
-
-        btn.disabled    = true;
-        btn.textContent = '\u23F3 Saqlanmoqda...';
-
-        const url = '/admin/tulov/'+jadvalId+
-            '?summa='+summa+
-            '&turi='+encodeURIComponent(turi)+
-            '&sana='+encodeURIComponent(sana)+
-            '&dokon='+dokonId;
-
-        fetch(url, {method:'PUT', headers:{'Content-Type':'application/json'}})
-            .then(function(r){
-                if (!r.ok) return r.text().then(function(t){ throw t || 'Server xatosi: '+r.status; });
-                return r.text();
-            })
-            .then(function(resText){
-                msg.className   = 'form-msg success show';
-                msg.textContent = resText || "\u2705 To'lov muvaffaqiyatli saqlandi!";
-                setTimeout(function(){ closePayModal(); loadData(); }, 900);
-            })
-            .catch(function(err){
-                msg.className   = 'form-msg error show';
-                msg.textContent = 'Xatolik: '+err;
-                btn.disabled    = false;
-                btn.textContent = '\uD83D\uDCBE Saqlash';
-            });
+        const jadvalId=document.getElementById('pay_jadvalId').value;
+        const summa=Math.round(Number(document.getElementById('pay_summa').value)||0);
+        const sanaVal=document.getElementById('pay_sana_input').value;
+        const dokonId=document.getElementById('pay_dokon').value;
+        const turi=document.getElementById('pay_turi_hidden').value;
+        const msg=document.getElementById('payFormMsg');
+        const btn=document.getElementById('paySaveBtn');
+        msg.className='form-msg'; msg.textContent='';
+        if(!summa||summa<=0){msg.className='form-msg error show';msg.textContent="To'lov summasini to'g'ri kiriting.";return;}
+        if(!sanaVal){msg.className='form-msg error show';msg.textContent="To'lov sanasini kiriting.";return;}
+        if(!dokonId){msg.className='form-msg error show';msg.textContent="Do'konni tanlang.";return;}
+        if(!turi){msg.className='form-msg error show';msg.textContent="To'lov turini tanlang.";return;}
+        const sana=sanaVal.length===16?sanaVal+':00':sanaVal;
+        btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
+        const url='/admin/tulov/'+jadvalId+'?summa='+summa+'&turi='+encodeURIComponent(turi)+'&sana='+encodeURIComponent(sana)+'&dokon='+dokonId;
+        fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'}})
+            .then(function(r){if(!r.ok)return r.text().then(function(t){throw t||'Server xatosi: '+r.status;});return r.text();})
+            .then(function(resText){msg.className='form-msg success show';msg.textContent=resText||"✅ To'lov muvaffaqiyatli saqlandi!";setTimeout(function(){closePayModal();loadData();},900);})
+            .catch(function(err){msg.className='form-msg error show';msg.textContent='Xatolik: '+err;btn.disabled=false;btn.textContent='💾 Saqlash';});
     }
 
-    // Load page
+    // ── Load page ──
     function loadData() {
-        if (!shartnomaId) {
-            showError("Shartnoma ID topilmadi (URL'da ?id= parametri yo'q)");
-            document.getElementById('loadingState').style.display = 'none';
-            return;
-        }
-        document.getElementById('loadingState').style.display = 'block';
-        document.getElementById('pageContent').style.display  = 'none';
-
+        if (!shartnomaId||isNaN(shartnomaId)){showError("Shartnoma ID topilmadi");document.getElementById('loadingState').style.display='none';return;}
+        document.getElementById('loadingState').style.display='block';
+        document.getElementById('pageContent').style.display='none';
         fetch('/admin/shartnoma-detail/'+shartnomaId)
-            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
-            .then(function(data){
-                renderMijoz(data.mijoz);
-                renderShartnoma(data);
-                document.getElementById('pageContent').style.display = 'block';
-            })
-            .catch(function(err){
-                console.error(err);
-                showError("Ma'lumotlarni yuklab bo'lmadi. Server xatosi: "+err);
-                renderMijoz({}); renderShartnoma({});
-                document.getElementById('pageContent').style.display = 'block';
-            })
-            .finally(function(){
-                document.getElementById('loadingState').style.display = 'none';
-            });
+            .then(function(r){return r.ok?r.json():Promise.reject(r.status);})
+            .then(function(data){fillMijoz(data.mijoz);renderShartnoma(data);document.getElementById('pageContent').style.display='block';})
+            .catch(function(err){showError("Ma'lumotlarni yuklab bo'lmadi. Server xatosi: "+err);document.getElementById('pageContent').style.display='block';})
+            .finally(function(){document.getElementById('loadingState').style.display='none';});
     }
-
     loadData();
 </script>
 </body>
