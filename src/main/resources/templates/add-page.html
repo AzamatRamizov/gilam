@@ -176,7 +176,39 @@
         .print-table th, .print-table td { border:1px solid #ccc; padding:6px 10px; text-align:left; }
         .print-table th { background:#f0f0f0; }
         .print-footer { margin-top:30px; display:flex; justify-content:space-between; font-size:12px; }
+        /* ── Toast notification ── */
+        .toast-wrap {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+            pointer-events: none;
+        }
+        .toast-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: var(--bg-card); border-radius: 10px;
+            padding: 12px 16px; min-width: 280px; max-width: 360px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-left: 4px solid #1a6fa8;
+            pointer-events: all;
+            animation: toastIn 0.25s ease;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .toast-item.success { border-left-color: #1a9a50; }
+        .toast-item.error   { border-left-color: #c0392b; }
+        .toast-item.hiding  { opacity: 0; transform: translateX(20px); }
+        @keyframes toastIn  { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+        .toast-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+        .toast-body { flex: 1; }
+        .toast-title { font-size: 13px; font-weight: 700; color: var(--color-text); margin-bottom: 2px; }
+        .toast-msg   { font-size: 12.5px; color: var(--color-sub); line-height: 1.4; }
+        .toast-close { background: none; border: none; color: var(--color-hint); font-size: 16px; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0; }
+        .toast-close:hover { color: var(--color-text); }
+        .toast-progress { height: 3px; border-radius: 0 0 0 4px; margin: 8px -16px -12px -16px; background: rgba(0,0,0,0.08); overflow: hidden; }
+        .toast-progress-bar { height: 100%; border-radius: inherit; transition: width linear; }
+        .toast-item.success .toast-progress-bar { background: #1a9a50; }
+        .toast-item.error   .toast-progress-bar { background: #c0392b; }
+        .toast-item:not(.success):not(.error) .toast-progress-bar { background: #1a6fa8; }
     </style>
+
 </head>
 <body>
 
@@ -353,6 +385,10 @@
             <label class="form-label">Mahsulot haqida</label>
             <textarea id="about" class="form-control" placeholder="Mahsulot nomi" rows="3"></textarea>
         </div>
+        <div class="mb-3">
+            <label class="form-label">Mahsulotga izoh</label>
+            <textarea id="izoh" class="form-control" placeholder="Mahsulotga izoh" rows="3"></textarea>
+        </div>
         <!-- To'lov sanasi -->
         <div class="mb-3">
             <label class="form-label">Shartnoma sanasi <span class="required-star">*</span></label>
@@ -521,6 +557,7 @@
         <div>Xaridor imzosi: ______________</div>
     </div>
 </div>
+<div class="toast-wrap" id="toastWrap"></div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -688,10 +725,53 @@
         lastCalc = null;
     }
 
-    function showMsg(text, type){
+    function showMsg(text, type) {
+        // Eski inline msg (agar bo'lsa) ham ko'rsatamiz
         const msgEl = document.getElementById('formMsg');
-        msgEl.textContent = text;
-        msgEl.className = 'form-msg ' + type + ' show';
+        if (msgEl) {
+            msgEl.textContent = text;
+            msgEl.className = 'form-msg ' + type + ' show';
+        }
+        showToast(text, type);
+    }
+
+    function showToast(text, type, duration) {
+        duration = duration || 4000;
+        const wrap = document.getElementById('toastWrap');
+        const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+        const titles = { success: 'Muvaffaqiyatli', error: 'Xatolik', info: 'Ma\'lumot' };
+
+        const item = document.createElement('div');
+        item.className = 'toast-item ' + (type || '');
+        item.innerHTML =
+            '<span class="toast-icon">' + (icons[type] || 'ℹ️') + '</span>' +
+            '<div class="toast-body">' +
+            '<div class="toast-title">' + (titles[type] || 'Xabar') + '</div>' +
+            '<div class="toast-msg">' + text + '</div>' +
+            '</div>' +
+            '<button class="toast-close" onclick="closeToast(this.parentElement)">&#10005;</button>' +
+            '<div class="toast-progress"><div class="toast-progress-bar" style="width:100%"></div></div>';
+
+        wrap.appendChild(item);
+
+        // Progress bar animation
+        const bar = item.querySelector('.toast-progress-bar');
+        bar.style.transition = 'width ' + duration + 'ms linear';
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() { bar.style.width = '0%'; });
+        });
+
+        // Auto close
+        const timer = setTimeout(function() { closeToast(item); }, duration);
+        item._toastTimer = timer;
+    }
+
+    function closeToast(item) {
+        if (!item || item._closing) return;
+        item._closing = true;
+        clearTimeout(item._toastTimer);
+        item.classList.add('hiding');
+        setTimeout(function() { if (item.parentElement) item.parentElement.removeChild(item); }, 320);
     }
 
     // ══════ 🖨️ Chop etish ══════
@@ -830,6 +910,7 @@
 
         // 2-qism: shartnoma
         const about = $('#about').val().trim();
+        const izoh = $('#izoh').val().trim();
         const category = $('#category').val();
         const summa = $('#summa').val().trim();
         const foiz = $('#foiz').val().trim();
@@ -877,7 +958,7 @@
             tel1, tel2, tel3,
             viloyat, tuman, manzil, muljal,
             passport,
-            about,
+            about, izoh,
             shartnomaSana,
             tulovSana,
             dokonId: category,

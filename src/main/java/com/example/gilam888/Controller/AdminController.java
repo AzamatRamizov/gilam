@@ -248,4 +248,14 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getTodayPayment());
     }
 
+    @PostMapping("/add-shartnoma")
+    public ResponseEntity<?> addShartnoma(@RequestPart("mijoz") MijozDataDto mijoz, @RequestParam(value = "rasm",required = false) MultipartFile rasm1, @RequestParam(value = "rasm2",required = false) MultipartFile rasm2) throws IOException {
+        ApiResponse apiResponse=adminService.addShartnoma(mijoz, rasm1,rasm2);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
+    @GetMapping("/get-overdue-debts")
+    public ResponseEntity<?> getOverdueDebts(){
+        return ResponseEntity.ok(adminService.getOverdueDebts());
+    }
+
 }

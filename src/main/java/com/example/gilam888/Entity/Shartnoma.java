@@ -17,6 +17,8 @@ import java.util.List;
 public class Shartnoma extends AbstractLongEntity {
     private long summa;
     private long muddat;
+    private String izoh;
+    private String mahsulot;
 
     @ManyToOne
     private Mijoz mijoz;

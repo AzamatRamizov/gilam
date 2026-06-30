@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class MijozDataDto {
+    private long mijozId;
     private String ism;
     private String familiya;
     private String sharif;
@@ -22,6 +23,7 @@ public class MijozDataDto {
     private long summa;
     private long foiz;
     private long muddat;
+    private String izoh;
     private LocalDateTime shartnomaSana;
     private LocalDateTime tulovSana;
 }

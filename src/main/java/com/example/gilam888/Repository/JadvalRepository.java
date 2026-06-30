@@ -26,4 +26,11 @@ public interface JadvalRepository extends JpaRepository<Jadval, Long> {
             @Param("boshi") LocalDateTime boshi,
             @Param("oxiri") LocalDateTime oxiri
     );
+    @Query("""
+    SELECT j FROM Jadval j
+    WHERE j.holat = 'tulanmagan'
+      AND j.sana < :hozir
+    ORDER BY j.sana ASC
+""")
+    List<Jadval> findOverdueUnpaid(@Param("hozir") LocalDateTime hozir);
 }

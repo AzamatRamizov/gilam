@@ -299,7 +299,10 @@
                 <div class="sel-spinner"></div>
             </div>
         </div>
-
+        <div class="mb-3">
+            <label class="form-label">Izoh</label>
+            <textarea id="ns_izoh" class="form-control" rows="2" placeholder="Qo'shimcha izoh..."></textarea>
+        </div>
         <div class="mb-3">
             <label class="form-label">Mahsulot haqida</label>
             <textarea id="ns_about" class="form-control" rows="2" placeholder="Mahsulot nomi yoki tavsifi"></textarea>
@@ -779,22 +782,23 @@
         const tulovSana = tulovSanaVal.length===16 ? tulovSanaVal+':00' : tulovSanaVal;
 
         const dto = {
-            mijozId:    _currentMijozId,
-            dokonId:    dokonId,
-            summa:      summa,
-            foiz:       foiz,
-            muddat:     muddat,
-            about:      about,
+            mijozId:       _currentMijozId,
+            dokonId:       dokonId,
+            summa:         summa,
+            foiz:          foiz,
+            muddat:        muddat,
+            izoh:          document.getElementById('ns_izoh').value.trim(),  // ← yangi
+            about:         about,
             shartnomaSana: sana,
-            tulovSana:  tulovSana
+            tulovSana:     tulovSana
         };
 
         btn.disabled=true; btn.textContent='⏳ Yaratilmoqda...';
 
         const fd=new FormData();
-        fd.append('dto', new Blob([JSON.stringify(dto)], {type:'application/json'}));
-        if (_nsFiles['ns_kaf1']) fd.append('kafolat1', _nsFiles['ns_kaf1']);
-        if (_nsFiles['ns_kaf2']) fd.append('kafolat2', _nsFiles['ns_kaf2']);
+        fd.append('mijoz', new Blob([JSON.stringify(dto)], {type:'application/json'}));  // ← dto emas, mijoz
+        if (_nsFiles['ns_kaf1']) fd.append('rasm',  _nsFiles['ns_kaf1']);   // ← kafolat1 emas
+        if (_nsFiles['ns_kaf2']) fd.append('rasm2', _nsFiles['ns_kaf2']);   // ← kafolat2 emas
 
         fetch('/admin/add-shartnoma', {method:'POST', body:fd})
             .then(function(r){ if(!r.ok) return r.text().then(function(t){throw t||'Server xatosi: '+r.status;}); return r.text(); })

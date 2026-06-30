@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -123,6 +124,8 @@ public class AdminService {
         shartnoma.setMijoz(mijozSave);
         shartnoma.setSumma(mijoz.getSumma());
         shartnoma.setStatus("ochiq");
+        shartnoma.setMahsulot(mijoz.getAbout());
+        shartnoma.setIzoh(mijoz.getIzoh());
         shartnoma.setMuddat(mijoz.getMuddat());
         shartnoma.setCreatedTime(mijoz.getShartnomaSana());
         long tulov=mijoz.getSumma()/mijoz.getMuddat();
@@ -320,5 +323,88 @@ public class AdminService {
             statistikagas.add(statistikaga);
         }
         return statistikagas;
+    }
+
+    public ApiResponse addShartnoma(MijozDataDto mijoz, MultipartFile rasm1, MultipartFile rasm2) throws IOException {
+        Optional<Mijoz> byId = mijozRepository.findById(mijoz.getMijozId());
+        if(byId.isEmpty()){
+            return new ApiResponse("Mijoz topilmadi",false);
+        }
+        Mijoz mijoz1 = byId.get();
+        Shartnoma shartnoma = new Shartnoma();
+        shartnoma.setMijoz(mijoz1);
+        shartnoma.setSumma(mijoz.getSumma());
+        shartnoma.setStatus("ochiq");
+        shartnoma.setIzoh(mijoz.getIzoh());
+
+        shartnoma.setMuddat(mijoz.getMuddat());
+        shartnoma.setCreatedTime(mijoz.getShartnomaSana());
+        long tulov=mijoz.getSumma()/mijoz.getMuddat();
+        List<Jadval> jadvalList = new ArrayList<>();
+        for (long i = 0; i < mijoz.getMuddat(); i++) {
+            Jadval jadval = new Jadval();
+            jadval.setSana(mijoz.getTulovSana().plusMonths(i));
+            jadval.setSumma(tulov);
+            jadval.setTulangan(0);
+            jadval.setHolat("tulanmagan");
+            jadval = jadvalRepository.save(jadval);
+            jadvalList.add(jadval);
+        }
+        shartnoma.setJadvalList(jadvalList);
+        FaylBayt kafolatRasm = new FaylBayt();
+        kafolatRasm.setOriginalNomi(rasm1.getOriginalFilename());
+        kafolatRasm.setHajmiFayl(rasm1.getSize());
+        kafolatRasm.setContentTypeFayl(rasm1.getContentType());
+        kafolatRasm.setBayt(rasm1.getBytes());
+        FaylBayt kafolatSave = faylBaytRepository.save(kafolatRasm);
+
+        FaylBayt kafolat2Rasm = new FaylBayt();
+        kafolat2Rasm.setOriginalNomi(rasm2.getOriginalFilename());
+        kafolat2Rasm.setHajmiFayl(rasm2.getSize());
+        kafolat2Rasm.setContentTypeFayl(rasm2.getContentType());
+        kafolat2Rasm.setBayt(rasm2.getBytes());
+        FaylBayt kafolat2Save = faylBaytRepository.save(kafolat2Rasm);
+
+        shartnoma.setKafolat(kafolatSave);
+        shartnoma.setKafolat2(kafolat2Save);
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+        shartnoma.setCreatedTime(localDateTime);
+
+        shartnomaRepository.save(shartnoma);
+        return new ApiResponse("Shartnoma yaratildi",true);
+    }
+//
+//    public Object getOverdueDebts() {
+//
+//    }
+    public List<OverdueDebtDto> getOverdueDebts() {
+        List<Jadval> overdueList = jadvalRepository.findOverdueUnpaid(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+
+        List<OverdueDebtDto> result = new ArrayList<>();
+        for (Jadval jadval : overdueList) {
+            OverdueDebtDto dto = new OverdueDebtDto();
+
+            long qolgan = jadval.getSumma() - jadval.getTulangan();
+            dto.setQolgan(qolgan);
+
+            long kun = Duration.between(jadval.getSana(), now).toDays();
+            dto.setKun(kun);
+
+            shartnomaRepository.findByJadvalListContaining(jadval).ifPresent(s -> {
+                dto.setShartnomaId(s.getId());
+                Mijoz m = s.getMijoz();
+                if (m != null) {
+                    dto.setMijoz(m.getFamiliya() + " " + m.getIsm());
+                    dto.setTel(m.getTel1());
+                }
+            });
+
+            dto.setOxirgiTolov(jadval.getTulovSana());
+
+            result.add(dto);
+        }
+        return result;
     }
 }
