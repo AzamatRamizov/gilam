@@ -257,5 +257,9 @@ public class AdminController {
     public ResponseEntity<?> getOverdueDebts(){
         return ResponseEntity.ok(adminService.getOverdueDebts());
     }
-
+    @GetMapping("/checkPassport")
+    public ResponseEntity<?> checkPassport(@RequestParam("passport") String passport){
+        ApiResponse apiResponse=adminService.checkPassport(passport);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+    }
 }

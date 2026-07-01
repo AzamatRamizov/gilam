@@ -29,8 +29,9 @@ public class AdminService {
     private final MagazinRepository magazinRepository;
     private final TokenGenerator tokenGenerator;
     private final JadvalRepository jadvalRepository;
+    private final PaymentRepository paymentRepository;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
@@ -39,6 +40,7 @@ public class AdminService {
         this.magazinRepository = magazinRepository;
         this.tokenGenerator = tokenGenerator;
         this.jadvalRepository = jadvalRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public ApiResponse addHodim(Users user) {
@@ -301,25 +303,36 @@ public class AdminService {
             jadval.setHolat("tulangan");
         }
         jadvalRepository.save(jadval);
+
+        PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setJadvalId(jadval.getId());
+        paymentHistory.setSumma(summa);
+        paymentHistory.setSana(sana);
+        paymentHistory.setTuri(turi);
+        paymentHistory.setDokonId(dokonId);
+        paymentHistory.setCreatedTime(LocalDateTime.now());
+
+
+        paymentRepository.save(paymentHistory);
+
         return new ApiResponse("Muvaffaqiyatli tulov qilindi",true);
     }
 
     public Object getTodayPayment() {
         LocalDateTime boshi = LocalDate.now().atStartOfDay();           // 2026-06-24T00:00:00
         LocalDateTime oxiri = boshi.plusDays(1);                        // 2026-06-25T00:00:00
-
-        List<Jadval> bugungiTolovlar = jadvalRepository.findTodayPayments(boshi, oxiri);
         List<Statistikaga> statistikagas=new ArrayList<>();
-        for (Jadval jadval : bugungiTolovlar) {
+        for (PaymentHistory todayPayment : paymentRepository.findTodayPayments(boshi, oxiri)) {
             Statistikaga statistikaga = new Statistikaga();
-            Optional<Magazin> dokon = magazinRepository.findById(Long.valueOf(jadval.getDokonId()));
+            Optional<Magazin> dokon = magazinRepository.findById(Long.valueOf(todayPayment.getDokonId()));
             statistikaga.setDokon(dokon.get().getNomi());
-            statistikaga.setTuri(jadval.getTuri());
-            statistikaga.setSana(jadval.getTulovSana());
-            Shartnoma shartnoma = shartnomaRepository.findByJadvalListContaining(jadval).get();
+            statistikaga.setTuri(todayPayment.getTuri());
+            statistikaga.setSana(todayPayment.getSana());
+            Optional<Jadval> jadval = jadvalRepository.findById(todayPayment.getJadvalId());
+            Shartnoma shartnoma = shartnomaRepository.findByJadvalListContaining(jadval.get()).get();
             statistikaga.setShartnomaId(shartnoma.getId());
             statistikaga.setMijoz(shartnoma.getMijoz().getIsm()+" "+shartnoma.getMijoz().getFamiliya()+" "+shartnoma.getMijoz().getSharif());
-            statistikaga.setSumma(jadval.getSumma());
+            statistikaga.setSumma(todayPayment.getSumma());
             statistikagas.add(statistikaga);
         }
         return statistikagas;
@@ -406,5 +419,13 @@ public class AdminService {
             result.add(dto);
         }
         return result;
+    }
+
+    public ApiResponse checkPassport(String passport) {
+        Optional<Mijoz> byPassport = mijozRepository.findByPassport(passport);
+        if(byPassport.isPresent()){
+            return new ApiResponse("Bu passport egasi bazada mavjud!",false);
+        }
+        return new ApiResponse("Hammasi yaxshi!",true);
     }
 }

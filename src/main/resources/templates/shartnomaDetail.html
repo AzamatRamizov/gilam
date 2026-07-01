@@ -536,9 +536,7 @@
         return (Number(n)||0).toLocaleString('uz-UZ')+" so'm";
     }
     function fmtSummaShort(n) {
-        const v=Number(n)||0;
-        if (v>=1000000) return (v/1000000).toFixed(1).replace('.0','')+" mln so'm";
-        return v.toLocaleString('uz-UZ')+" so'm";
+        return (Number(n)||0).toLocaleString('uz-UZ')+" so'm";
     }
     function payStatusInfo(h) {
         if (h==='tulangan') return {cls:'paid',label:"To'langan"};

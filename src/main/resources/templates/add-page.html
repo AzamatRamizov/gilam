@@ -97,6 +97,18 @@
         [data-theme="dark"] .avatar-icon { color: #5ab4dc; }
 
         .passport-hint { font-size: 11px; color: var(--color-hint); margin-top: 4px; }
+        .passport-status { font-size:12px; margin-top:6px; display:none; align-items:center; gap:6px; font-weight:600; }
+        .passport-status.show { display:flex; }
+        .passport-status.checking { color:var(--color-hint); }
+        .passport-status.valid { color:#1a9a50; }
+        .passport-status.invalid { color:#e05555; }
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #e05555 !important;
+        }
+        .form-control.is-invalid:focus, .form-select.is-invalid:focus {
+            border-color: #e05555 !important;
+            box-shadow: 0 0 0 3px rgba(224,85,85,0.18) !important;
+        }
 
         /* File upload boxes - adapt to image aspect ratio */
         .file-upload-box {
@@ -207,6 +219,7 @@
         .toast-item.success .toast-progress-bar { background: #1a9a50; }
         .toast-item.error   .toast-progress-bar { background: #c0392b; }
         .toast-item:not(.success):not(.error) .toast-progress-bar { background: #1a6fa8; }
+
     </style>
 
 </head>
@@ -330,6 +343,7 @@
             <label class="form-label">Passport seriya va raqami <span class="required-star">*</span></label>
             <input type="text" id="passport" class="form-control" placeholder="AB1234567" style="text-transform:uppercase; max-width:260px;" maxlength="9">
             <p class="passport-hint">2 ta lotin harfi + 7 ta raqam, masalan: AB1234567</p>
+            <div class="passport-status" id="passportStatus"></div>
         </div>
 
         <hr class="divider">
@@ -576,6 +590,69 @@
     }
     loadMagazinlar();
 
+    const CHECK_PASSPORT_URL = '/admin/checkPassport';
+    let passportCheckTimer = null;
+    let passportTaken = false;
+
+    function setPassportStatus(state, text){
+        const el = document.getElementById('passportStatus');
+        el.className = 'passport-status show ' + state;
+        el.innerHTML = text;
+    }
+    function clearPassportStatus(){
+        const el = document.getElementById('passportStatus');
+        el.className = 'passport-status';
+        el.innerHTML = '';
+    }
+
+    document.getElementById('passport').addEventListener('input', function(){
+        this.value = this.value.toUpperCase();
+        this.classList.remove('is-invalid');
+        passportTaken = false;
+        clearTimeout(passportCheckTimer);
+
+        const value = this.value;
+        const passportRegex = /^[A-Z]{2}\d{7}$/;
+
+        if(!passportRegex.test(value)){
+            clearPassportStatus();
+            return;
+        }
+
+        setPassportStatus('checking', '⏳ Tekshirilmoqda...');
+        passportCheckTimer = setTimeout(function(){
+            checkPassportExists(value);
+        }, 400);
+    });
+
+    function checkPassportExists(passport){
+        $.ajax({
+            type: 'GET',
+            url: CHECK_PASSPORT_URL,
+            data: { passport: passport },
+            success: function(habar, textStatus, xhr){
+                // Foydalanuvchi javob kelguncha qiymatni o'zgartirgan bo'lsa - e'tiborsiz qoldiramiz
+                if(document.getElementById('passport').value !== passport) return;
+
+                if(xhr.status === 208){
+                    passportTaken = true;
+                    document.getElementById('passport').classList.add('is-invalid');
+                    setPassportStatus('invalid', '❌ ' + (habar || "Bu passport egasi bazada mavjud"));
+                } else {
+                    passportTaken = false;
+                    document.getElementById('passport').classList.remove('is-invalid');
+                    setPassportStatus('valid', '✅ ' + (habar || "Bu passport bo'yicha mijoz topilmadi"));
+                }
+            },
+            error: function(xhr){
+                if(document.getElementById('passport').value !== passport) return;
+                // Bu yerga endi faqat haqiqiy xatoliklar (500, 404, tarmoq xatosi va h.k.) tushadi
+                passportTaken = false;
+                setPassportStatus('invalid', '⚠️ Tekshirishda xatolik yuz berdi');
+            }
+        });
+    }
+
     const now = new Date();
     const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
         .toISOString()
@@ -616,10 +693,10 @@
     const ADD_MIJOZ_URL = '/admin/add-mijoz';
 
     // Auto-uppercase passport
-    document.getElementById('passport').addEventListener('input', function(){
-        this.value = this.value.toUpperCase();
-        this.classList.remove('is-invalid');
-    });
+    // document.getElementById('passport').addEventListener('input', function(){
+    //     this.value = this.value.toUpperCase();
+    //     this.classList.remove('is-invalid');
+    // });
 
     // ── File preview ──
     const uploadedFiles = {}; // id -> File object
@@ -723,6 +800,8 @@
         document.getElementById('formMsg').className = 'form-msg';
         document.getElementById('formMsg').textContent = '';
         lastCalc = null;
+        passportTaken = false;
+        clearPassportStatus();
     }
 
     function showMsg(text, type) {
@@ -929,6 +1008,10 @@
 
         const passportRegex = /^[A-Z]{2}\d{7}$/;
         if(passport && !passportRegex.test(passport)){
+            document.getElementById('passport').classList.add('is-invalid');
+            valid = false;
+        }
+        if(passport && passportTaken){
             document.getElementById('passport').classList.add('is-invalid');
             valid = false;
         }
