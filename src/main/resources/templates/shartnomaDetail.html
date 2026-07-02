@@ -185,6 +185,25 @@
         .select-wrap{position:relative;}
         .select-wrap .sel-spinner{display:none;position:absolute;right:36px;top:50%;transform:translateY(-50%);width:14px;height:14px;border:2px solid var(--color-border);border-top-color:#1a6fa8;border-radius:50%;animation:spin 0.7s linear infinite;pointer-events:none;}
         .select-wrap.loading .sel-spinner{display:block;}
+
+        /* Shartnoma tab menyu */
+        .shartnoma-tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--bg-input);border:1px solid var(--color-border);border-radius:10px;padding:5px;margin-bottom:1.4rem;}
+        .shartnoma-tab{flex:1;min-width:150px;display:flex;align-items:center;justify-content:center;gap:7px;background:transparent;border:none;border-radius:8px;padding:9px 12px;font-size:13.5px;font-weight:600;color:var(--color-sub);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+        .shartnoma-tab .tab-icon{font-size:14px;}
+        .shartnoma-tab:hover{color:#1a6fa8;background:rgba(26,111,168,0.08);}
+        .shartnoma-tab.active{background:#1a6fa8;color:#fff;box-shadow:0 2px 8px rgba(26,111,168,0.28);}
+        [data-theme="dark"] .shartnoma-tab.active{background:#1a6fa8;color:#fff;}
+        .shartnoma-tab-panel{display:none;animation:tabFadeIn 0.18s ease;}
+        .shartnoma-tab-panel.active{display:block;}
+        @keyframes tabFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+        /* Sub-section headers inside Shartnoma card */
+        .sub-part-header{display:flex;align-items:center;gap:10px;margin:0 0 14px;}
+        .sub-part-header .sub-icon{width:28px;height:28px;border-radius:8px;background:var(--bg-input-grp);color:#1a6fa8;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+        [data-theme="dark"] .sub-part-header .sub-icon{color:#5ab4dc;}
+        .sub-part-header .sub-title{font-size:14.5px;font-weight:700;color:var(--color-text);margin:0;}
+        .sub-part-header .sub-subtitle{font-size:11.5px;color:var(--color-sub);margin:1px 0 0;}
+        .edit-hint-badge{font-size:10.5px;color:var(--color-hint);background:var(--bg-input);border:1px solid var(--color-border);border-radius:20px;padding:2px 10px;font-weight:500;margin-left:auto;}
     </style>
 </head>
 <body>
@@ -242,19 +261,87 @@
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.4rem;">
                 <div class="part-header" style="margin:0;">
                     <div class="part-number">2</div>
-                    <div><p class="part-title">Shartnoma</p><p class="part-subtitle">To'lov shartlari va kafolat hujjati</p></div>
+                    <div><p class="part-title">Shartnoma</p><p class="part-subtitle">To'lov shartlari, mahsulot va to'lov tarixi</p></div>
                 </div>
                 <button class="btn-primary-c" onclick="openNewShartnoma()">&#10133; Yangi shartnoma</button>
             </div>
-            <div class="contract-head">
-                <span class="contract-no" id="v_contractNo">&#8470;&#8212;</span>
-                <span class="badge-status" id="v_statusBadge"><span class="dot"></span><span id="v_statusLabel">&#8212;</span></span>
+
+            <!-- Tab menyu -->
+            <div class="shartnoma-tabs" id="shartnomaTabs">
+                <button class="shartnoma-tab active" data-tab="holat" onclick="switchShartnomaTab('holat')">
+                    <span class="tab-icon">&#128203;</span> Shartnoma holati
+                </button>
+                <button class="shartnoma-tab" data-tab="mahsulot" onclick="switchShartnomaTab('mahsulot')">
+                    <span class="tab-icon">&#128230;</span> Mahsulot ma'lumotlari
+                </button>
+                <button class="shartnoma-tab" data-tab="tarix" onclick="switchShartnomaTab('tarix')">
+                    <span class="tab-icon">&#129534;</span> To'lov tarixi
+                </button>
+                <button class="shartnoma-tab" data-tab="kafolat" onclick="switchShartnomaTab('kafolat')">
+                    <span class="tab-icon">&#128737;&#65039;</span> Kafolat xati
+                </button>
             </div>
-            <div class="summary-bar" id="summaryBar"></div>
-            <div id="scheduleWrap"></div>
-            <hr class="divider" style="margin:1.5rem 0;">
-            <p class="section-title">&#128737;&#65039; Kafolat xati rasmlari</p>
-            <div class="row g-3" id="kafolatPhotosWrap"></div>
+
+            <!-- 2.1 — Shartnoma holati -->
+            <div class="shartnoma-tab-panel active" id="tabPanel-holat">
+                <div class="contract-head">
+                    <span class="contract-no" id="v_contractNo">&#8470;&#8212;</span>
+                    <span class="badge-status" id="v_statusBadge"><span class="dot"></span><span id="v_statusLabel">&#8212;</span></span>
+                </div>
+                <div class="summary-bar" id="summaryBar"></div>
+                <div id="scheduleWrap"></div>
+            </div>
+
+            <!-- 2.2 — Mahsulot ma'lumotlari -->
+            <div class="shartnoma-tab-panel" id="tabPanel-mahsulot">
+                <div class="sub-part-header">
+                    <div class="sub-icon">&#128230;</div>
+                    <div><p class="sub-title">Mahsulot ma'lumotlari</p><p class="sub-subtitle">Sotib olingan tovar va uning asl narxi</p></div>
+                    <span class="edit-hint-badge">Tahrirlash mumkin</span>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label-c">Mahsulot nomi</label>
+                        <textarea class="form-control-c" id="pr_nomi" placeholder="Masalan: Gilam 3x4">
+
+                        </textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-c">Sotib olingan sana</label>
+                        <input type="date" class="form-control-c" id="pr_sana">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-c">Tovar asl narxi</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="pr_narx" placeholder="0" min="0">
+                            <span class="input-group-text">so'm</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-end gap-3 flex-wrap mb-2">
+                    <p class="alert-success-c mb-0" id="mahsulotSaveSuccess">&#9989; Muvaffaqiyatli saqlandi</p>
+                    <p class="alert-danger-c mb-0" id="mahsulotSaveError"></p>
+                    <button class="btn-save-c" id="mahsulotSaveBtn" onclick="saveMahsulot()">&#128190; Saqlash</button>
+                </div>
+            </div>
+
+            <!-- 2.3 — To'lov tarixi -->
+            <div class="shartnoma-tab-panel" id="tabPanel-tarix">
+                <div class="sub-part-header">
+                    <div class="sub-icon">&#129534;</div>
+                    <div><p class="sub-title">To'lov tarixi</p><p class="sub-subtitle">Amalga oshirilgan barcha to'lovlar</p></div>
+                </div>
+                <div id="tulovTarixiWrap"></div>
+            </div>
+
+            <!-- 2.4 — Kafolat xati rasmlari -->
+            <div class="shartnoma-tab-panel" id="tabPanel-kafolat">
+                <div class="sub-part-header">
+                    <div class="sub-icon">&#128737;&#65039;</div>
+                    <div><p class="sub-title">Kafolat xati rasmlari</p><p class="sub-subtitle">Kafolat hujjatining ikkala beti</p></div>
+                </div>
+                <div class="row g-3" id="kafolatPhotosWrap"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -452,10 +539,21 @@
     const params      = new URLSearchParams(window.location.search);
     const shartnomaId = params.get('id');
 
+    // ── Shartnoma tab menyu ──
+    function switchShartnomaTab(tab) {
+        document.querySelectorAll('.shartnoma-tab').forEach(function(b){
+            b.classList.toggle('active', b.getAttribute('data-tab')===tab);
+        });
+        document.querySelectorAll('.shartnoma-tab-panel').forEach(function(p){
+            p.classList.toggle('active', p.id==='tabPanel-'+tab);
+        });
+    }
+
     let _currentGrafik  = [];
     let _magazinlar     = [];
     let _magazinLoaded  = false;
     let _currentMijozId = null;
+    let _currentShartnomaId = null;
     let _nsFiles        = {};
 
     // ══════ LIGHTBOX ══════
@@ -602,7 +700,7 @@
         const succ=document.getElementById('mijozSaveSuccess');
         const errEl=document.getElementById('mijozSaveError');
         succ.style.display='none'; errEl.style.display='none';
-        const payload={id:_currentMijozId};
+        const payload={mijozId:_currentMijozId};
         ['ism','familiya','sharif','tel1','tel2','tel3','viloyat','tuman','manzil','muljal','passport'].forEach(function(k){
             payload[k]=document.getElementById('f_'+k).value.trim();
         });
@@ -615,15 +713,84 @@
             .finally(function(){ btn.disabled=false; btn.innerHTML='💾 Saqlash'; });
     }
 
+    // ── Mahsulot fill & save (2.2) ──
+    // NOTE: backend hali ulanmagan. Kutilayotgan maydonlar: c.mahsulot = { nomi, sana, narx }
+    function fillMahsulot(c) {
+        c = c || {};
+        const m = c.mahsulot || {};
+        document.getElementById('pr_nomi').value = m.nomi || c.about || '';
+        document.getElementById('pr_sana').value = m.sana ? String(m.sana).slice(0,10) : '';
+        document.getElementById('pr_narx').value = (m.narx !== undefined && m.narx !== null) ? m.narx : '';
+    }
+    function saveMahsulot() {
+        const btn  = document.getElementById('mahsulotSaveBtn');
+        const succ = document.getElementById('mahsulotSaveSuccess');
+        const errEl= document.getElementById('mahsulotSaveError');
+        succ.style.display='none'; errEl.style.display='none';
+        const payload = {
+            shartnomaId: _currentShartnomaId,
+            nomi: document.getElementById('pr_nomi').value.trim(),
+            sana: document.getElementById('pr_sana').value,
+            narx: String(document.getElementById('pr_narx').value||'0')
+        };
+        if (!payload.nomi) { errEl.textContent='⚠️ Mahsulot nomini kiriting'; errEl.style.display='block'; return; }
+        btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
+        // TODO: backend endpoint ulanganda '/admin/update-mahsulot' ga almashtiriladi
+        fetch('/admin/update-mahsulot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+            .then(function(r){ return r.text().then(function(t){ if(!r.ok) throw t||('Xatolik: '+r.status); return t; }); })
+            .then(function(){ succ.style.display='block'; setTimeout(function(){succ.style.display='none';},3000); })
+            .catch(function(msg){ errEl.textContent='⚠️ '+msg; errEl.style.display='block'; })
+            .finally(function(){ btn.disabled=false; btn.innerHTML='💾 Saqlash'; });
+    }
+
+    // ── To'lov tarixi (2.3) ──
+    // NOTE: backend hali ulanmagan. Kutilayotgan maydon: c.tulovTarixi = [{ sana, summa, turi, dokon }]
+    function renderTulovTarixi(c) {
+        c = c || {};
+        const wrap = document.getElementById('tulovTarixiWrap');
+        const list = Array.isArray(c.tulovTarixi) ? c.tulovTarixi.slice() : [];
+
+        // Sanaga qarab o'sish tartibida (eng eski to'lov birinchi)
+        list.sort(function(a, b) {
+            const da = a.sana ? new Date(a.sana).getTime() : 0;
+            const db = b.sana ? new Date(b.sana).getTime() : 0;
+            return da - db;
+        });
+
+        if (!list.length) {
+            wrap.innerHTML = '<div class="schedule-empty">To\'lov tarixi mavjud emas</div>';
+            return;
+        }
+        let rows = '';
+        list.forEach(function(t, i){
+            rows += '<tr>'+
+                '<td style="color:var(--color-sub);font-weight:600;">'+(i+1)+'</td>'+
+                '<td>'+fmtDate(t.sana)+'</td>'+
+                '<td class="tulangan-col">'+fmtSumma(t.summa)+'</td>'+
+                '<td>'+(t.turi||'—')+'</td>'+
+                '<td>'+(t.dokon||'—')+'</td>'+
+                '</tr>';
+        });
+        wrap.innerHTML = '<div style="overflow-x:auto;"><table class="schedule-table">'+
+            '<thead><tr><th>#</th><th>To\'lov sanasi</th><th>Summa</th><th>To\'lov turi</th><th>Do\'kon</th></tr></thead>'+
+            '<tbody>'+rows+'</tbody></table></div>';
+    }
+
     // ── Shartnoma render ──
     function renderShartnoma(c) {
         c=c||{};
+        _currentShartnomaId = c.id || null;
         document.getElementById('v_contractNo').textContent='№'+(c.id??'—');
         const b=badgeInfo(c.status);
         const be=document.getElementById('v_statusBadge');
         be.className='badge-status '+b.cls;
         document.getElementById('v_statusLabel').textContent=b.label;
-        const grafik=c.jadvalList||[];
+
+        const grafik=(c.jadvalList||[]).slice().sort(function(a, b){
+            const da = a.sana ? new Date(a.sana).getTime() : 0;
+            const db = b.sana ? new Date(b.sana).getTime() : 0;
+            return da - db;   // ← eng eski sana birinchi
+        });
         _currentGrafik=grafik;
         const totalSumma=Number(c.summa)||0;
         const totalTulandi=grafik.reduce(function(s,g){return s+(Number(g.tulangan)||0);},0);
@@ -662,6 +829,8 @@
             {url:photoUrl(c.kafolat),  title:'Kafolat xati (1-bet)'},
             {url:photoUrl(c.kafolat2), title:'Kafolat xati (2-bet)'}
         ]);
+        fillMahsulot(c);
+        renderTulovTarixi(c);
     }
 
     // ══════ YANGI SHARTNOMA MODAL ══════

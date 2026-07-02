@@ -199,14 +199,71 @@ public class AdminService {
             shartnomaRoyxat.setSumma(shartnoma.getSumma());
             shartnomaRoyxat.setMuddat(shartnoma.getMuddat());
             shartnomaRoyxat.setStatus(shartnoma.getStatus());
+            shartnomaRoyxat.setTel(shartnoma.getMijoz().getTel1());
             shartnomaRoyxats.add(shartnomaRoyxat);
         }
         return shartnomaRoyxats;
     }
 
-    public Object shartnomaDetail(long id) {
-        Optional<Shartnoma> byId = shartnomaRepository.findById(id);
-        return byId.get();
+//    public Object shartnomaDetail(long id) {
+//        Optional<Shartnoma> byId = shartnomaRepository.findById(id);
+//        return byId.get();
+//    }
+    public ShartnomaDetailDto shartnomaDetail(long id) {
+        Shartnoma s = shartnomaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Shartnoma topilmadi: " + id));
+
+        List<Long> jadvalIds = s.getJadvalList().stream().map(Jadval::getId).toList();
+
+        List<PaymentHistory> paymentsRaw = jadvalIds.isEmpty()
+                ? List.of()
+                : paymentRepository.findByJadvalIdInOrderBySanaDesc(jadvalIds);
+
+        List<PaymentDto> tulovTarixi = paymentsRaw.stream()
+                .map(p -> new PaymentDto(
+                        p.getSana() != null ? p.getSana().toString() : null,
+                        p.getSumma(),
+                        p.getTuri(),
+                        resolveDokonNomi(p.getDokonId())
+                ))
+                .toList();
+
+        MahsulotDto mahsulot = new MahsulotDto(
+                0,
+                s.getMahsulot(),
+                s.getSotibOlinganSana(),
+                s.getTannarx()
+        );
+
+
+
+        return new ShartnomaDetailDto(
+                s.getId(), s.getSumma(), s.getMuddat(), s.getStatus(), s.getIzoh(),
+                s.getMijoz(), s.getJadvalList(),
+                s.getKafolat()  != null ? s.getKafolat().getId()  : null,
+                s.getKafolat2() != null ? s.getKafolat2().getId() : null,
+                mahsulot, tulovTarixi
+        );
+    }
+
+    public ShartnomaDetailDto updateMahsulot(MahsulotDto dto) {
+        Shartnoma s = shartnomaRepository.findById(dto.getShartnomaId())
+                .orElseThrow(() -> new RuntimeException("Shartnoma topilmadi: " + dto.getShartnomaId()));
+
+        s.setMahsulot(dto.getNomi());
+        s.setTannarx(dto.getNarx());              // String → String, parse shart emas
+        s.setSotibOlinganSana(dto.getSana());     // String → String, parse shart emas
+        shartnomaRepository.save(s);
+
+        return shartnomaDetail(s.getId());
+    }
+
+    private String resolveDokonNomi(Long dokonId) {
+        if (dokonId == null) return null;
+        // sizdagi do'kon entitisi/metodiga qarab moslang
+        return magazinRepository.findById(dokonId)
+                .map(Magazin::getNomi)
+                .orElse("Do'kon #" + dokonId);
     }
 
     public ApiResponse addMagazine(Magazin magazin) {
@@ -349,6 +406,7 @@ public class AdminService {
         shartnoma.setSumma(mijoz.getSumma());
         shartnoma.setStatus("ochiq");
         shartnoma.setIzoh(mijoz.getIzoh());
+        shartnoma.setMahsulot(mijoz.getAbout());
 
         shartnoma.setMuddat(mijoz.getMuddat());
         shartnoma.setCreatedTime(mijoz.getShartnomaSana());
@@ -427,5 +485,109 @@ public class AdminService {
             return new ApiResponse("Bu passport egasi bazada mavjud!",false);
         }
         return new ApiResponse("Hammasi yaxshi!",true);
+    }
+
+    public Object getDashboardData() {
+        long mijoz = mijozRepository.count();
+
+        DashboardData dashboardData = new DashboardData();
+        dashboardData.setMijozSoni(mijoz);
+
+        return dashboardData;
+    }
+
+    public FoydaResponseDTO getFoyda(String davr) {
+        return getFoyda(davr, null, null);
+    }
+    public FoydaResponseDTO getFoyda(String davr, String fromParam, String toParam) {
+        String from;
+        String to;
+        LocalDate now = LocalDate.now();
+
+        switch (davr) {
+            case "kunlik" -> {
+                from = now.toString();
+                to   = now.toString();
+            }
+            case "haftalik" -> {
+                LocalDate dushanba = now.with(java.time.DayOfWeek.MONDAY);
+                LocalDate yakshanba = now.with(java.time.DayOfWeek.SUNDAY);
+                from = dushanba.toString();
+                to   = yakshanba.toString();
+            }
+            case "oylik" -> {
+                from = now.withDayOfMonth(1).toString();
+                to   = now.withDayOfMonth(now.lengthOfMonth()).toString();
+            }
+            case "yillik" -> {
+                from = now.withDayOfYear(1).toString();
+                to   = now.withDayOfYear(now.lengthOfYear()).toString();
+            }
+            case "tanlangan" -> {
+                if (fromParam == null || fromParam.isBlank() || toParam == null || toParam.isBlank()) {
+                    throw new IllegalArgumentException("Tanlangan muddat uchun 'from' va 'to' parametrlari majburiy");
+                }
+                from = fromParam;
+                to   = toParam;
+            }
+            default -> throw new IllegalArgumentException("Noto'g'ri davr: " + davr);
+        }
+
+        List<Shartnoma> shartnomalar = shartnomaRepository.findBySotibOlinganSanaBetween(from, to);
+
+        List<FoydaItemDto> items = new ArrayList<>();
+        long totalSumma = 0, totalTannarx = 0, totalFoyda = 0;
+
+        for (Shartnoma s : shartnomalar) {
+            long tannarx = parseLongSafe(s.getTannarx());
+            long summa   = s.getSumma();
+            long foyda   = summa - tannarx;
+
+            Mijoz m = s.getMijoz();
+            String fish = m != null
+                    ? (nonNull(m.getFamiliya()) + " " + nonNull(m.getIsm())).trim()
+                    : "—";
+            String tel = m != null ? nonNull(m.getTel1()) : "—";
+
+            items.add(new FoydaItemDto(s.getId(), fish.isBlank() ? "—" : fish, tel.isBlank() ? "—" : tel, summa, tannarx, foyda));
+
+            totalSumma   += summa;
+            totalTannarx += tannarx;
+            totalFoyda   += foyda;
+        }
+
+        return new FoydaResponseDTO(items, items.size(), totalSumma, totalTannarx, totalFoyda);
+    }
+
+    private long parseLongSafe(String s) {
+        if (s == null || s.isBlank()) return 0L;
+        try {
+            return Long.parseLong(s.trim());
+        } catch (NumberFormatException e) {
+            return 0L; // eski/noto'g'ri formatdagi tannarx qiymatlari xatoga sabab bo'lmasin
+        }
+    }
+
+    private String nonNull(String s) { return s == null ? "" : s; }
+
+    public ApiResponse editMijoz(MijozDataDto mijoz) {
+        Optional<Mijoz> byId = mijozRepository.findById(mijoz.getMijozId());
+        if(byId.isEmpty()){
+            return new ApiResponse("Mijoz topilmadi",false);
+        }
+        Mijoz mijoz1 = byId.get();
+        mijoz1.setIsm(mijoz.getIsm());
+        mijoz1.setFamiliya(mijoz.getFamiliya());
+        mijoz1.setSharif(mijoz.getSharif());
+        mijoz1.setTel1(mijoz.getTel1());
+        mijoz1.setTel2(mijoz.getTel2());
+        mijoz1.setTel3(mijoz.getTel3());
+        mijoz1.setViloyat(mijoz.getViloyat());
+        mijoz1.setTuman(mijoz.getTuman());
+        mijoz1.setManzil(mijoz.getManzil());
+        mijoz1.setMuljal(mijoz.getMuljal());
+
+        mijozRepository.save(mijoz1);
+        return new ApiResponse("Mijoz o'zgartirildi",true);
     }
 }

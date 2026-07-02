@@ -1,6 +1,7 @@
 package com.example.gilam888.Controller;
 
 import com.example.gilam888.Configurations.ApiResponse;
+import com.example.gilam888.Dto.MahsulotDto;
 import com.example.gilam888.Dto.MijozDataDto;
 import com.example.gilam888.Dto.YaqinJadvalDto;
 import com.example.gilam888.Entity.*;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -80,6 +82,7 @@ public class AdminController {
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
 
+    @PreAuthorize("hasRole('owner')")
     @GetMapping("/all-hodim")
     public ResponseEntity<?> allHodim(){
         return ResponseEntity.ok(usersRepository.findAll());
@@ -108,6 +111,12 @@ public class AdminController {
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
 
+    @PostMapping("/update-mijoz")
+    public ResponseEntity<?> editMijoz(@RequestBody MijozDataDto mijoz) throws IOException {
+        ApiResponse apiResponse=adminService.editMijoz(mijoz);
+        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(Map.of("message",apiResponse.getMessage()));
+    }
+
     @GetMapping("/my-profile")
     public String myProfile(){
         return "my-profile-page";
@@ -130,6 +139,11 @@ public class AdminController {
     @GetMapping("/shartnoma-detail")
     public String shartnomaDetail(){
         return "shartnomaDetail";
+    }
+
+    @PostMapping("/update-mahsulot")
+    public ResponseEntity<?> updateMahsulot(@RequestBody MahsulotDto dto){
+        return ResponseEntity.ok(adminService.updateMahsulot(dto));
     }
 
     @GetMapping("/fayl/{id}")
@@ -262,4 +276,23 @@ public class AdminController {
         ApiResponse apiResponse=adminService.checkPassport(passport);
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
+    @GetMapping("/dashboard-data")
+    public ResponseEntity<?> dashboardData(){
+        return ResponseEntity.ok(adminService.getDashboardData());
+    }
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/foyda")
+    public String foydaPage(){
+        return "Admin/foyda";
+    }
+    @GetMapping("/get-foyda/{davr}")
+    public ResponseEntity<?> getFoyda(
+            @PathVariable("davr") String davr,
+            @RequestParam(value = "from", required = false) String from,
+            @RequestParam(value = "to", required = false) String to
+    ){
+        return ResponseEntity.ok(adminService.getFoyda(davr, from, to));
+    }
+
+
 }

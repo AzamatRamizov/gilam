@@ -19,6 +19,8 @@ public class Shartnoma extends AbstractLongEntity {
     private long muddat;
     private String izoh;
     private String mahsulot;
+    private String tannarx;
+    private String sotibOlinganSana;
 
     @ManyToOne
     private Mijoz mijoz;

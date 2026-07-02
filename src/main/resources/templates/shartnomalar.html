@@ -170,7 +170,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.598 1.04a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
                 </svg>
-                <input type="text" id="searchInput" placeholder="Shartnoma raqami yoki mijoz F.I.Sh bo'yicha qidirish..." oninput="renderTable()">
+                <input type="text" id="searchInput" placeholder="Shartnoma raqami, F.I.Sh yoki telefon bo'yicha qidirish..." oninput="renderTable()">
             </div>
             <select class="filter-select" id="statusFilter" onchange="renderTable()">
                 <option value="">Barcha holat</option>
@@ -193,6 +193,7 @@
                 <tr>
                     <th onclick="sortBy('id')">Shartnoma №<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('fish')">F.I.Sh<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('tel')">Tel<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('muddat')">Muddat<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('summa')">Summa<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('status')">Holat<span class="sort-icon">↕</span></th>
@@ -332,7 +333,7 @@
         const q = document.getElementById('searchInput').value.toLowerCase();
         const st = document.getElementById('statusFilter').value;
         return contracts.filter(c => {
-            const blob = `${c.id||''} ${c.fish||''}`.toLowerCase();
+            const blob = `${c.id||''} ${c.fish||''} ${c.tel||''}`.toLowerCase();   // ← tel qo'shildi
             return (!q || blob.includes(q)) && (!st || c.status === st);
         }).sort((a,b) => {
             let va = a[sortCol], vb = b[sortCol];
@@ -344,7 +345,6 @@
             return va < vb ? -sortDir : va > vb ? sortDir : 0;
         });
     }
-
     function sortBy(col){
         if(sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
         page = 1; renderTable();
@@ -358,7 +358,7 @@
         if(page > pages) page = 1;
         const slice = data.slice((page-1)*PER_PAGE, page*PER_PAGE);
 
-        const cols = ['id','fish','muddat','summa','status'];
+        const cols = ['id','fish','tel','muddat','summa','status'];   // ← 'tel' qo'shildi
         document.querySelectorAll('.table-custom thead th').forEach((th,i)=>{
             const sp = th.querySelector('.sort-icon');
             if(!sp) return;
@@ -384,6 +384,7 @@
                             <div style="font-weight:600;">${c.fish || '—'}</div>
                         </div>
                     </td>
+                    <td>${c.tel ? c.tel : '-'}</td>
                     <td>${c.muddat ? c.muddat + ' oy' : '—'}</td>
                     <td>${fmtSumma(c.summa)}</td>
                     <td><span class="badge-status ${b.cls}"><span class="dot"></span>${b.label}</span></td>
