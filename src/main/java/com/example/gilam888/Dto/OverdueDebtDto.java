@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OverdueDebtDto {
+    private long mijozId;
     private String mijoz;
     private String tel;
     private long qolgan;

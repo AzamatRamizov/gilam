@@ -29,4 +29,6 @@ public interface PaymentRepository extends JpaRepository<PaymentHistory, Long> {
             @Param("oxiri") LocalDateTime oxiri
     );
     List<PaymentHistory> findByJadvalIdInOrderBySanaDesc(List<Long> jadvalIds);
+
+    List<PaymentHistory> findByJadvalIdIn(List<Long> jadvalIds);
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,5 +25,11 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
         ORDER BY s.sotibOlinganSana DESC
     """)
     List<Shartnoma> findBySotibOlinganSanaBetween(@Param("from") String from, @Param("to") String to);
-
+    @Query("""
+        SELECT j FROM Jadval j
+        WHERE j.holat = 'tulanmagan'
+          AND j.sana < :hozir
+        ORDER BY j.sana ASC
+    """)
+    List<Jadval> findOverdueUnpaid(@Param("hozir") LocalDateTime hozir);
 }

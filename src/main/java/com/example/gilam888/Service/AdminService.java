@@ -9,15 +9,15 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -467,6 +467,7 @@ public class AdminService {
                 dto.setShartnomaId(s.getId());
                 Mijoz m = s.getMijoz();
                 if (m != null) {
+                    dto.setMijozId(m.getId());
                     dto.setMijoz(m.getFamiliya() + " " + m.getIsm());
                     dto.setTel(m.getTel1());
                 }
@@ -570,10 +571,10 @@ public class AdminService {
 
     private String nonNull(String s) { return s == null ? "" : s; }
 
-    public ApiResponse editMijoz(MijozDataDto mijoz) {
+    public ApiResponse editMijoz(MijozDataDto mijoz, MultipartFile passport, MultipartFile passport2) throws IOException {
         Optional<Mijoz> byId = mijozRepository.findById(mijoz.getMijozId());
-        if(byId.isEmpty()){
-            return new ApiResponse("Mijoz topilmadi",false);
+        if (byId.isEmpty()) {
+            return new ApiResponse("Mijoz topilmadi", false);
         }
         Mijoz mijoz1 = byId.get();
         mijoz1.setIsm(mijoz.getIsm());
@@ -586,8 +587,123 @@ public class AdminService {
         mijoz1.setTuman(mijoz.getTuman());
         mijoz1.setManzil(mijoz.getManzil());
         mijoz1.setMuljal(mijoz.getMuljal());
+        mijoz1.setPassport(mijoz.getPassport());
+
+        if (passport != null && !passport.isEmpty()) {
+            mijoz1.setPassportRasm(saqlashYokiYangilash(mijoz1.getPassportRasm(), passport));
+        }
+        if (passport2 != null && !passport2.isEmpty()) {
+            mijoz1.setKatm(saqlashYokiYangilash(mijoz1.getKatm(), passport2));
+        }
 
         mijozRepository.save(mijoz1);
-        return new ApiResponse("Mijoz o'zgartirildi",true);
+        return new ApiResponse("Mijoz o'zgartirildi", true);
+    }
+
+    // Mavjud FaylBayt bo'lsa ID bo'yicha topib o'sha yozuvni yangilaydi,
+// bo'lmasa yangi FaylBayt yaratadi.
+    private FaylBayt saqlashYokiYangilash(FaylBayt eski, MultipartFile file) throws IOException {
+        FaylBayt fayl;
+        if (eski != null && eski.getId() != 0) {
+            fayl = faylBaytRepository.findById(eski.getId())
+                    .orElseGet(FaylBayt::new);
+        } else {
+            fayl = new FaylBayt();
+        }
+        fayl.setOriginalNomi(file.getOriginalFilename());
+        fayl.setHajmiFayl(file.getSize());
+        fayl.setContentTypeFayl(file.getContentType());
+        fayl.setBayt(file.getBytes());
+        return faylBaytRepository.save(fayl);
+    }
+
+    @Transactional
+    public ApiResponse deleteShartnoma(Long id) {
+        Optional<Shartnoma> optional = shartnomaRepository.findById(id);
+        if (optional.isEmpty()) {
+            return new ApiResponse("Shartnoma topilmadi", false);
+        }
+
+        Shartnoma shartnoma = optional.get();
+
+        // 1) Shartnomaga bog'liq to'lov tarixini o'chirish
+        List<Jadval> jadvalList = shartnoma.getJadvalList();
+        if (jadvalList != null && !jadvalList.isEmpty()) {
+            List<Long> jadvalIds = jadvalList.stream()
+                    .map(Jadval::getId)
+                    .collect(Collectors.toList());
+
+            List<PaymentHistory> tulovlar = paymentRepository.findByJadvalIdIn(jadvalIds);
+            paymentRepository.deleteAll(tulovlar);
+
+            // 2) Jadval (to'lov grafigi) yozuvlarini o'chirish
+            shartnoma.setJadvalList(null);
+            shartnomaRepository.save(shartnoma); // ManyToMany bog'lanishini uzish
+            jadvalRepository.deleteAll(jadvalList);
+        }
+
+        // 3) Shartnomaning o'zini o'chirish
+        shartnomaRepository.delete(shartnoma);
+
+        return new ApiResponse("Shartnoma muvaffaqiyatli o'chirildi", true);
+    }
+
+    public List<QarzdorlarDto> getQarzdorlar(String filter) {
+        LocalDateTime hozir = LocalDateTime.now();
+        List<Jadval> jadvalList;
+
+        if ("bugun".equals(filter)) {
+            LocalDate bugun = LocalDate.now();
+            jadvalList = jadvalRepository.findTodayPayments(
+                    bugun.atStartOfDay(), bugun.plusDays(1).atStartOfDay());
+        } else if ("otgan".equals(filter)) {
+            jadvalList = jadvalRepository.findOverdueUnpaid(hozir);
+        } else {
+            LocalDate boshi = LocalDate.now().withDayOfMonth(1);
+            LocalDate oxiri = boshi.plusMonths(1);
+            jadvalList = jadvalRepository.findCurrentMonthUnpaid(
+                    boshi.atStartOfDay(), oxiri.atStartOfDay());
+        }
+
+        // Bitta shartnomaga bir nechta jadval qatori tegishli bo'lishi mumkin — dedupe qilamiz
+        Map<Long, QarzdorlarDto> result = new LinkedHashMap<>();
+        for (Jadval jadval : jadvalList) {
+            shartnomaRepository.findByJadvalListContaining(jadval).ifPresent(shartnoma ->
+                    result.putIfAbsent(shartnoma.getId(), toQarzdorDto(shartnoma, jadval))
+            );
+        }
+        return new ArrayList<>(result.values());
+    }
+
+    private QarzdorlarDto toQarzdorDto(Shartnoma shartnoma, Jadval activeJadval) {
+        Mijoz mijoz = shartnoma.getMijoz();
+        List<Jadval> jadvalList = shartnoma.getJadvalList();
+
+        long qolganQarz = jadvalList.stream()
+                .filter(j -> "tulanmagan".equals(j.getHolat()))
+                .mapToLong(j -> Math.max(0, j.getSumma() - j.getTulangan()))
+                .sum();
+
+        LocalDateTime hozir = LocalDateTime.now();
+        long muddatiOtganKun = jadvalList.stream()
+                .filter(j -> "tulanmagan".equals(j.getHolat())
+                        && j.getSana() != null && j.getSana().isBefore(hozir))
+                .map(Jadval::getSana)
+                .min(LocalDateTime::compareTo)
+                .map(eng -> Duration.between(eng, hozir).toDays())
+                .orElse(0L);
+
+        return new QarzdorlarDto(
+                mijoz.getId(),
+                mijoz.getIsm(),
+                mijoz.getFamiliya(),
+                mijoz.getTel1(),
+                mijoz.getTel2(),
+                mijoz.getTel3(),
+                shartnoma.getId(),
+                qolganQarz,
+                activeJadval != null && activeJadval.getSana() != null ? activeJadval.getSana().toString() : null,
+                muddatiOtganKun
+        );
     }
 }

@@ -111,10 +111,15 @@ public class AdminController {
         return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
     }
 
-    @PostMapping("/update-mijoz")
-    public ResponseEntity<?> editMijoz(@RequestBody MijozDataDto mijoz) throws IOException {
-        ApiResponse apiResponse=adminService.editMijoz(mijoz);
-        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(Map.of("message",apiResponse.getMessage()));
+    @PostMapping(value = "/update-mijoz", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editMijoz(
+            @RequestPart("mijoz") MijozDataDto mijoz,
+            @RequestParam(value = "rasm", required = false) MultipartFile passport,
+            @RequestParam(value = "rasm2", required = false) MultipartFile passport2) throws IOException {
+
+        ApiResponse apiResponse = adminService.editMijoz(mijoz, passport, passport2);
+        return ResponseEntity.status(apiResponse.isHolat() ? 200 : 208)
+                .body(Map.of("message", apiResponse.getMessage()));
     }
 
     @GetMapping("/my-profile")
@@ -229,6 +234,7 @@ public class AdminController {
             ).trim();
 
             YaqinJadvalDto dto = new YaqinJadvalDto();
+            dto.setMijozId(mijoz.getId());
             dto.setJadvalId(jadval.getId());
             dto.setSumma(jadval.getSumma());
             dto.setTulangan(jadval.getTulangan());
@@ -293,6 +299,19 @@ public class AdminController {
     ){
         return ResponseEntity.ok(adminService.getFoyda(davr, from, to));
     }
-
+    @PreAuthorize("hasRole('owner')")
+    @DeleteMapping("/delete-shartnoma/{id}")
+    public ResponseEntity<?> deleteShartnoma(@PathVariable Long id) {
+        ApiResponse apiResponse = adminService.deleteShartnoma(id);
+        return ResponseEntity.status(apiResponse.isHolat() ? 200 : 208).body(apiResponse.getMessage());
+    }
+    @GetMapping("/call-markaz")
+    public String callMarkaz(){
+        return "call-markaz";
+    }
+    @GetMapping("/get-qarzdorlar")
+    public ResponseEntity<?> getQarzdorlar(@RequestParam(defaultValue = "barchasi") String filter) {
+        return ResponseEntity.ok(adminService.getQarzdorlar(filter));
+    }
 
 }

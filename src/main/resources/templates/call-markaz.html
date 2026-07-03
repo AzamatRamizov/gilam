@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Call markazi</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <style>
+    :root {
+      --bg-body:#dceef8; --bg-card:#ffffff; --color-text:#1a3a52; --color-sub:#5a8fa8;
+      --color-border:#b3d6ee; --color-divider:#d0e9f5; --color-card-bdr:#c5dff0;
+      --color-hint:#90b8cc; --bg-input:#f5fafd; --bg-input-grp:#daeef9; --transition:0.25s ease;
+    }
+    [data-theme="dark"] {
+      --bg-body:#0f1e2b; --bg-card:#162534; --color-text:#d0e8f5; --color-sub:#5a8fa8;
+      --color-border:#2a4f6a; --color-divider:#1e3d55; --color-card-bdr:#1e3d55;
+      --color-hint:#4a7a94; --bg-input:#1c2f40; --bg-input-grp:#1a3048;
+    }
+    *{box-sizing:border-box;transition:background-color var(--transition),color var(--transition),border-color var(--transition);}
+    body{background-color:var(--bg-body);font-family:'Segoe UI',sans-serif;color:var(--color-text);min-height:100vh;}
+
+    .navbar{background:#1a6fa8!important;box-shadow:0 2px 10px rgba(26,111,168,0.3);padding:0;}
+    [data-theme="dark"] .navbar{background:#0e3f60!important;}
+    .navbar-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:#fff!important;}
+    .navbar-brand .logo-icon{width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+    .navbar-brand span{color:#a8dcf5;}
+    .navbar-nav .nav-link{color:rgba(255,255,255,0.88)!important;font-size:14px;font-weight:500;padding:20px 14px!important;border-bottom:2px solid transparent;}
+    .navbar-nav .nav-link:hover,.navbar-nav .nav-link.active{color:#fff!important;border-bottom-color:rgba(255,255,255,0.6);}
+    .theme-toggle{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;padding:5px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;margin-left:10px;}
+    .theme-toggle:hover{background:rgba(255,255,255,0.25);}
+
+    .main-card{background:var(--bg-card);border:1px solid var(--color-card-bdr);border-radius:12px;box-shadow:0 2px 12px rgba(26,111,168,0.07);}
+    [data-theme="dark"] .main-card{box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a6fa8;margin-bottom:16px;}
+    [data-theme="dark"] .section-title{color:#5ab4dc;}
+    .divider{border:none;border-top:1px solid var(--color-divider);margin:1.4rem 0;}
+    .page-title{font-size:20px;font-weight:700;color:var(--color-text);margin:0;}
+    .page-subtitle{font-size:13px;color:var(--color-sub);margin:2px 0 0;}
+    .form-control-c{width:100%;padding:9px 12px;font-size:14px;color:var(--color-text);background:var(--bg-input);border:1px solid var(--color-border);border-radius:8px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+    .form-control-c:focus{border-color:#1a6fa8;box-shadow:0 0 0 3px rgba(26,111,168,0.12);background:var(--bg-card);}
+    .form-control-c::placeholder{color:var(--color-hint);}
+    .badge-status{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+    .badge-status .dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0;}
+    .badge-active{background:#d8f5e8;color:#1a7a50;} .badge-closed{background:#e4e9ee;color:#5a6b7d;} .badge-overdue{background:#fde8e8;color:#b03030;}
+    [data-theme="dark"] .badge-active{background:#1a3a28;color:#4dc886;} [data-theme="dark"] .badge-closed{background:#28333d;color:#97a7b8;} [data-theme="dark"] .badge-overdue{background:#3a1a1a;color:#e07070;}
+    .loading-state{text-align:center;padding:3rem 1rem;color:var(--color-sub);}
+    .spinner-border-custom{width:32px;height:32px;border:3px solid var(--color-divider);border-top-color:#1a6fa8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .error-banner{background:#fde8e8;color:#b03030;border-radius:8px;padding:10px 16px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+    [data-theme="dark"] .error-banner{background:#3a1a1a;color:#e07070;}
+    .btn-primary-c{background-color:#1a6fa8;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13.5px;font-weight:600;cursor:pointer;transition:background 0.2s;white-space:nowrap;}
+    .btn-primary-c:hover{background-color:#155d8e;}
+    .btn-primary-c:disabled{opacity:0.5;cursor:default;}
+
+    /* ══ LAYOUT: chap ro'yxat + o'ng detail ══ */
+    .cc-layout{display:grid;grid-template-columns:360px 1fr;gap:1.2rem;align-items:flex-start;height:calc(100vh - 122px);min-height:560px;}
+    @media (max-width:900px){ .cc-layout{grid-template-columns:1fr;height:auto;} }
+
+    /* Chap panel */
+    .cc-left{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+    .cc-left-head{padding:1.1rem 1.1rem 0.9rem;flex-shrink:0;}
+    .cc-left-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .cc-count-pill{font-size:11px;font-weight:700;color:#1a6fa8;background:var(--bg-input-grp);border-radius:20px;padding:3px 11px;}
+    [data-theme="dark"] .cc-count-pill{color:#5ab4dc;}
+    .cc-filters{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+    .cc-filter-btn{border:1.5px solid var(--color-border);background:var(--bg-input);color:var(--color-sub);border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+    .cc-filter-btn:hover{border-color:#1a6fa8;color:#1a6fa8;}
+    .cc-filter-btn.active{background:#1a6fa8;border-color:#1a6fa8;color:#fff;}
+
+    .cc-list{flex:1;overflow-y:auto;padding:0 0.7rem 0.9rem;}
+    .cc-list::-webkit-scrollbar{width:7px;}
+    .cc-list::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:10px;}
+    .cc-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;border:1px solid transparent;position:relative;}
+    .cc-item:hover{background:var(--bg-input);}
+    .cc-item.selected{background:var(--bg-input-grp);border-color:#1a6fa8;}
+    .cc-item-avatar{width:40px;height:40px;border-radius:10px;background:var(--bg-input-grp);color:#1a6fa8;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+    [data-theme="dark"] .cc-item-avatar{color:#5ab4dc;}
+    .cc-item.selected .cc-item-avatar{background:#1a6fa8;color:#fff;}
+    .cc-item-body{min-width:0;flex:1;}
+    .cc-item-name{font-size:13.5px;font-weight:700;color:var(--color-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cc-item-sub{font-size:11.5px;color:var(--color-sub);display:flex;align-items:center;gap:5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cc-item-right{text-align:right;flex-shrink:0;}
+    .cc-item-qarz{font-size:12.5px;font-weight:700;color:#c0392b;white-space:nowrap;}
+    .cc-item-kun{font-size:10.5px;color:var(--color-hint);margin-top:2px;white-space:nowrap;}
+    .cc-item-kun.overdue{color:#c0392b;font-weight:600;}
+    .cc-empty-list{text-align:center;padding:2.4rem 1rem;color:var(--color-hint);font-size:13px;}
+
+    /* O'ng panel */
+    .cc-right{height:100%;overflow-y:auto;padding:1.4rem 1.5rem;}
+    .cc-right::-webkit-scrollbar{width:7px;}
+    .cc-right::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:10px;}
+    .cc-right-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--color-hint);text-align:center;padding:2rem;}
+    .cc-right-empty svg{opacity:0.35;margin-bottom:14px;}
+    .cc-right-empty p{font-size:14px;font-weight:600;margin:0;color:var(--color-sub);}
+    .cc-right-empty span{font-size:12.5px;margin-top:4px;}
+
+    .cc-caller-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--bg-input-grp);border-radius:12px;padding:16px 18px;margin-bottom:1.2rem;}
+    .cc-caller-avatar{width:54px;height:54px;border-radius:12px;background:#1a6fa8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;}
+    .cc-caller-info{flex:1;min-width:160px;}
+    .cc-caller-name{font-size:16.5px;font-weight:700;color:var(--color-text);margin:0;}
+    .cc-caller-phone{font-size:15px;font-weight:700;color:#1a6fa8;margin:3px 0 0;font-family:monospace;letter-spacing:0.02em;}
+    [data-theme="dark"] .cc-caller-phone{color:#6ab8e8;}
+    .cc-phone-alt{font-size:12px;color:var(--color-sub);margin-top:2px;}
+    .cc-call-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .btn-call{display:flex;align-items:center;gap:7px;background:#1a9a5a;color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:background 0.2s;box-shadow:0 2px 8px rgba(26,154,90,0.3);}
+    .btn-call:hover{background:#158049;color:#fff;}
+    .btn-log-call{display:flex;align-items:center;gap:6px;background:var(--bg-card);border:1.5px solid var(--color-border);color:var(--color-text);border-radius:9px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+    .btn-log-call:hover{border-color:#1a6fa8;color:#1a6fa8;}
+
+    .cc-summary-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.3rem;}
+    .cc-summary-item{background:var(--bg-input);border:1px solid var(--color-border);border-radius:8px;padding:8px 14px;font-size:13px;display:flex;gap:6px;align-items:center;flex:1;min-width:140px;}
+    .cc-summary-item span:first-child{color:var(--color-sub);} .cc-summary-item span:last-child{font-weight:700;margin-left:auto;}
+
+    .cc-history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.9rem;flex-wrap:wrap;gap:8px;}
+    .call-history-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .call-history-table thead th{background:var(--bg-input);color:var(--color-sub);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:9px 12px;text-align:left;border-bottom:1px solid var(--color-border);}
+    .call-history-table tbody td{padding:10px 12px;border-bottom:1px solid var(--color-divider);vertical-align:middle;}
+    .call-history-table tbody tr:last-child td{border-bottom:none;}
+    .call-history-table tbody tr:hover td{background:var(--bg-input);}
+    .call-result{font-size:11.5px;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+    .call-result.javob-berdi{background:#d8f5e8;color:#1a7a50;}
+    .call-result.vada-berdi{background:#fff0dc;color:#b07000;}
+    .call-result.javob-bermadi{background:#fde8e8;color:#c0392b;}
+    .call-result.notogri{background:#e4e9ee;color:#5a6b7d;}
+    [data-theme="dark"] .call-result.javob-berdi{background:#1a3a28;color:#4dc886;}
+    [data-theme="dark"] .call-result.vada-berdi{background:#3a2e18;color:#f0a830;}
+    [data-theme="dark"] .call-result.javob-bermadi{background:#3a1a1a;color:#e07070;}
+    [data-theme="dark"] .call-result.notogri{background:#28333d;color:#97a7b8;}
+    .call-izoh-cell{color:var(--color-sub);max-width:260px;}
+    .schedule-empty{text-align:center;padding:1.5rem;color:var(--color-hint);font-size:13px;}
+
+    /* Modal (qo'ng'iroq natijasi) */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.48);z-index:1050;align-items:center;justify-content:center;padding:16px;}
+    .modal-overlay.show{display:flex;}
+    .modal-box{background:var(--bg-card);border-radius:14px;padding:1.8rem;max-width:460px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.22);animation:modalIn 0.18s ease;max-height:92vh;overflow-y:auto;}
+    @keyframes modalIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .modal-title{font-size:17px;font-weight:700;color:var(--color-text);margin:0 0 1.2rem;display:flex;align-items:center;gap:8px;}
+    .form-label{font-size:13px;color:var(--color-sub);margin-bottom:5px;font-weight:500;display:block;}
+    .form-control,.form-select{font-size:14px;border:1px solid var(--color-border);border-radius:8px;padding:9px 12px;color:var(--color-text);background-color:var(--bg-input);width:100%;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+    .form-control:focus,.form-select:focus{border-color:#1a6fa8;box-shadow:0 0 0 3px rgba(26,111,168,0.14);background-color:var(--bg-card);}
+    .form-select option{background:var(--bg-card);color:var(--color-text);}
+    .required-star{color:#e05555;margin-left:2px;}
+    .form-msg{font-size:13px;padding:9px 13px;border-radius:8px;margin-bottom:12px;display:none;}
+    .form-msg.show{display:block;}
+    .form-msg.error{background:#fde8e8;color:#b03030;} .form-msg.success{background:#d8f5e8;color:#1a7a50;}
+    [data-theme="dark"] .form-msg.error{background:#3a1a1a;color:#e07070;} [data-theme="dark"] .form-msg.success{background:#1a3a28;color:#4dc886;}
+    .btn-save-form{background:#1a6fa8;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;}
+    .btn-save-form:hover:not(:disabled){background:#155d8e;} .btn-save-form:disabled{opacity:0.6;cursor:default;}
+    .btn-cancel-form{background:var(--bg-input);color:var(--color-text);border:1px solid var(--color-border);border-radius:8px;padding:9px 18px;font-size:14px;cursor:pointer;transition:background 0.2s;}
+    .btn-cancel-form:hover{background:var(--color-divider);}
+    .result-type-group{display:flex;gap:8px;flex-wrap:wrap;}
+    .result-type-btn{flex:1;min-width:100px;border:1.5px solid var(--color-border);background:var(--bg-input);color:var(--color-text);border-radius:8px;padding:9px 10px;font-size:12.5px;font-weight:500;cursor:pointer;text-align:center;transition:all 0.15s;}
+    .result-type-btn:hover{border-color:#1a6fa8;background:var(--bg-input-grp);}
+    .result-type-btn.selected{border-color:#1a6fa8;background:#e8f4fd;color:#1a6fa8;font-weight:700;}
+    [data-theme="dark"] .result-type-btn.selected{background:#1a3048;color:#6ab8e8;border-color:#3a7ab8;}
+  </style>
+</head>
+<body>
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<div class="container-fluid py-4" style="max-width:1400px;">
+  <div id="errorBanner" class="error-banner" style="display:none;"><span>&#9888;&#65039;</span><span id="errorBannerText"></span></div>
+
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <div><p class="page-title">&#128222; Call markazi</p><p class="page-subtitle">Qarzdorlar bilan bog'lanish va qo'ng'iroqlar tarixi</p></div>
+  </div>
+
+  <div class="cc-layout">
+    <!-- ══════ CHAP: QARZDORLAR RO'YXATI ══════ -->
+    <div class="main-card cc-left">
+      <div class="cc-left-head">
+        <div class="cc-left-head-row">
+          <p class="section-title mb-0">Qarzdorlar</p>
+          <span class="cc-count-pill" id="ccCountPill">0</span>
+        </div>
+        <input type="text" class="form-control-c" id="ccSearch" placeholder="Ism, familiya yoki telefon..." oninput="ccFilterAndRender()">
+        <div class="cc-filters">
+          <button class="cc-filter-btn" data-f="otgan" onclick="ccSetFilter('otgan')">Muddati o'tgan</button>
+          <button class="cc-filter-btn active" data-f="buoy" onclick="ccSetFilter('buoy')">Bu oy</button>
+        </div>
+      </div>
+      <hr class="divider" style="margin:0.9rem 0 0;">
+      <div class="cc-list" id="ccList">
+        <div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>
+      </div>
+    </div>
+
+    <!-- ══════ O'NG: TANLANGAN MIJOZ ══════ -->
+    <div class="main-card cc-right" id="ccRight">
+      <div class="cc-right-empty" id="ccRightEmpty">
+        <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/></svg>
+        <p>Mijoz tanlanmagan</p>
+        <span>Chapdagi ro'yxatdan qarzdorni tanlang</span>
+      </div>
+
+      <div id="ccRightContent" style="display:none;">
+        <div class="cc-caller-bar">
+          <div class="cc-caller-avatar" id="cc_avatar">&#8212;</div>
+          <div class="cc-caller-info">
+            <p class="cc-caller-name" id="cc_name">&#8212;</p>
+            <p class="cc-caller-phone" id="cc_phone">&#8212;</p>
+            <p class="cc-phone-alt" id="cc_phone_alt"></p>
+          </div>
+          <div class="cc-call-actions">
+            <a class="btn-call" id="cc_call_btn" href="tel:" onclick="ccOnCallClick()">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/></svg>
+              Qo'ng'iroq qilish
+            </a>
+            <button class="btn-log-call" onclick="openCallLogModal()">
+              <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm.5-7.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 1 0zm0-3a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z" transform="rotate(0)"/><path d="M8 4a.5.5 0 0 1 .5.5v3.5a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zm0 7a.6.6 0 1 1 0 1.2.6.6 0 0 1 0-1.2z"/></svg>
+              Natija kiritish
+            </button>
+          </div>
+        </div>
+
+        <div class="cc-summary-bar" id="ccSummaryBar"></div>
+
+        <div class="cc-history-head">
+          <p class="section-title mb-0">&#128222; Oxirgi gaplashganlar tarixi</p>
+        </div>
+        <div id="ccHistoryWrap">
+          <div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ QO'NG'IROQ NATIJASI MODAL ══════ -->
+<div class="modal-overlay" id="callLogModal">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <p class="modal-title">&#128222; Qo'ng'iroq natijasi</p>
+    <div class="form-msg" id="clMsg"></div>
+
+    <div class="mb-3">
+      <label class="form-label" style="margin-bottom:8px;">Natija <span class="required-star">*</span></label>
+      <div class="result-type-group">
+        <button class="result-type-btn" data-natija="Javob berdi" onclick="clSelectNatija(this)">&#9989; Javob berdi</button>
+        <button class="result-type-btn" data-natija="Va'da berdi" onclick="clSelectNatija(this)">&#128197; Va'da berdi</button>
+        <button class="result-type-btn" data-natija="Javob bermadi" onclick="clSelectNatija(this)">&#9742;&#65039; Javob bermadi</button>
+        <button class="result-type-btn" data-natija="Noto'g'ri raqam" onclick="clSelectNatija(this)">&#10060; Noto'g'ri raqam</button>
+      </div>
+      <input type="hidden" id="cl_natija_hidden">
+    </div>
+    <div class="mb-3" id="cl_vada_wrap" style="display:none;">
+      <label class="form-label">Va'da qilingan sana</label>
+      <input type="date" id="cl_vada_sana" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Izoh</label>
+      <textarea id="cl_izoh" class="form-control" rows="3" placeholder="Suhbat mazmuni, kelishuvlar..."></textarea>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button class="btn-cancel-form" onclick="closeCallLogModal()">Bekor qilish</button>
+      <button class="btn-save-form" id="clSaveBtn" onclick="submitCallLog()">&#128190; Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ── Theme ──
+  const html = document.documentElement;
+  applyTheme(localStorage.getItem('mb-theme') || 'light');
+  function applyTheme(t) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('mb-theme', t);
+    const icon  = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon)  icon.textContent  = t === 'dark' ? '☀️' : '🌙';
+    if (label) label.textContent = t === 'dark' ? 'Kun' : 'Tun';
+  }
+  function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+
+  // ── State ──
+  let _qarzdorlar   = [];   // to'liq ro'yxat (backenddan)
+  let _ccFilter     = 'buoy';
+  let _ccSelectedId = null;
+  let _ccSelected   = null;
+
+  function showError(msg) {
+    document.getElementById('errorBannerText').textContent = msg;
+    document.getElementById('errorBanner').style.display = 'flex';
+  }
+  function fmtSumma(n) {
+    if (n===undefined||n===null||n==='') return '—';
+    return (Number(n)||0).toLocaleString('uz-UZ')+" so'm";
+  }
+  function fmtDate(sana) {
+    if (!sana) return '—';
+    const d=new Date(sana);
+    if (isNaN(d.getTime())) return sana;
+    const oy=['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+    return d.getDate()+'-'+oy[d.getMonth()]+', '+d.getFullYear();
+  }
+  function fmtDateTime(sana) {
+    if (!sana) return '—';
+    const d=new Date(sana);
+    if (isNaN(d.getTime())) return sana;
+    const oy=['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
+    const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+    return d.getDate()+'-'+oy[d.getMonth()]+', '+d.getFullYear()+' '+hh+':'+mm;
+  }
+  function initials(ism,familiya) {
+    return (((ism||'')[0]||'')+((familiya||'')[0]||'')).toUpperCase()||'—';
+  }
+
+  // ══════ CHAP: RO'YXATNI YUKLASH ══════
+  // filter='barchasi' -> /admin/get-qarzdorlar?filter=barchasi   (QarzdorDto[])
+  // filter='otgan'    -> /admin/get-overdue-debts                (OverdueDebtDto[])
+  // filter='buoy'     -> /admin/get-last-muddat                  (YaqinJadvalDto[])
+  function loadQarzdorlar(filter) {
+    filter = filter || _ccFilter;
+    document.getElementById('ccList').innerHTML='<div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>';
+
+    let url, mapper;
+    if (filter === 'otgan') {
+      url = '/admin/get-overdue-debts';
+      mapper = mapOverdueDebts;
+    } else {
+      url = '/admin/get-last-muddat';
+      mapper = mapYaqinJadval;
+    }
+
+    fetch(url)
+            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data){ _qarzdorlar = mapper(Array.isArray(data)?data:[]); ccFilterAndRender(); })
+            .catch(function(err){ showError("Qarzdorlar ro'yxatini yuklab bo'lmadi: "+err); document.getElementById('ccList').innerHTML='<div class="cc-empty-list">Yuklashda xatolik yuz berdi</div>'; });
+  }
+
+  // "Familiya Ism [Sharif]" ko'rinishidagi to'liq ismni familiya/ism ga ajratish
+  function splitFish(fish) {
+    const parts = (fish||'').trim().split(/\s+/).filter(Boolean);
+    return { familiya: parts[0]||'', ism: parts.slice(1).join(' ') };
+  }
+
+  // OverdueDebtDto[] -> umumiy shakl
+  function mapOverdueDebts(list) {
+    const byShartnoma = new Map();
+    list.forEach(function(o){
+      const nm = splitFish(o.mijoz);
+      const item = {
+        mijozId: o.mijozId,
+        ism: nm.ism, familiya: nm.familiya,
+        tel1: o.tel, tel2: null, tel3: null,
+        shartnomaId: o.shartnomaId,
+        qolganQarz: o.qolgan,
+        keyingiTolovSana: o.oxirgiTolov,
+        muddatiOtganKun: o.kun
+      };
+      const key = o.shartnomaId ?? o.mijozId;
+      const mavjud = byShartnoma.get(key);
+      if (!mavjud) { byShartnoma.set(key, item); }
+      else { mavjud.qolganQarz += item.qolganQarz; mavjud.muddatiOtganKun = Math.max(mavjud.muddatiOtganKun, item.muddatiOtganKun); }
+    });
+    return Array.from(byShartnoma.values());
+  }
+
+  // YaqinJadvalDto[] -> umumiy shakl
+  function mapYaqinJadval(list) {
+    const now = new Date();
+    const byShartnoma = new Map();
+    list.forEach(function(y){
+      const nm = splitFish(y.mijozFish);
+      const sanaDate = y.sana ? new Date(y.sana) : null;
+      const otganKun = (y.holat==='tulanmagan' && sanaDate && sanaDate < now)
+              ? Math.floor((now - sanaDate) / 86400000) : 0;
+      const item = {
+        mijozId: y.mijozId,
+        ism: nm.ism, familiya: nm.familiya,
+        tel1: y.mijozTel, tel2: null, tel3: null,
+        shartnomaId: y.shartnomaId,
+        qolganQarz: Math.max(0, (Number(y.summa)||0) - (Number(y.tulangan)||0)),
+        keyingiTolovSana: y.sana,
+        muddatiOtganKun: otganKun
+      };
+      const key = y.shartnomaId ?? y.mijozId;
+      const mavjud = byShartnoma.get(key);
+      if (!mavjud) { byShartnoma.set(key, item); }
+      else { mavjud.qolganQarz += item.qolganQarz; }
+    });
+    return Array.from(byShartnoma.values());
+  }
+
+  function ccSetFilter(f) {
+    _ccFilter = f;
+    document.querySelectorAll('.cc-filter-btn').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-f')===f);
+    });
+    loadQarzdorlar(f);
+  }
+
+  // Faqat qidiruv (ism/familiya/telefon) — filtrga oid tanlov allaqachon backenddan kelgan
+  function ccFilterAndRender() {
+    const q = (document.getElementById('ccSearch').value||'').trim().toLowerCase();
+    let list = _qarzdorlar.slice();
+
+    if (q) list = list.filter(function(m){
+      const hay = [m.ism,m.familiya,m.tel1,m.tel2,m.tel3].filter(Boolean).join(' ').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+
+    // eng ko'p muddati o'tganlar tepada
+    list.sort(function(a,b){ return (Number(b.muddatiOtganKun)||0) - (Number(a.muddatiOtganKun)||0); });
+
+    document.getElementById('ccCountPill').textContent = list.length;
+    renderQarzdorlarList(list);
+  }
+
+  function renderQarzdorlarList(list) {
+    const wrap = document.getElementById('ccList');
+    if (!list.length) { wrap.innerHTML = '<div class="cc-empty-list">Qarzdor topilmadi</div>'; return; }
+    wrap.innerHTML = list.map(function(m){
+      const kunOtgan = Number(m.muddatiOtganKun)||0;
+      const kunHtml  = kunOtgan>0 ? '<div class="cc-item-kun overdue">'+kunOtgan+' kun kechikdi</div>'
+              : '<div class="cc-item-kun">'+(m.keyingiTolovSana?fmtDate(m.keyingiTolovSana):'—')+'</div>';
+      return '<div class="cc-item'+(String(m.mijozId)===String(_ccSelectedId)?' selected':'')+'" onclick="selectQarzdor(\''+m.mijozId+'\')">'+
+              '<div class="cc-item-avatar">'+initials(m.ism,m.familiya)+'</div>'+
+              '<div class="cc-item-body">'+
+              '<div class="cc-item-name">'+[m.familiya,m.ism].filter(Boolean).join(' ')+'</div>'+
+              '<div class="cc-item-sub">&#128222; '+(m.tel1||'—')+'</div>'+
+              '</div>'+
+              '<div class="cc-item-right">'+
+              '<div class="cc-item-qarz">'+fmtSumma(m.qolganQarz)+'</div>'+
+              kunHtml+
+              '</div>'+
+              '</div>';
+    }).join('');
+  }
+
+  // ══════ MIJOZNI TANLASH ══════
+  function selectQarzdor(mijozId) {
+    _ccSelectedId = mijozId;
+    ccFilterAndRender(); // ro'yxatdagi "selected" holatini yangilash
+
+    document.getElementById('ccRightEmpty').style.display='none';
+    document.getElementById('ccRightContent').style.display='block';
+    document.getElementById('ccHistoryWrap').innerHTML='<div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>';
+
+    const m = _qarzdorlar.find(function(x){ return String(x.mijozId)===String(mijozId); });
+    _ccSelected = m || null;
+    fillCallerBar(m);
+    loadQongiroqTarixi(mijozId);
+  }
+
+  function fillCallerBar(m) {
+    m = m || {};
+    document.getElementById('cc_avatar').textContent = initials(m.ism,m.familiya);
+    document.getElementById('cc_name').textContent = [m.familiya,m.ism].filter(Boolean).join(' ') || '—';
+    document.getElementById('cc_phone').textContent = m.tel1 || '—';
+    const altParts = [m.tel2,m.tel3].filter(Boolean);
+    document.getElementById('cc_phone_alt').textContent = altParts.length ? 'Qo\'shimcha: '+altParts.join(', ') : '';
+    const callBtn = document.getElementById('cc_call_btn');
+    callBtn.href = m.tel1 ? ('tel:'+m.tel1.replace(/\s+/g,'')) : 'tel:';
+
+    const kunOtgan = Number(m.muddatiOtganKun)||0;
+    document.getElementById('ccSummaryBar').innerHTML =
+            '<div class="cc-summary-item"><span>Shartnoma</span><span>№'+(m.shartnomaId??'—')+'</span></div>'+
+            '<div class="cc-summary-item"><span>Qolgan qarz</span><span style="color:#c0392b">'+fmtSumma(m.qolganQarz)+'</span></div>'+
+            '<div class="cc-summary-item"><span>Keyingi to\'lov</span><span>'+(m.keyingiTolovSana?fmtDate(m.keyingiTolovSana):'—')+'</span></div>'+
+            '<div class="cc-summary-item"><span>Holati</span><span style="color:'+(kunOtgan>0?'#c0392b':'#1a7a50')+'">'+(kunOtgan>0?(kunOtgan+' kun kechikdi'):'Muddatida')+'</span></div>';
+  }
+
+  function loadQongiroqTarixi(mijozId) {
+    fetch('/admin/qongiroq-tarixi/'+mijozId)
+            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data){ renderCallHistory(Array.isArray(data)?data:[]); })
+            .catch(function(err){ document.getElementById('ccHistoryWrap').innerHTML='<div class="schedule-empty">Tarixni yuklab bo\'lmadi</div>'; });
+  }
+
+  function resultClass(natija) {
+    if (natija==='Javob berdi') return 'javob-berdi';
+    if (natija==="Va'da berdi") return 'vada-berdi';
+    if (natija==='Javob bermadi') return 'javob-bermadi';
+    return 'notogri';
+  }
+
+  function renderCallHistory(list) {
+    list = list.slice().sort(function(a,b){
+      const da = a.sana ? new Date(a.sana).getTime() : 0;
+      const db = b.sana ? new Date(b.sana).getTime() : 0;
+      return db - da; // eng yangi qo'ng'iroq birinchi
+    });
+    const wrap = document.getElementById('ccHistoryWrap');
+    if (!list.length) { wrap.innerHTML = '<div class="schedule-empty">Hali qo\'ng\'iroqlar tarixi mavjud emas</div>'; return; }
+    let rows = '';
+    list.forEach(function(c){
+      rows += '<tr>'+
+              '<td>'+fmtDateTime(c.sana)+'</td>'+
+              '<td><span class="call-result '+resultClass(c.natija)+'">'+(c.natija||'—')+'</span></td>'+
+              '<td class="call-izoh-cell">'+(c.izoh||'—')+'</td>'+
+              '<td>'+(c.operator||'—')+'</td>'+
+              '</tr>';
+    });
+    wrap.innerHTML = '<div style="overflow-x:auto;"><table class="call-history-table">'+
+            '<thead><tr><th>Sana</th><th>Natija</th><th>Izoh</th><th>Operator</th></tr></thead>'+
+            '<tbody>'+rows+'</tbody></table></div>';
+  }
+
+  function ccOnCallClick() {
+    // tel: havolasi brauzer/qurilma orqali qo'ng'iroqni boshlaydi;
+    // shu bilan bir qatorda natija kiritish oynasini ham ochib qo'yamiz
+    setTimeout(function(){ openCallLogModal(); }, 300);
+  }
+
+  // ══════ QO'NG'IROQ NATIJASI MODAL ══════
+  function openCallLogModal() {
+    if (!_ccSelectedId) return;
+    document.getElementById('cl_izoh').value='';
+    document.getElementById('cl_vada_sana').value='';
+    document.getElementById('cl_vada_wrap').style.display='none';
+    document.getElementById('cl_natija_hidden').value='';
+    document.querySelectorAll('.result-type-btn').forEach(function(b){b.classList.remove('selected');});
+    const msg=document.getElementById('clMsg');
+    msg.className='form-msg'; msg.textContent='';
+    const btn=document.getElementById('clSaveBtn');
+    btn.disabled=false; btn.textContent='💾 Saqlash';
+    document.getElementById('callLogModal').classList.add('show');
+  }
+  function closeCallLogModal() { document.getElementById('callLogModal').classList.remove('show'); }
+  document.getElementById('callLogModal').addEventListener('click', function(e){ if(e.target===this) closeCallLogModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCallLogModal(); });
+
+  function clSelectNatija(btn) {
+    document.querySelectorAll('.result-type-btn').forEach(function(b){b.classList.remove('selected');});
+    btn.classList.add('selected');
+    const natija = btn.getAttribute('data-natija');
+    document.getElementById('cl_natija_hidden').value = natija;
+    document.getElementById('cl_vada_wrap').style.display = (natija==="Va'da berdi") ? 'block' : 'none';
+  }
+
+  function submitCallLog() {
+    const msg = document.getElementById('clMsg');
+    const btn = document.getElementById('clSaveBtn');
+    msg.className='form-msg'; msg.textContent='';
+
+    const natija = document.getElementById('cl_natija_hidden').value;
+    const izoh   = document.getElementById('cl_izoh').value.trim();
+    const vadaSana = document.getElementById('cl_vada_sana').value;
+
+    if (!natija) { msg.className='form-msg error show'; msg.textContent="Qo'ng'iroq natijasini tanlang."; return; }
+
+    const dto = {
+      mijozId: _ccSelectedId,
+      natija:  natija,
+      izoh:    izoh,
+      vadaSana: natija==="Va'da berdi" ? vadaSana : null,
+      sana: new Date().toISOString()
+    };
+
+    btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
+    fetch('/admin/add-qongiroq', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(dto)})
+            .then(function(r){ return r.text().then(function(t){ if(!r.ok) throw t||('Server xatosi: '+r.status); return t; }); })
+            .then(function(){
+              msg.className='form-msg success show';
+              msg.textContent="✅ Qo'ng'iroq natijasi saqlandi";
+              setTimeout(function(){ closeCallLogModal(); loadQongiroqTarixi(_ccSelectedId); }, 700);
+            })
+            .catch(function(err){ msg.className='form-msg error show'; msg.textContent='Xatolik: '+err; btn.disabled=false; btn.textContent='💾 Saqlash'; });
+  }
+
+  loadQarzdorlar(_ccFilter);
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class YaqinJadvalDto {
+    private Long    mijozId;
     private Long    jadvalId;
     private Long    summa;
     private Long    tulangan;
