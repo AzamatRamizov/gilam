@@ -32,4 +32,6 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
         ORDER BY j.sana ASC
     """)
     List<Jadval> findOverdueUnpaid(@Param("hozir") LocalDateTime hozir);
+    @Query("SELECT COALESCE(SUM(s.summa), 0) FROM Shartnoma s")
+    long sumUmumiySumma();
 }

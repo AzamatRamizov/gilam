@@ -33,6 +33,60 @@
         <button class="period-tab"        data-period="yil"     onclick="setPeriod(this)">Yil</button>
         <button class="period-tab"        data-period="barchasi" onclick="setPeriod(this)">Barchasi</button>
     </div>
+    <div class="month-tabs" id="monthTabs" style="display:none; margin-top:8px; margin-bottom:16px; flex-wrap:wrap; gap:6px;">
+        <button class="month-tab" data-month="1"  onclick="setMonth(this)">Yan</button>
+        <button class="month-tab" data-month="2"  onclick="setMonth(this)">Fev</button>
+        <button class="month-tab" data-month="3"  onclick="setMonth(this)">Mar</button>
+        <button class="month-tab" data-month="4"  onclick="setMonth(this)">Apr</button>
+        <button class="month-tab" data-month="5"  onclick="setMonth(this)">May</button>
+        <button class="month-tab" data-month="6"  onclick="setMonth(this)">Iyun</button>
+        <button class="month-tab" data-month="7"  onclick="setMonth(this)">Iyul</button>
+        <button class="month-tab" data-month="8"  onclick="setMonth(this)">Avg</button>
+        <button class="month-tab" data-month="9"  onclick="setMonth(this)">Sen</button>
+        <button class="month-tab" data-month="10" onclick="setMonth(this)">Okt</button>
+        <button class="month-tab" data-month="11" onclick="setMonth(this)">Noy</button>
+        <button class="month-tab" data-month="12" onclick="setMonth(this)">Dek</button>
+    </div>
+
+    <!-- ── UMUMIY STATISTIKA (davrga bog'liq emas) ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue">&#128196;</div>
+                <div class="stat-label">Jami shartnomalar</div>
+                <div class="stat-value">
+                    <span id="as_jami_shartnoma">0</span><span class="stat-unit">ta</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-green">&#128176;</div>
+                <div class="stat-label">Umumiy summa</div>
+                <div class="stat-value">
+                    <span id="as_umumiy_summa">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-green">&#9989;</div>
+                <div class="stat-label">Qaytgan summa</div>
+                <div class="stat-value" style="color:#1a9a50;">
+                    <span id="as_qaytgan_summa">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon icon-red">&#9203;</div>
+                <div class="stat-label">Qolgan summa</div>
+                <div class="stat-value" style="color:#c0392b;">
+                    <span id="as_qolgan_summa">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ── STAT CARDS ── -->
     <div class="row g-3 mb-4">
@@ -169,86 +223,81 @@
             </div>
         </div>
         <div id="dokonGroups"></div>
+        <div class="main-card mb-4">
+            <p class="section-title">🏪 Do'konlar bo'yicha taqsimot</p>
+            <div class="table-responsive">
+                <table class="pay-table" id="dokonBreakdownTable">
+                    <thead>
+                    <tr>
+                        <th>Do'kon</th><th>Naqd</th><th>Terminal</th><th>O'tkazma</th><th>Jami</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dokonBreakdownBody"></tbody>
+                </table>
+            </div>
+        </div>
         <div class="grand-total" id="grandTotal" style="display:none;"></div>
     </div>
 
     <!-- ── KECHIKKAN QARZDORLAR ── -->
-    <div class="main-card">
-        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-            <p class="section-title" style="margin:0;flex:1;">&#128680; Muddati o'tgan qarzdorlar</p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <div class="sum-pill"><span>Jami</span><span id="debt_son">9 ta</span></div>
-                <div class="sum-pill"><span>Summa</span><span id="debt_summa" style="color:#c0392b;">12.8 mln so'm</span></div>
-            </div>
-        </div>
-        <div style="overflow-x:auto;">
-            <table class="pay-table" id="debtTable">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Mijoz</th>
-                    <th>Telefon</th>
-                    <th>Qolgan summa</th>
-                    <th>Muddat o'tgan</th>
-                    <th>Oxirgi to'lov</th>
-                    <th>Shartnoma</th>
-                </tr>
-                </thead>
-                <tbody id="debtTableBody"></tbody>
-            </table>
-        </div>
-    </div>
 
 </div><!-- /container -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ── Theme ──
+    // ══════════════════════════════════════════
+    // THEME
+    // ══════════════════════════════════════════
     const html = document.documentElement;
     applyTheme(localStorage.getItem('mb-theme') || 'light');
+
     function applyTheme(t) {
         html.setAttribute('data-theme', t);
         localStorage.setItem('mb-theme', t);
         const icon  = document.getElementById('themeIcon');
         const label = document.getElementById('themeLabel');
-        if (icon)  icon.textContent  = t === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+        if (icon)  icon.textContent  = t === 'dark' ? '☀️' : '🌙';
         if (label) label.textContent = t === 'dark' ? 'Kun' : 'Tun';
     }
-    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    function toggleTheme() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
 
-    // ── Current date ──
+    // ══════════════════════════════════════════
+    // JORIY SANA
+    // ══════════════════════════════════════════
     (function() {
-        const d    = new Date();
+        const d = new Date();
         const oylar = ['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'];
         const kunlar = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
         document.getElementById('currentDate').innerHTML =
-            '<b>'+kunlar[d.getDay()]+'</b>, '+d.getDate()+' '+oylar[d.getMonth()]+' '+d.getFullYear();
+            '<b>' + kunlar[d.getDay()] + '</b>, ' + d.getDate() + ' ' + oylar[d.getMonth()] + ' ' + d.getFullYear();
     })();
 
-    // ── Formatters ──
+    // ══════════════════════════════════════════
+    // FORMATTERLAR
+    // ══════════════════════════════════════════
     function fmtSumma(n) {
-        return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
+        return Math.round(Number(n) || 0).toLocaleString('uz-UZ') + " so'm";
     }
-
     function fmtMln(n) {
-        const v = Number(n) || 0;
-        return v.toLocaleString('uz-UZ') + " so'm";
+        return (Number(n) || 0).toLocaleString('uz-UZ') + " so'm";
     }
     function fmtDate(s) {
         if (!s) return '—';
         const d = new Date(s);
         if (isNaN(d.getTime())) return s;
         const oy = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
-        return d.getDate()+'-'+oy[d.getMonth()]+', '+d.getFullYear();
+        return d.getDate() + '-' + oy[d.getMonth()] + ', ' + d.getFullYear();
     }
     function fmtDateTime(s) {
         if (!s) return '—';
         const d = new Date(s);
         if (isNaN(d.getTime())) return s;
         const oy = ['yan','fev','mar','apr','may','iyun','iyul','avg','sen','okt','noy','dek'];
-        const hh = String(d.getHours()).padStart(2,'0');
-        const mm = String(d.getMinutes()).padStart(2,'0');
-        return d.getDate()+'-'+oy[d.getMonth()]+' '+hh+':'+mm;
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        return d.getDate() + '-' + oy[d.getMonth()] + ' ' + hh + ':' + mm;
     }
     function turiBadge(turi) {
         if (!turi) return '<span class="badge-turi" style="background:var(--bg-input);color:var(--color-sub);">—</span>';
@@ -257,225 +306,169 @@
             'Terminal': 'badge-terminal',
             "O'tkazma": 'badge-otkazma'
         };
-        return '<span class="badge-turi '+(map[turi]||'badge-terminal')+'">'+turi+'</span>';
+        return '<span class="badge-turi ' + (map[turi] || 'badge-terminal') + '">' + turi + '</span>';
+    }
+    // LocalDateTime formatiga o'giradi: 2026-01-01T00:00:00
+    function formatLocalDateTime(date) {
+        const pad = function(n) { return String(n).padStart(2, '0'); };
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) +
+            'T' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
     }
 
-    // ── Demo data ──
-    const DEMO = {
-        bugun: {
-            jami: 18400000, son: 12, kutilayotgan: 38200000, kutilayotgan_son: 17,
-            overdue: 12800000, overdue_son: 9,
-            ortacha: 1533333,
-            jami_diff: '+8.3%',
-            naqd_pct:55, terminal_pct:30, otkazma_pct:15,
-            naqd_sum:10120000, terminal_sum:5520000, otkazma_sum:2760000,
-            chart: [
-                {label:'Du',  val:14200000, state:'past'},
-                {label:'Se',  val:18700000, state:'past'},
-                {label:'Ch',  val:9800000,  state:'past'},
-                {label:'Pa',  val:21300000, state:'past'},
-                {label:'Ju',  val:16400000, state:'past'},
-                {label:'Sh',  val:18400000, state:'today'},
-                {label:'Ya',  val:0,        state:'dim'}
-            ],
-            chartLabel: 'Joriy hafta',
-            payments: [
-                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000,  turi:'Naqd',     shartnoma:142},
-                {id:2, sana:'2026-06-24T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000,  turi:'Terminal', shartnoma:138},
-                {id:3, sana:'2026-06-24T10:45', mijoz:'Toshmatov Bobur',  dokon:"Sergeli",    summa:4500000,  turi:'Naqd',     shartnoma:155},
-                {id:4, sana:'2026-06-24T11:30', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,   turi:"O'tkazma", shartnoma:121},
-                {id:5, sana:'2026-06-24T13:05', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163},
-                {id:6, sana:'2026-06-24T13:58', mijoz:'Xolmatova Dildora',dokon:'Yunusobod',  summa:1600000,  turi:'Naqd',     shartnoma:109},
-                {id:7, sana:'2026-06-24T14:40', mijoz:'Ruziyev Akbar',    dokon:'Sergeli',    summa:2800000,  turi:'Naqd',     shartnoma:177},
-                {id:8, sana:'2026-06-24T15:22', mijoz:'Mirzayeva Sarvar', dokon:'Chilonzor',  summa:1500000,  turi:'Terminal', shartnoma:148}
-            ]
-        },
-        hafta: {
-            jami: 98700000, son: 58, kutilayotgan: 38200000, kutilayotgan_son: 17,
-            overdue: 12800000, overdue_son: 9,
-            ortacha: 1701724, jami_diff: '+5.1%',
-            naqd_pct:52, terminal_pct:32, otkazma_pct:16,
-            naqd_sum:51324000, terminal_sum:31584000, otkazma_sum:15792000,
-            chart: [
-                {label:'Du',  val:14200000, state:'past'},
-                {label:'Se',  val:18700000, state:'past'},
-                {label:'Ch',  val:9800000,  state:'past'},
-                {label:'Pa',  val:21300000, state:'past'},
-                {label:'Ju',  val:16400000, state:'past'},
-                {label:'Sh',  val:18400000, state:'today'},
-                {label:'Ya',  val:0,        state:'dim'}
-            ],
-            chartLabel: 'Joriy hafta',
-            payments: [
-                {id:1, sana:'2026-06-23T10:10', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000, turi:'Naqd',     shartnoma:142},
-                {id:2, sana:'2026-06-22T09:30', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000, turi:'Terminal', shartnoma:138},
-                {id:3, sana:'2026-06-21T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',    summa:4500000, turi:'Naqd',     shartnoma:155},
-                {id:4, sana:'2026-06-20T11:45', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,  turi:"O'tkazma", shartnoma:121},
-                {id:5, sana:'2026-06-19T08:55', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163}
-            ]
-        },
-        oy: {
-            jami: 412000000, son: 214, kutilayotgan: 38200000, kutilayotgan_son: 17,
-            overdue: 12800000, overdue_son: 9,
-            ortacha: 1925234, jami_diff: '+18.2%',
-            naqd_pct:50, terminal_pct:33, otkazma_pct:17,
-            naqd_sum:206000000, terminal_sum:135960000, otkazma_sum:70040000,
-            chart: [
-                {label:'1-h',  val:88000000,  state:'past'},
-                {label:'2-h',  val:102000000, state:'past'},
-                {label:'3-h',  val:118000000, state:'past'},
-                {label:'4-h',  val:104000000, state:'today'},
-            ],
-            chartLabel: 'Haftalik (joriy oy)',
-            payments: [
-                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000,  turi:'Naqd',     shartnoma:142},
-                {id:2, sana:'2026-06-22T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000,  turi:'Terminal', shartnoma:138},
-                {id:3, sana:'2026-06-18T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',    summa:4500000,  turi:'Naqd',     shartnoma:155},
-                {id:4, sana:'2026-06-15T11:45', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,   turi:"O'tkazma", shartnoma:121},
-                {id:5, sana:'2026-06-10T08:55', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163},
-                {id:6, sana:'2026-06-05T15:20', mijoz:'Xolmatova Dildora',dokon:'Yunusobod',  summa:1600000,  turi:'Naqd',     shartnoma:109}
-            ]
-        },
-        yil: {
-            jami: 4820000000, son: 2418, kutilayotgan: 38200000, kutilayotgan_son: 17,
-            overdue: 12800000, overdue_son: 9,
-            ortacha: 1993383, jami_diff: '+24.7%',
-            naqd_pct:48, terminal_pct:35, otkazma_pct:17,
-            naqd_sum:2313600000, terminal_sum:1687000000, otkazma_sum:819400000,
-            chart: [
-                {label:'Y',   val:310000000, state:'past'},
-                {label:'F',   val:290000000, state:'past'},
-                {label:'M',   val:420000000, state:'past'},
-                {label:'A',   val:380000000, state:'past'},
-                {label:'May', val:450000000, state:'past'},
-                {label:'I',   val:412000000, state:'today'},
-                {label:'Iy',  val:0,         state:'dim'},
-                {label:'Av',  val:0,         state:'dim'},
-                {label:'S',   val:0,         state:'dim'},
-                {label:'O',   val:0,         state:'dim'},
-                {label:'N',   val:0,         state:'dim'},
-                {label:'D',   val:0,         state:'dim'}
-            ],
-            chartLabel: 'Oylik (joriy yil)',
-            payments: [
-                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor',  summa:3200000, turi:'Naqd',     shartnoma:142},
-                {id:2, sana:'2026-05-15T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod',  summa:1800000, turi:'Terminal', shartnoma:138},
-                {id:3, sana:'2026-04-10T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',    summa:4500000, turi:'Naqd',     shartnoma:155},
-                {id:4, sana:'2026-03-22T11:45', mijoz:'Eshmatova Gulnora',dokon:'Chilonzor',  summa:900000,  turi:"O'tkazma", shartnoma:121},
-                {id:5, sana:'2026-02-14T08:55', mijoz:'Nazarov Sherzod',  dokon:'Mirzo Ulugbek', summa:2100000, turi:'Terminal', shartnoma:163}
-            ]
-        },
-        barchasi: {
-            jami: 18640000000, son: 9841, kutilayotgan: 38200000, kutilayotgan_son: 17,
-            overdue: 12800000, overdue_son: 9,
-            ortacha: 1894104, jami_diff: '',
-            naqd_pct:49, terminal_pct:34, otkazma_pct:17,
-            naqd_sum:9133600000, terminal_sum:6337600000, otkazma_sum:3168800000,
-            chart: [
-                {label:'2022', val:2100000000, state:'past'},
-                {label:'2023', val:3800000000, state:'past'},
-                {label:'2024', val:5200000000, state:'past'},
-                {label:'2025', val:7540000000, state:'past'},
-                {label:'2026', val:4820000000, state:'today'}
-            ],
-            chartLabel: 'Yillik',
-            payments: [
-                {id:1, sana:'2026-06-24T09:14', mijoz:'Karimov Jasur',    dokon:'Chilonzor', summa:3200000, turi:'Naqd',     shartnoma:142},
-                {id:2, sana:'2026-05-15T10:02', mijoz:'Yusupova Nilufar', dokon:'Yunusobod', summa:1800000, turi:'Terminal', shartnoma:138},
-                {id:3, sana:'2025-12-10T14:00', mijoz:'Toshmatov Bobur',  dokon:'Sergeli',   summa:4500000, turi:'Naqd',     shartnoma:155}
-            ]
-        }
-    };
-
-    const DEMO_DEBTS = [
-        {n:1, mijoz:'Aliyev Sardor',     tel:'+998 90 123 45 67', qolgan:3200000,  kun:45,  oxirgi:'2026-05-10'},
-        {n:2, mijoz:'Tursunova Barno',   tel:'+998 91 234 56 78', qolgan:1800000,  kun:32,  oxirgi:'2026-05-23'},
-        {n:3, mijoz:'Xasanov Ulugbek',   tel:'+998 93 345 67 89', qolgan:4100000,  kun:68,  oxirgi:'2026-04-17'},
-        {n:4, mijoz:'Qodirov Mansur',    tel:'+998 94 456 78 90', qolgan:650000,   kun:12,  oxirgi:'2026-06-12'},
-        {n:5, mijoz:'Ismoilova Zulfiya', tel:'+998 90 567 89 01', qolgan:900000,   kun:21,  oxirgi:'2026-06-03'},
-        {n:6, mijoz:'Jurayev Dilshod',   tel:'+998 97 678 90 12', qolgan:2150000,  kun:90,  oxirgi:'2026-03-26'},
-        {n:7, mijoz:'Nazarova Mohira',   tel:'+998 99 789 01 23', qolgan:780000,   kun:8,   oxirgi:'2026-06-16'},
-        {n:8, mijoz:'Raximov Akmal',     tel:'+998 91 890 12 34', qolgan:1920000,  kun:55,  oxirgi:'2026-04-30'},
-        {n:9, mijoz:'Sobirov Elmurod',   tel:'+998 93 901 23 45', qolgan:3100000,  kun:38,  oxirgi:'2026-05-17'}
-    ];
-
-    // ── Render ──
+    // ══════════════════════════════════════════
+    // HOLAT (STATE)
+    // ══════════════════════════════════════════
     let currentPeriod = 'bugun';
+    let currentMonth  = new Date().getMonth() + 1; // 1-12
+    let currentYear   = new Date().getFullYear();
 
+    // ══════════════════════════════════════════
+    // PERIOD TABLARI
+    // ══════════════════════════════════════════
     function setPeriod(btn) {
-        document.querySelectorAll('.period-tab').forEach(function(b){ b.classList.remove('active'); });
+        document.querySelectorAll('.period-tab').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
         currentPeriod = btn.getAttribute('data-period');
-        renderPage(currentPeriod);
+
+        const monthTabs = document.getElementById('monthTabs');
+
+        if (currentPeriod === 'oy') {
+            monthTabs.style.display = 'flex';
+            document.querySelectorAll('.month-tab').forEach(function(m) {
+                m.classList.toggle('active', Number(m.getAttribute('data-month')) === currentMonth);
+            });
+            fetchMonthStat(currentYear, currentMonth);
+        } else {
+            monthTabs.style.display = 'none';
+            fetchKassaStat(currentPeriod);
+        }
     }
 
-    function renderPage(period) {
-        const d = DEMO[period];
+    function setMonth(btn) {
+        document.querySelectorAll('.month-tab').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentMonth = Number(btn.getAttribute('data-month'));
+        fetchMonthStat(currentYear, currentMonth);
+    }
+
+    // ══════════════════════════════════════════
+    // SO'ROVLAR
+    // ══════════════════════════════════════════
+    function fetchKassaStat(period) {
+        fetch('/admin/get-kassa-stat?period=' + encodeURIComponent(period), {
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                renderPage(period, data);
+            })
+            .catch(function(err) {
+                console.error('kassa-stat xatolik:', err);
+            });
+    }
+
+    // Tanlangan oyning boshi va oxirini hisoblab, muddat (boshi/oxiri) sifatida yuboradi
+    function fetchMonthStat(year, month) {
+        const boshi = new Date(year, month - 1, 1, 0, 0, 0);
+        const oxiri = new Date(year, month, 1, 0, 0, 0); // keyingi oyning 1-kuni (exclusive)
+
+        const boshiStr = formatLocalDateTime(boshi);
+        const oxiriStr = formatLocalDateTime(oxiri);
+
+        const url = '/admin/get-kassa-stat?period=oy'
+            + '&boshi=' + encodeURIComponent(boshiStr)
+            + '&oxiri=' + encodeURIComponent(oxiriStr);
+
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                renderPage('oy', data);
+            })
+            .catch(function(err) {
+                console.error('kassa-stat (oy) xatolik:', err);
+            });
+    }
+
+    function loadAllSummaStat() {
+        fetch('/admin/get-all-summa-stat')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                document.getElementById('as_jami_shartnoma').textContent = data.jamiShartnomaSoni.toLocaleString('uz-UZ');
+                document.getElementById('as_umumiy_summa').textContent   = fmtMln(data.umumiySumma);
+                document.getElementById('as_qaytgan_summa').textContent  = fmtMln(data.qaytganSumma);
+                document.getElementById('as_qolgan_summa').textContent   = fmtMln(data.qolganSumma);
+            })
+            .catch(function(err) {
+                console.error("Umumiy statistika olishda xatolik:", err);
+            });
+    }
+
+    // ══════════════════════════════════════════
+    // ASOSIY RENDER
+    // ══════════════════════════════════════════
+    function renderPage(period, d) {
         if (!d) return;
 
         // Stat cards
-        document.getElementById('s_jami_val').textContent      = fmtMln(d.jami).replace(' so\'m','').replace(' mln','');
-        document.getElementById('s_son_val').textContent       = d.son.toLocaleString();
-        document.getElementById('s_kutilayotgan_val').textContent = fmtMln(d.kutilayotgan).replace(" so'm",'').replace(' mln','');
-        document.getElementById('s_kutilayotgan_son').textContent = d.kutilayotgan_son + ' ta';
-        document.getElementById('s_overdue_val').textContent   = fmtMln(d.overdue).replace(" so'm",'').replace(' mln','');
-        document.getElementById('s_overdue_son').textContent   = d.overdue_son + ' ta';
-        document.getElementById('s_ortacha').textContent       = fmtMln(d.ortacha);
+        document.getElementById('s_jami_val').textContent = fmtMln(d.jami).replace(" so'm", '');
+        document.getElementById('s_son_val').textContent   = Number(d.son).toLocaleString('uz-UZ');
+        document.getElementById('s_kutilayotgan_val').textContent = fmtMln(d.kutilayotganSumma).replace(" so'm", '');
+        document.getElementById('s_kutilayotgan_son').textContent = d.kutilayotganSon + ' ta';
+        document.getElementById('s_overdue_val').textContent = fmtMln(d.overdueSumma).replace(" so'm", '');
+        document.getElementById('s_overdue_son').textContent = d.overdueSon + ' ta';
+        document.getElementById('s_ortacha').textContent = fmtMln(d.ortacha);
 
         const diffEl = document.getElementById('s_jami_diff');
-        if (d.jami_diff) {
-            diffEl.textContent  = d.jami_diff;
-            diffEl.className    = d.jami_diff.startsWith('+') ? 'up' : 'down';
+        if (d.jamiDiff) {
+            diffEl.textContent = d.jamiDiff;
+            diffEl.className = d.jamiDiff.startsWith('+') ? 'up' : 'down';
             diffEl.parentElement.style.display = '';
         } else {
             diffEl.parentElement.style.display = 'none';
         }
 
         // Donut
-        document.getElementById('d_naqd_pct').textContent    = d.naqd_pct + '%';
-        document.getElementById('d_terminal_pct').textContent= d.terminal_pct + '%';
-        document.getElementById('d_otkazma_pct').textContent = d.otkazma_pct + '%';
-        document.getElementById('d_naqd_sum').textContent    = fmtMln(d.naqd_sum);
-        document.getElementById('d_terminal_sum').textContent= fmtMln(d.terminal_sum);
-        document.getElementById('d_otkazma_sum').textContent = fmtMln(d.otkazma_sum);
-        document.getElementById('donutCenter').textContent   = d.son + ' ta';
-        renderDonut(d.naqd_pct, d.terminal_pct, d.otkazma_pct);
+        document.getElementById('d_naqd_pct').textContent     = d.naqdPct + '%';
+        document.getElementById('d_terminal_pct').textContent = d.terminalPct + '%';
+        document.getElementById('d_otkazma_pct').textContent  = d.otkazmaPct + '%';
+        document.getElementById('d_naqd_sum').textContent     = fmtMln(d.naqdSumma);
+        document.getElementById('d_terminal_sum').textContent = fmtMln(d.terminalSumma);
+        document.getElementById('d_otkazma_sum').textContent  = fmtMln(d.otkazmaSumma);
+        document.getElementById('donutCenter').textContent    = d.son + ' ta';
+        renderDonut(d.naqdPct, d.terminalPct, d.otkazmaPct);
 
         // Bar chart
         document.getElementById('chartPeriodLabel').textContent = d.chartLabel;
         renderBarChart(d.chart);
 
-        // Payments table
-        const titles = {bugun:"Bugungi to'lovlar", hafta:"Haftalik to'lovlar", oy:"Oylik to'lovlar", yil:"Yillik to'lovlar", barchasi:"Barcha to'lovlar"};
+        // To'lovlar jadvali (do'kon bo'yicha guruhlangan)
+        const titles = {
+            bugun: "Bugungi to'lovlar",
+            hafta: "Haftalik to'lovlar",
+            oy: "Oylik to'lovlar",
+            yil: "Yillik to'lovlar",
+            barchasi: "Barcha to'lovlar"
+        };
         document.getElementById('payTableTitle').textContent = titles[period] || "To'lovlar";
         document.getElementById('sp_jami').textContent  = d.payments.length + ' ta';
-        document.getElementById('sp_summa').textContent = fmtMln(d.payments.reduce(function(s,p){ return s+p.summa; }, 0));
-        loadAndRender(period)
+        document.getElementById('sp_summa').textContent = fmtMln(
+            d.payments.reduce(function(s, p) { return s + p.summa; }, 0)
+        );
+        renderDokonGroups(d.payments);
 
-        // Debts
-        renderDebts();
+        // Do'konlar bo'yicha taqsimot
+        renderDokonBreakdown(d.dokonlar);
     }
 
-    function renderDebts() {
-        const debtBody = document.getElementById('debtTableBody');
-        debtBody.innerHTML = DEMO_DEBTS.map(function(d) {
-            let cls = 'mild';
-            if (d.kun >= 60) cls = 'critical';
-            else if (d.kun >= 30) cls = 'bad';
-            return '<tr class="debt-row">'+
-                '<td style="color:var(--color-sub);font-weight:600;">'+d.n+'</td>'+
-                '<td style="font-weight:600;">'+d.mijoz+'</td>'+
-                '<td style="color:var(--color-sub);">'+d.tel+'</td>'+
-                '<td style="font-weight:700;color:#c0392b;">'+fmtSumma(d.qolgan)+'</td>'+
-                '<td><span class="debt-days '+cls+'">'+d.kun+' kun</span></td>'+
-                '<td style="color:var(--color-sub);">'+fmtDate(d.oxirgi)+'</td>'+
-                '<td><a href="/shartnomalar" style="color:var(--accent);font-size:12px;font-weight:600;text-decoration:none;">Ko\'rish</a></td>'+
-                '</tr>';
-        }).join('');
-        document.getElementById('debt_son').textContent   = DEMO_DEBTS.length + ' ta';
-        document.getElementById('debt_summa').textContent = fmtMln(DEMO_DEBTS.reduce(function(s,d){ return s+d.qolgan; },0));
-    }
-
+    // ══════════════════════════════════════════
+    // DO'KON GURUHLARI (to'lovlar jadvali)
+    // ══════════════════════════════════════════
     function toggleDokonGroup(el) {
         el.closest('.dokon-group').classList.toggle('collapsed');
     }
@@ -490,7 +483,7 @@
             return;
         }
 
-        // Group by dokon
+        // Guruhlash: dokon nomi bo'yicha
         const groups = {};
         payments.forEach(function(p) {
             const key = p.dokon || 'Noaniq';
@@ -498,99 +491,124 @@
             groups[key].push(p);
         });
 
-        // Totals for grand total
         let grandNaqd = 0, grandTerminal = 0, grandOtkazma = 0, grandJami = 0;
-
         let html = '';
+
         Object.keys(groups).forEach(function(dokon) {
             const list = groups[dokon];
             let naqd = 0, terminal = 0, otkazma = 0;
             list.forEach(function(p) {
                 if (p.turi === 'Naqd')          naqd     += p.summa;
-                else if (p.turi === 'Terminal')  terminal += p.summa;
+                else if (p.turi === 'Terminal') terminal += p.summa;
                 else                             otkazma  += p.summa;
             });
             const jami = naqd + terminal + otkazma;
             grandNaqd += naqd; grandTerminal += terminal; grandOtkazma += otkazma; grandJami += jami;
 
-            const naqdPill     = naqd     ? '<span class="dokon-pill dokon-pill-naqd">\uD83D\uDCB5 Naqd: '+fmtMln(naqd)+'</span>' : '';
-            const terminalPill = terminal ? '<span class="dokon-pill dokon-pill-terminal">\uD83D\uDCB3 Terminal: '+fmtMln(terminal)+'</span>' : '';
-            const otkazmaPill  = otkazma  ? '<span class="dokon-pill dokon-pill-otkazma">\uD83C\uDFE6 O\'tkazma: '+fmtMln(otkazma)+'</span>' : '';
-            const jamiPill     = '<span class="dokon-pill dokon-pill-jami">Jami: '+fmtMln(jami)+'</span>';
+            const naqdPill     = naqd     ? '<span class="dokon-pill dokon-pill-naqd">💵 Naqd: ' + fmtMln(naqd) + '</span>' : '';
+            const terminalPill = terminal ? '<span class="dokon-pill dokon-pill-terminal">💳 Terminal: ' + fmtMln(terminal) + '</span>' : '';
+            const otkazmaPill  = otkazma  ? '<span class="dokon-pill dokon-pill-otkazma">🏦 O\'tkazma: ' + fmtMln(otkazma) + '</span>' : '';
+            const jamiPill     = '<span class="dokon-pill dokon-pill-jami">Jami: ' + fmtMln(jami) + '</span>';
 
             const rows = list.map(function(p, i) {
-                return '<tr>'+
-                    '<td style="color:var(--color-sub);font-weight:600;">'+(i+1)+'</td>'+
-                    '<td style="white-space:nowrap;">'+fmtDateTime(p.sana)+'</td>'+
-                    '<td style="font-weight:500;">'+p.mijoz+'</td>'+
-                    '<td style="font-weight:600;">'+fmtSumma(p.summa)+'</td>'+
-                    '<td>'+turiBadge(p.turi)+'</td>'+
-                    '<td><a href="/admin/shartnoma-detail?id='+p.shartnoma+'" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">\u2116'+p.shartnoma+'</a></td>'+
+                return '<tr>' +
+                    '<td style="color:var(--color-sub);font-weight:600;">' + (i + 1) + '</td>' +
+                    '<td style="white-space:nowrap;">' + fmtDateTime(p.sana) + '</td>' +
+                    '<td style="font-weight:500;">' + (p.mijoz || '—') + '</td>' +
+                    '<td style="font-weight:600;">' + fmtSumma(p.summa) + '</td>' +
+                    '<td>' + turiBadge(p.turi) + '</td>' +
+                    '<td>' + (p.shartnomaId
+                        ? '<a href="/admin/shartnoma-detail?id=' + p.shartnomaId + '" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">№' + p.shartnomaId + '</a>'
+                        : '—') +
+                    '</td>' +
                     '</tr>';
             }).join('');
 
-            // Footer row: per-turi subtotals
             const footerCells =
-                '<td colspan="2" style="color:var(--color-sub);font-size:11.5px;">'+list.length+' ta to\'lov</td>'+
-                '<td class="naqd-col">'+(naqd ? fmtMln(naqd) : '—')+'</td>'+
-                '<td></td>'+
-                '<td></td>'+
-                '<td></td>';
+                '<td colspan="2" style="color:var(--color-sub);font-size:11.5px;">' + list.length + ' ta to\'lov</td>' +
+                '<td class="naqd-col">' + (naqd ? fmtMln(naqd) : '—') + '</td>' +
+                '<td></td><td></td><td></td>';
 
-            html += '<div class="dokon-group">'+
-                '<div class="dokon-group-header" onclick="toggleDokonGroup(this)">'+
-                '<div class="dokon-name">'+
-                '<div class="store-icon">\uD83C\uDFEA</div>'+
-                dokon+
-                '<span style="font-size:12px;font-weight:500;color:var(--color-sub);">('+list.length+' ta)</span>'+
-                '</div>'+
-                '<div class="dokon-pills">'+naqdPill+terminalPill+otkazmaPill+jamiPill+'</div>'+
-                '<span class="dokon-chevron">&#9660;</span>'+
-                '</div>'+
-                '<div class="dokon-group-body">'+
-                '<div style="overflow-x:auto;">'+
-                '<table class="pay-table">'+
-                '<thead><tr>'+
-                '<th>#</th><th>Sana</th><th>Mijoz</th><th>Summa</th><th>Turi</th><th>Shartnoma</th>'+
-                '</tr></thead>'+
-                '<tbody>'+rows+'</tbody>'+
-                '<tfoot><tr class="dokon-footer">'+footerCells+'</tr></tfoot>'+
-                '</table>'+
-                '</div>'+
-                '</div>'+
+            html += '<div class="dokon-group">' +
+                '<div class="dokon-group-header" onclick="toggleDokonGroup(this)">' +
+                '<div class="dokon-name">' +
+                '<div class="store-icon">🏪</div>' +
+                dokon +
+                '<span style="font-size:12px;font-weight:500;color:var(--color-sub);">(' + list.length + ' ta)</span>' +
+                '</div>' +
+                '<div class="dokon-pills">' + naqdPill + terminalPill + otkazmaPill + jamiPill + '</div>' +
+                '<span class="dokon-chevron">▼</span>' +
+                '</div>' +
+                '<div class="dokon-group-body">' +
+                '<div style="overflow-x:auto;">' +
+                '<table class="pay-table">' +
+                '<thead><tr><th>#</th><th>Sana</th><th>Mijoz</th><th>Summa</th><th>Turi</th><th>Shartnoma</th></tr></thead>' +
+                '<tbody>' + rows + '</tbody>' +
+                '<tfoot><tr class="dokon-footer">' + footerCells + '</tr></tfoot>' +
+                '</table>' +
+                '</div>' +
+                '</div>' +
                 '</div>';
         });
 
         wrap.innerHTML = html;
 
-        // Grand total
         const dokonCount = Object.keys(groups).length;
         gtEl.style.display = 'flex';
         gtEl.innerHTML =
-            '<span class="gt-label">Jami ('+dokonCount+' do\'kon):</span>'+
-            (grandNaqd     ? '<div class="gt-item"><span style="color:var(--color-sub);">Naqd</span> <span style="color:#1a7a50;">'+fmtMln(grandNaqd)+'</span></div>' : '')+
-            (grandTerminal ? '<div class="gt-item"><span style="color:var(--color-sub);">Terminal</span> <span style="color:var(--accent);">'+fmtMln(grandTerminal)+'</span></div>' : '')+
-            (grandOtkazma  ? '<div class="gt-item"><span style="color:var(--color-sub);">O\'tkazma</span> <span style="color:#7030a0;">'+fmtMln(grandOtkazma)+'</span></div>' : '')+
-            '<div class="gt-item" style="margin-left:auto;border-left:1px solid var(--color-border);padding-left:12px;">'+
-            '<span style="color:var(--color-sub);">Umumiy</span> '+
-            '<span style="font-size:15px;color:var(--color-text);">'+fmtMln(grandJami)+'</span>'+
+            '<span class="gt-label">Jami (' + dokonCount + ' do\'kon):</span>' +
+            (grandNaqd     ? '<div class="gt-item"><span style="color:var(--color-sub);">Naqd</span> <span style="color:#1a7a50;">' + fmtMln(grandNaqd) + '</span></div>' : '') +
+            (grandTerminal ? '<div class="gt-item"><span style="color:var(--color-sub);">Terminal</span> <span style="color:var(--accent);">' + fmtMln(grandTerminal) + '</span></div>' : '') +
+            (grandOtkazma  ? '<div class="gt-item"><span style="color:var(--color-sub);">O\'tkazma</span> <span style="color:#7030a0;">' + fmtMln(grandOtkazma) + '</span></div>' : '') +
+            '<div class="gt-item" style="margin-left:auto;border-left:1px solid var(--color-border);padding-left:12px;">' +
+            '<span style="color:var(--color-sub);">Umumiy</span> ' +
+            '<span style="font-size:15px;color:var(--color-text);">' + fmtMln(grandJami) + '</span>' +
             '</div>';
     }
 
+    // ══════════════════════════════════════════
+    // DO'KONLAR BO'YICHA TAQSIMOT (alohida jadval)
+    // ══════════════════════════════════════════
+    function renderDokonBreakdown(dokonlar) {
+        const body = document.getElementById('dokonBreakdownBody');
+        if (!body) return;
+
+        if (!dokonlar || dokonlar.length === 0) {
+            body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--color-hint);">Ma\'lumot yo\'q</td></tr>';
+            return;
+        }
+
+        body.innerHTML = dokonlar.map(function(dk) {
+            return '<tr>' +
+                '<td style="font-weight:600;"><span class="store-icon">🏪</span> ' + (dk.dokonNomi || 'Noaniq') + '</td>' +
+                '<td>' + (dk.naqd ? fmtMln(dk.naqd) : '—') + '</td>' +
+                '<td>' + (dk.terminal ? fmtMln(dk.terminal) : '—') + '</td>' +
+                '<td>' + (dk.otkazma ? fmtMln(dk.otkazma) : '—') + '</td>' +
+                '<td style="font-weight:700;color:var(--color-text);">' + fmtMln(dk.jami) + '</td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    // ══════════════════════════════════════════
+    // BAR CHART
+    // ══════════════════════════════════════════
     function renderBarChart(data) {
         const chart = document.getElementById('barChart');
-        const maxVal = Math.max.apply(null, data.map(function(d){ return d.val||0; })) || 1;
+        const maxVal = Math.max.apply(null, data.map(function(d) { return d.val || 0; })) || 1;
         chart.innerHTML = data.map(function(d) {
             const pct = Math.round((d.val / maxVal) * 100);
             const cls = d.state === 'today' ? 'today' : (d.state === 'dim' ? 'dim' : '');
             const tip = d.val > 0 ? fmtMln(d.val) : 'Ma\'lumot yo\'q';
-            return '<div class="bar-wrap">'+
-                '<div class="bar '+cls+'" style="height:'+pct+'%" data-tip="'+tip+'"></div>'+
-                '<div class="bar-label">'+d.label+'</div>'+
+            return '<div class="bar-wrap">' +
+                '<div class="bar ' + cls + '" style="height:' + pct + '%" data-tip="' + tip + '"></div>' +
+                '<div class="bar-label">' + d.label + '</div>' +
                 '</div>';
         }).join('');
     }
 
+    // ══════════════════════════════════════════
+    // DONUT CHART
+    // ══════════════════════════════════════════
     function renderDonut(naqd, terminal, otkazma) {
         const r = 28, circ = 2 * Math.PI * r;
         const n_len = circ * naqd / 100;
@@ -598,49 +616,22 @@
         const o_len = circ * otkazma / 100;
         const svg = document.querySelector('.donut-svg');
         const circles = svg.querySelectorAll('circle');
-        // naqd
-        circles[0].setAttribute('stroke-dasharray', n_len.toFixed(1)+' '+(circ-n_len).toFixed(1));
+
+        circles[0].setAttribute('stroke-dasharray', n_len.toFixed(1) + ' ' + (circ - n_len).toFixed(1));
         circles[0].setAttribute('stroke-dashoffset', '0');
-        // terminal
-        circles[1].setAttribute('stroke-dasharray', t_len.toFixed(1)+' '+(circ-t_len).toFixed(1));
+
+        circles[1].setAttribute('stroke-dasharray', t_len.toFixed(1) + ' ' + (circ - t_len).toFixed(1));
         circles[1].setAttribute('stroke-dashoffset', (-n_len).toFixed(1));
-        // otkazma
-        circles[2].setAttribute('stroke-dasharray', o_len.toFixed(1)+' '+(circ-o_len).toFixed(1));
-        circles[2].setAttribute('stroke-dashoffset', (-(n_len+t_len)).toFixed(1));
-    }
-    function loadAndRender(period) {
-        // faqat bugun uchun real endpoint bor hozircha
-        if (period === 'bugun') {
-            fetch('/admin/get-today-payment')
-                .then(r => r.json())
-                .then(data => {
-                    // backend Statistikaga -> frontend payment formatiga o'tkazish
-                    const payments = data.map(function(p) {
-                        return {
-                            sana:       p.sana,
-                            mijoz:      p.mijoz,
-                            dokon:      p.dokon,
-                            summa:      p.summa,
-                            turi:       p.turi,
-                            shartnoma:  p.shartnomaId
-                        };
-                    });
-                    renderDokonGroups(payments);
-                    document.getElementById('sp_jami').textContent  = payments.length + ' ta';
-                    document.getElementById('sp_summa').textContent = fmtMln(
-                        payments.reduce(function(s,p){ return s + p.summa; }, 0)
-                    );
-                })
-                .catch(function() {
-                    renderDokonGroups(DEMO.bugun.payments); // fallback
-                });
-        } else {
-            renderDokonGroups(DEMO[period].payments);
-        }
+
+        circles[2].setAttribute('stroke-dasharray', o_len.toFixed(1) + ' ' + (circ - o_len).toFixed(1));
+        circles[2].setAttribute('stroke-dashoffset', (-(n_len + t_len)).toFixed(1));
     }
 
-    // Initial render
-    renderPage('bugun');
+    // ══════════════════════════════════════════
+    // BOSHLANG'ICH YUKLASH
+    // ══════════════════════════════════════════
+    loadAllSummaStat();
+    fetchKassaStat('bugun');
 </script>
 </body>
 </html>

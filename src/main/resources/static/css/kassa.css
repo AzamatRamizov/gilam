@@ -181,3 +181,21 @@ body { background: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: v
     .stat-value  { font-size:18px !important; }
     .dokon-pills { gap:4px; }
 }
+.month-tabs { display: flex; }
+.month-tab {
+    border: 1px solid var(--color-border, #ddd);
+    background: var(--bg-card, #fff);
+    color: var(--color-text);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+}
+.month-tab:hover { background: var(--bg-input, #f2f2f2); }
+.month-tab.active {
+    background: #1a6fa8;
+    color: #fff;
+    border-color: #1a6fa8;
+}

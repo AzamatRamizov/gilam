@@ -7,8 +7,10 @@ import com.example.gilam888.Dto.YaqinJadvalDto;
 import com.example.gilam888.Entity.*;
 import com.example.gilam888.Repository.*;
 import com.example.gilam888.Service.AdminService;
+import com.example.gilam888.Service.KassaService;
 import com.example.gilam888.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +37,9 @@ public class AdminController {
     private final FaylBaytRepository faylBaytRepository;
     private final JadvalRepository jadvalRepository;
     private final ShartnomaRepository shartnomaRepository;
+    private final KassaService kassaService;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -44,6 +47,7 @@ public class AdminController {
         this.faylBaytRepository = faylBaytRepository;
         this.jadvalRepository = jadvalRepository;
         this.shartnomaRepository = shartnomaRepository;
+        this.kassaService = kassaService;
     }
 
 //    @PreAuthorize("hasRole('owner')")
@@ -314,4 +318,15 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getQarzdorlar(filter));
     }
 
+    @GetMapping("/get-all-summa-stat")
+    public ResponseEntity<?> getAllSumma(){
+        return ResponseEntity.ok(adminService.getAllSumma());
+    }
+
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/get-kassa-stat")
+    public ResponseEntity<?> getKassaStat(@RequestParam(defaultValue = "bugun") String period, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime boshi,
+                                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime oxiri) {
+        return ResponseEntity.ok(kassaService.getKassaStat(period, boshi, oxiri));
+    }
 }

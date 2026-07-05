@@ -2,6 +2,7 @@ package com.example.gilam888.Entity;
 
 import com.example.gilam888.Configurations.AbstractLongEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -27,11 +28,12 @@ public class Shartnoma extends AbstractLongEntity {
 
     private String status;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     List<Jadval> jadvalList;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private FaylBayt kafolat;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private FaylBayt kafolat2;
 }

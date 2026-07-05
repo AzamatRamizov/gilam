@@ -273,3 +273,21 @@ body {
     to   { width: 0; }
 }
 /* ===== END TOAST ===== */
+.page-btn {
+    border: 1px solid var(--color-divider, #ddd);
+    background: transparent;
+    color: var(--color-text);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.page-btn.active {
+    background: #1a6fa8;
+    color: #fff;
+    border-color: #1a6fa8;
+}
+.page-btn[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

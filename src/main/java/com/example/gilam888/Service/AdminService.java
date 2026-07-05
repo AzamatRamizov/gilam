@@ -205,10 +205,6 @@ public class AdminService {
         return shartnomaRoyxats;
     }
 
-//    public Object shartnomaDetail(long id) {
-//        Optional<Shartnoma> byId = shartnomaRepository.findById(id);
-//        return byId.get();
-//    }
     public ShartnomaDetailDto shartnomaDetail(long id) {
         Shartnoma s = shartnomaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Shartnoma topilmadi: " + id));
@@ -219,13 +215,27 @@ public class AdminService {
                 ? List.of()
                 : paymentRepository.findByJadvalIdInOrderBySanaDesc(jadvalIds);
 
+//        List<PaymentDto> tulovTarixi = paymentsRaw.stream()
+//                .map(p -> new PaymentDto(
+//                        p.getSana() != null ? p.getSana().toString() : null,
+//                        p.getSumma(),
+//                        p.getTuri(),
+//                        resolveDokonNomi(p.getDokonId())
+//                ))
+//                .toList();
+
+//        String mijozFish = s.getMijoz() != null ? s.getMijoz().getFish() : "—";
+
         List<PaymentDto> tulovTarixi = paymentsRaw.stream()
-                .map(p -> new PaymentDto(
-                        p.getSana() != null ? p.getSana().toString() : null,
-                        p.getSumma(),
-                        p.getTuri(),
-                        resolveDokonNomi(p.getDokonId())
-                ))
+                .map(p -> {
+                    PaymentDto dto = new PaymentDto();
+                    dto.setSana(p.getSana() != null ? p.getSana().toString() : null);
+                    dto.setSumma(p.getSumma());
+                    dto.setTuri(p.getTuri());
+                    dto.setDokon(resolveDokonNomi(p.getDokonId()));
+                    dto.setShartnomaId(s.getId());
+                    return dto;
+                })
                 .toList();
 
         MahsulotDto mahsulot = new MahsulotDto(
@@ -315,9 +325,6 @@ public class AdminService {
 
     public ApiResponse updateMyData(Users user) {
         Optional<Users> byUsername = usersRepository.findByUsername(user.getUsername());
-//        if(byUsername.isEmpty()){
-//            return new ApiResponse("User topilmadi",false);
-//        }
         Users users = byUsername.get();
         users.setFish(user.getFish());
         users.setAddress(user.getAddress());
@@ -445,10 +452,6 @@ public class AdminService {
         shartnomaRepository.save(shartnoma);
         return new ApiResponse("Shartnoma yaratildi",true);
     }
-//
-//    public Object getOverdueDebts() {
-//
-//    }
     public List<OverdueDebtDto> getOverdueDebts() {
         List<Jadval> overdueList = jadvalRepository.findOverdueUnpaid(LocalDateTime.now());
         LocalDateTime now = LocalDateTime.now();
@@ -705,5 +708,14 @@ public class AdminService {
                 activeJadval != null && activeJadval.getSana() != null ? activeJadval.getSana().toString() : null,
                 muddatiOtganKun
         );
+    }
+
+    public Object getAllSumma() {
+        long jamiShartnomaSoni = shartnomaRepository.count();
+        long umumiySumma = shartnomaRepository.sumUmumiySumma();
+        long qaytganSumma = jadvalRepository.sumTulangan();
+        long qolganSumma = umumiySumma - qaytganSumma;
+
+        return new AllSummaStatDto(jamiShartnomaSoni, umumiySumma, qaytganSumma, qolganSumma);
     }
 }

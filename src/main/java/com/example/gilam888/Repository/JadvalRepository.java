@@ -33,4 +33,6 @@ public interface JadvalRepository extends JpaRepository<Jadval, Long> {
     ORDER BY j.sana ASC
 """)
     List<Jadval> findOverdueUnpaid(@Param("hozir") LocalDateTime hozir);
+    @Query("SELECT COALESCE(SUM(j.tulangan), 0) FROM Jadval j")
+    long sumTulangan();
 }

@@ -31,4 +31,12 @@ public interface PaymentRepository extends JpaRepository<PaymentHistory, Long> {
     List<PaymentHistory> findByJadvalIdInOrderBySanaDesc(List<Long> jadvalIds);
 
     List<PaymentHistory> findByJadvalIdIn(List<Long> jadvalIds);
+
+    List<PaymentHistory> findBySanaBetween(LocalDateTime boshi, LocalDateTime oxiri);
+
+    @Query("SELECT COALESCE(SUM(p.summa),0) FROM PaymentHistory p WHERE p.sana >= :boshi AND p.sana < :oxiri")
+    long sumSummaBetween(@Param("boshi") LocalDateTime boshi, @Param("oxiri") LocalDateTime oxiri);
+
+    @Query("SELECT MIN(p.sana) FROM PaymentHistory p")
+    LocalDateTime findEarliestSana();
 }

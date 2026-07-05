@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentDto {
-    private String sana;   // ISO string, LocalDateTime.toString() bilan
-    private long summa;    // bu Jadval/PaymentHistory'da allaqachon long, o'zgartirish shart emas
+    private String sana;
+    private long summa;
     private String turi;
     private String dokon;
+    private String mijoz;
+    private Long shartnomaId;
 }
