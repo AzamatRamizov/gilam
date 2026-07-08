@@ -39,4 +39,10 @@ public interface PaymentRepository extends JpaRepository<PaymentHistory, Long> {
 
     @Query("SELECT MIN(p.sana) FROM PaymentHistory p")
     LocalDateTime findEarliestSana();
+    @Query("""
+        SELECT p FROM PaymentHistory p
+        WHERE p.shartnomaId = :shartnomaId
+        ORDER BY p.sana ASC
+    """)
+    List<PaymentHistory> findByShartnomaIdOrderBySanaAsc(@Param("shartnomaId") Long shartnomaId);
 }

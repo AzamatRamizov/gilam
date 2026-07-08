@@ -49,89 +49,102 @@
     </div>
 
     <!-- ── UMUMIY STATISTIKA (davrga bog'liq emas) ── -->
+    <!-- ── UMUMIY STATISTIKA (davrga bog'liq emas) ── -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-blue">&#128196;</div>
-                <div class="stat-label">Jami shartnomalar</div>
-                <div class="stat-value">
-                    <span id="as_jami_shartnoma">0</span><span class="stat-unit">ta</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">&#128196;</div>
+                    <div class="stat-label">Jami shartnomalar</div>
+                    <div class="stat-value">
+                        <span id="as_jami_shartnoma">0</span><span class="stat-unit">ta</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-green">&#128176;</div>
-                <div class="stat-label">Umumiy summa</div>
-                <div class="stat-value">
-                    <span id="as_umumiy_summa">0</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">&#128176;</div>
+                    <div class="stat-label">Umumiy summa</div>
+                    <div class="stat-value">
+                        <span id="as_umumiy_summa">0</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-green">&#9989;</div>
-                <div class="stat-label">Qaytgan summa</div>
-                <div class="stat-value" style="color:#1a9a50;">
-                    <span id="as_qaytgan_summa">0</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">&#9989;</div>
+                    <div class="stat-label">Qaytgan summa</div>
+                    <div class="stat-value" style="color:#1a9a50;">
+                        <span id="as_qaytgan_summa">0</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-red">&#9203;</div>
-                <div class="stat-label">Qolgan summa</div>
-                <div class="stat-value" style="color:#c0392b;">
-                    <span id="as_qolgan_summa">0</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-red">&#9203;</div>
+                    <div class="stat-label">Qolgan summa</div>
+                    <div class="stat-value" style="color:#c0392b;">
+                        <span id="as_qolgan_summa">0</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
     <!-- ── STAT CARDS ── -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-green">&#128176;</div>
-                <div class="stat-label">Jami tushum</div>
-                <div class="stat-value" id="s_jami">
-                    <span id="s_jami_val">124.5</span><span class="stat-unit">mln</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-green">&#9989;</div>
+                    <div class="stat-label">Yopilgan shartnoma</div>
+                    <div class="stat-value">
+                        <span id="s_yopilgan_val">0</span><span class="stat-unit">ta</span>
+                    </div>
                 </div>
-                <div class="stat-sub"><span class="up" id="s_jami_diff">+12.4%</span> <span id="s_jami_prev">o'tgan davrga nisbatan</span></div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-blue">&#128202;</div>
-                <div class="stat-label">To'lovlar soni</div>
-                <div class="stat-value" id="s_son">
-                    <span id="s_son_val">48</span><span class="stat-unit">ta</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue">&#128202;</div>
+                    <div class="stat-label">Activ shartnomalar</div>
+                    <div class="stat-value">
+                        <span id="s_activ_val">0</span><span class="stat-unit">ta</span>
+                    </div>
                 </div>
-                <div class="stat-sub">O'rtacha <span style="font-weight:600;color:var(--color-text)" id="s_ortacha">2.6 mln so'm</span></div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-orange">&#9203;</div>
-                <div class="stat-label">Kutilayotgan</div>
-                <div class="stat-value">
-                    <span id="s_kutilayotgan_val">38.2</span><span class="stat-unit">mln</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-orange">&#9203;</div>
+                    <div class="stat-label">Shu oy to'lovi kerak</div>
+                    <div class="stat-value">
+                        <span id="s_oylik_kerak_val">0</span><span class="stat-unit">mln</span>
+                    </div>
+                    <div class="stat-sub"><span id="s_oylik_kerak_son" style="font-weight:600;color:var(--color-text)">0 ta</span> to'lov</div>
                 </div>
-                <div class="stat-sub"><span id="s_kutilayotgan_son" style="font-weight:600;color:var(--color-text)">17 ta</span> to'lov</div>
-            </div>
+            </a>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="stat-card">
-                <div class="stat-icon icon-red">&#9888;</div>
-                <div class="stat-label">Muddati o'tgan</div>
-                <div class="stat-value" style="color:#c0392b;">
-                    <span id="s_overdue_val">12.8</span><span class="stat-unit" style="color:var(--color-sub);">mln</span>
+            <a href="#" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon icon-red">&#9888;</div>
+                    <div class="stat-label">Muddati o'tgan shartnomalar</div>
+                    <div class="stat-value" style="color:#c0392b;">
+                        <span id="s_overdue_val">0</span><span class="stat-unit" style="color:var(--color-sub);">ta</span>
+                    </div>
                 </div>
-                <div class="stat-sub"><span id="s_overdue_son" style="font-weight:600;color:#c0392b;">9 ta</span> qarzdor</div>
-            </div>
+            </a>
         </div>
     </div>
-
     <!-- ── CHART + TURI ── -->
     <div class="row g-3 mb-4">
         <!-- Bar chart -->
@@ -415,25 +428,14 @@
     function renderPage(period, d) {
         if (!d) return;
 
-        // Stat cards
-        document.getElementById('s_jami_val').textContent = fmtMln(d.jami).replace(" so'm", '');
-        document.getElementById('s_son_val').textContent   = Number(d.son).toLocaleString('uz-UZ');
-        document.getElementById('s_kutilayotgan_val').textContent = fmtMln(d.kutilayotganSumma).replace(" so'm", '');
-        document.getElementById('s_kutilayotgan_son').textContent = d.kutilayotganSon + ' ta';
-        document.getElementById('s_overdue_val').textContent = fmtMln(d.overdueSumma).replace(" so'm", '');
-        document.getElementById('s_overdue_son').textContent = d.overdueSon + ' ta';
-        document.getElementById('s_ortacha').textContent = fmtMln(d.ortacha);
+        document.getElementById('s_yopilgan_val').textContent = Number(d.yopilganShartnomaSoni).toLocaleString('uz-UZ');
+        document.getElementById('s_activ_val').textContent    = Number(d.activShartnomaSoni).toLocaleString('uz-UZ');
+        document.getElementById('s_overdue_val').textContent  = Number(d.muddatiOtganShartnomaSoni).toLocaleString('uz-UZ');
 
-        const diffEl = document.getElementById('s_jami_diff');
-        if (d.jamiDiff) {
-            diffEl.textContent = d.jamiDiff;
-            diffEl.className = d.jamiDiff.startsWith('+') ? 'up' : 'down';
-            diffEl.parentElement.style.display = '';
-        } else {
-            diffEl.parentElement.style.display = 'none';
-        }
+        document.getElementById('s_oylik_kerak_val').textContent = fmtMln(d.oylikKerakSumma).replace(" so'm", '');
+        document.getElementById('s_oylik_kerak_son').textContent = d.oylikKerakSon + ' ta';
 
-        // Donut
+        // Donut, bar chart, to'lovlar jadvali — o'zgarishsiz
         document.getElementById('d_naqd_pct').textContent     = d.naqdPct + '%';
         document.getElementById('d_terminal_pct').textContent = d.terminalPct + '%';
         document.getElementById('d_otkazma_pct').textContent  = d.otkazmaPct + '%';
@@ -443,11 +445,9 @@
         document.getElementById('donutCenter').textContent    = d.son + ' ta';
         renderDonut(d.naqdPct, d.terminalPct, d.otkazmaPct);
 
-        // Bar chart
         document.getElementById('chartPeriodLabel').textContent = d.chartLabel;
         renderBarChart(d.chart);
 
-        // To'lovlar jadvali (do'kon bo'yicha guruhlangan)
         const titles = {
             bugun: "Bugungi to'lovlar",
             hafta: "Haftalik to'lovlar",
@@ -461,12 +461,8 @@
             d.payments.reduce(function(s, p) { return s + p.summa; }, 0)
         );
         renderDokonGroups(d.payments);
-
-        // Do'konlar bo'yicha taqsimot
         renderDokonBreakdown(d.dokonlar);
-    }
-
-    // ══════════════════════════════════════════
+    }    // ══════════════════════════════════════════
     // DO'KON GURUHLARI (to'lovlar jadvali)
     // ══════════════════════════════════════════
     function toggleDokonGroup(el) {

@@ -294,3 +294,64 @@
     window.history.replaceState({}, document.title, cleanUrl);
 }
     /* ===== END TOAST ===== */
+    document.addEventListener('DOMContentLoaded', loadMissingInfo);
+
+    // ===== Kamchiligi aniqlangan shartnomalarni yuklash =====
+    let missingFullData = [];
+    let missingCurrentPage = 1;
+
+    function loadMissingInfo() {
+        fetch('/admin/get-missing-info-shartnoma', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                document.getElementById('missingLoading').style.display = 'none';
+
+                if (!data || data.length === 0) {
+                    document.getElementById('missingEmpty').style.display = 'block';
+                    return;
+                }
+
+                missingFullData = data;
+
+                var badge = document.getElementById('missingBadge');
+                badge.textContent = data.length + ' ta';
+                badge.style.display = 'inline-block';
+
+                document.getElementById('missingTableWrap').style.display = 'block';
+                renderMissingPage(1);
+            })
+            .catch(function(err) {
+                document.getElementById('missingLoading').style.display = 'none';
+                document.getElementById('missingError').style.display = 'block';
+                console.error('missing-info-shartnoma xatolik:', err);
+            });
+    }
+
+    function renderMissingPage(page) {
+        missingCurrentPage = page;
+        var start = (page - 1) * PAGE_SIZE;
+        var pageData = missingFullData.slice(start, start + PAGE_SIZE);
+
+        var fmt = function(n) { return Math.round(n).toLocaleString('uz-UZ') + " so'm"; };
+
+        var rows = '';
+        pageData.forEach(function(item, i) {
+            rows += '<tr>' +
+                '<td style="color:var(--color-sub);">' + (start + i + 1) + '</td>' +
+                '<td style="font-weight:600;">' + (item.fish || '—') + '</td>' +
+                '<td style="color:var(--color-sub);">' + (item.tel || '—') + '</td>' +
+                '<td style="font-weight:600;">' + fmt(item.summa) + '</td>' +
+                '<td><span class="badge-status badge-pending" style="white-space:normal;">' + (item.sabab || '—') + '</span></td>' +
+                '<td><a href="/admin/shartnoma-detail?id=' + item.id + '" style="color:#1a6fa8; font-size:12px; font-weight:600; text-decoration:none;">Batafsil →</a></td>' +
+                '</tr>';
+        });
+
+        document.getElementById('missingTableBody').innerHTML = rows;
+        renderPagination('missingPagination', missingFullData.length, missingCurrentPage, renderMissingPage);
+    }

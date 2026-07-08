@@ -10,5 +10,5 @@ public class ShartnomaRoyxat {
     private String tel;
     private String status;
     private long id;
-
+    private String sabab;
 }

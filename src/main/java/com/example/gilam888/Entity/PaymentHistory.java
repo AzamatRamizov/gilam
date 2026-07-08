@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 public class PaymentHistory extends AbstractLongEntity {
+    private Long shartnomaId;
     private long summa;
     private long jadvalId;
     private LocalDateTime sana;

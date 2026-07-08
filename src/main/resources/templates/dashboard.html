@@ -204,6 +204,41 @@
                 ⚠️ Ma'lumotlarni yuklab bo'lmadi. Sahifani yangilang.
             </div>
         </div>
+        <div class="main-card mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <p class="section-title mb-0">&#9888;&#65039; Kamchiligi aniqlangan shartnomalar</p>
+                <span id="missingBadge" style="display:none; font-size:11px; background:#fff0dc; color:#b07000; border-radius:20px; padding:2px 10px; font-weight:700;"></span>
+            </div>
+
+            <div id="missingLoading" style="text-align:center; padding:28px 0; color:var(--color-sub); font-size:13px;">
+                ⏳ Yuklanmoqda...
+            </div>
+
+            <div id="missingEmpty" style="display:none; text-align:center; padding:28px 0;">
+                <div style="font-size:36px; margin-bottom:8px;">✅</div>
+                <p style="color:var(--color-sub); font-size:13px; margin:0;">Kamchiligi bo'lgan shartnomalar mavjud emas</p>
+            </div>
+
+            <div class="table-responsive" id="missingTableWrap" style="display:none;">
+                <table class="table-custom">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mijoz</th>
+                        <th>Telefon</th>
+                        <th>Summa</th>
+                        <th>Xatolik sababi</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="missingTableBody"></tbody>
+                </table>
+            </div>
+            <div id="missingPagination" class="d-flex align-items-center justify-content-between mt-3" style="display:none;"></div>
+            <div id="missingError" style="display:none; background:#fde8e8; border-left:4px solid #c0392b; border-radius:8px; padding:12px 16px; font-size:13px; color:#8b1a1a;">
+                ⚠️ Ma'lumotlarni yuklab bo'lmadi. Sahifani yangilang.
+            </div>
+        </div>
 
 
 

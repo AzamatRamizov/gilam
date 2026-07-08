@@ -33,4 +33,11 @@ public class KassaStatDto {
     private List<ChartPointDto> chart;
 
     private List<PaymentDto> payments;
+
+    private long oylikKerakSumma;
+    private long oylikKerakSon;
+
+    private long yopilganShartnomaSoni;
+    private long activShartnomaSoni;
+    private long muddatiOtganShartnomaSoni;
 }

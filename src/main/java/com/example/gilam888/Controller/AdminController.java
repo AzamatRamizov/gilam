@@ -329,4 +329,26 @@ public class AdminController {
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime oxiri) {
         return ResponseEntity.ok(kassaService.getKassaStat(period, boshi, oxiri));
     }
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/check-status")
+    public ResponseEntity<?> checkStatus(){
+        return ResponseEntity.ok(adminService.checkAllShartnoma());
+    }
+
+    @PreAuthorize("hasRole('owner')")
+    @PutMapping("/tulov-shartnoma")
+    public ResponseEntity<?> tulovShartnoma(
+            @RequestParam Long shartnomaId,
+            @RequestParam long summa,
+            @RequestParam String turi,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime sana,
+            @RequestParam Long dokonId) {
+        return ResponseEntity.ok(adminService.tulovShartnoma(shartnomaId, summa, turi, sana, dokonId));
+    }
+
+//    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/get-missing-info-shartnoma")
+    public ResponseEntity<?> getMissingInfoShartnoma() {
+        return ResponseEntity.ok(adminService.getShartnomaWithMissingInfo());
+    }
 }

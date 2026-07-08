@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -129,6 +130,7 @@ public class AdminService {
         shartnoma.setMahsulot(mijoz.getAbout());
         shartnoma.setIzoh(mijoz.getIzoh());
         shartnoma.setMuddat(mijoz.getMuddat());
+        shartnoma.setSotibOlinganSana(String.valueOf(mijoz.getShartnomaSana()));
         shartnoma.setCreatedTime(mijoz.getShartnomaSana());
         long tulov=mijoz.getSumma()/mijoz.getMuddat();
         List<Jadval> jadvalList = new ArrayList<>();
@@ -226,17 +228,28 @@ public class AdminService {
 
 //        String mijozFish = s.getMijoz() != null ? s.getMijoz().getFish() : "—";
 
-        List<PaymentDto> tulovTarixi = paymentsRaw.stream()
-                .map(p -> {
-                    PaymentDto dto = new PaymentDto();
-                    dto.setSana(p.getSana() != null ? p.getSana().toString() : null);
-                    dto.setSumma(p.getSumma());
-                    dto.setTuri(p.getTuri());
-                    dto.setDokon(resolveDokonNomi(p.getDokonId()));
-                    dto.setShartnomaId(s.getId());
-                    return dto;
-                })
-                .toList();
+//        List<PaymentDto> tulovTarixi = paymentsRaw.stream()
+//                .map(p -> {
+//                    PaymentDto dto = new PaymentDto();
+//                    dto.setSana(p.getSana() != null ? p.getSana().toString() : null);
+//                    dto.setSumma(p.getSumma());
+//                    dto.setTuri(p.getTuri());
+//                    dto.setDokon(resolveDokonNomi(p.getDokonId()));
+//                    dto.setShartnomaId(s.getId());
+//                    return dto;
+//                })
+//                .toList();
+
+        List<PaymentHistory> tarix = paymentRepository.findByShartnomaIdOrderBySanaAsc(s.getId());
+
+        List<PaymentDto> tulovTarixi = tarix.stream().map(p -> {
+            PaymentDto dto = new PaymentDto();
+            dto.setSana(String.valueOf(p.getSana()));                       // to'liq LocalDateTime — frontda soat:daqiqa chiqadi
+            dto.setSumma(p.getSumma());
+            dto.setTuri(p.getTuri());
+            dto.setDokon(resolveDokonNomi(p.getDokonId()));     // mavjud do'kon-nomi olish metodingiz
+            return dto;
+        }).toList();
 
         MahsulotDto mahsulot = new MahsulotDto(
                 0,
@@ -380,6 +393,87 @@ public class AdminService {
         paymentRepository.save(paymentHistory);
 
         return new ApiResponse("Muvaffaqiyatli tulov qilindi",true);
+    }
+    @Transactional
+    public ApiResponse tulovShartnoma(Long shartnomaId, long summa, String turi, LocalDateTime sana, Long dokonId) {
+        if (summa <= 0) {
+            return new ApiResponse("To'lov summasi noto'g'ri", false);
+        }
+
+        Optional<Shartnoma> byId = shartnomaRepository.findById(shartnomaId);
+        if (byId.isEmpty()) {
+            return new ApiResponse("Shartnoma topilmadi", false);
+        }
+        Shartnoma shartnoma = byId.get();
+
+        List<Jadval> jadvalList = shartnoma.getJadvalList();
+        if (jadvalList == null || jadvalList.isEmpty()) {
+            return new ApiResponse("Bu shartnomada to'lov jadvali mavjud emas", false);
+        }
+
+        // Eng eski sanadan boshlab tartiblaymiz — FIFO
+        List<Jadval> tartiblangan = jadvalList.stream()
+                .sorted(Comparator.comparing(Jadval::getSana))
+                .toList();
+
+        long qoldiq = summa;
+        Long birinchiTegilganJadvalId = null;
+
+        for (Jadval jadval : tartiblangan) {
+            if (qoldiq <= 0) break;
+            if (!"tulanmagan".equals(jadval.getHolat())) continue;
+
+            long jadvalQolgan = jadval.getSumma() - jadval.getTulangan();
+            if (jadvalQolgan <= 0) continue;
+
+            long qoshiladigan = Math.min(qoldiq, jadvalQolgan);
+
+            jadval.setTulangan(jadval.getTulangan() + qoshiladigan);
+            jadval.setTulovSana(sana);
+            jadval.setTuri(turi);
+            jadval.setDokonId(dokonId.toString());
+            if (jadval.getTulangan() >= jadval.getSumma()) {
+                jadval.setHolat("tulangan");
+            }
+            jadvalRepository.save(jadval);
+
+            if (birinchiTegilganJadvalId == null) {
+                birinchiTegilganJadvalId = jadval.getId();
+            }
+
+            qoldiq -= qoshiladigan;
+        }
+
+        long qabulQilingan = summa - qoldiq;
+        if (qabulQilingan <= 0) {
+            return new ApiResponse("Barcha to'lov jadvallari allaqachon to'langan", false);
+        }
+
+        // ── Shartnoma yopilganmi tekshiramiz (barcha jadvallar tulangan) ──
+        boolean hammasiTulangan = tartiblangan.stream().allMatch(j -> "tulangan".equals(j.getHolat()));
+        if (hammasiTulangan) {
+            shartnoma.setStatus("yopilgan");
+            shartnomaRepository.save(shartnoma);
+        }
+
+        // ── Bitta umumiy to'lov tarixi yozuvi ──
+        PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setShartnomaId(shartnomaId);
+        paymentHistory.setJadvalId(birinchiTegilganJadvalId);
+        paymentHistory.setSumma(qabulQilingan);
+        paymentHistory.setSana(sana);
+        paymentHistory.setTuri(turi);
+        paymentHistory.setDokonId(dokonId);
+        paymentHistory.setCreatedTime(LocalDateTime.now());
+        paymentRepository.save(paymentHistory);
+
+        if (qoldiq > 0) {
+            return new ApiResponse(
+                    "To'lov saqlandi. Diqqat: " + qoldiq + " so'm ortiqcha (barcha jadvallar to'liq to'landi).",
+                    true
+            );
+        }
+        return new ApiResponse("Muvaffaqiyatli to'lov qilindi", true);
     }
 
     public Object getTodayPayment() {
@@ -717,5 +811,58 @@ public class AdminService {
         long qolganSumma = umumiySumma - qaytganSumma;
 
         return new AllSummaStatDto(jamiShartnomaSoni, umumiySumma, qaytganSumma, qolganSumma);
+    }
+
+    @Transactional
+    public void checkShartnomaStatus(Long shartnomaId) {
+        Shartnoma shartnoma = shartnomaRepository.findById(shartnomaId)
+                .orElseThrow(() -> new RuntimeException("Shartnoma topilmadi"));
+
+        boolean hammasiTulangan = shartnoma.getJadvalList()
+                .stream()
+                .allMatch(j -> "tulangan".equalsIgnoreCase(j.getHolat()));
+
+        if (hammasiTulangan) {
+            shartnoma.setStatus("yopilgan");
+            shartnomaRepository.save(shartnoma);
+        }
+    }
+
+    public Object checkAllShartnoma(){
+        for (Shartnoma shartnoma : shartnomaRepository.findAll()) checkShartnomaStatus(shartnoma.getId());
+        return "tekshirildi";
+    }
+    public List<ShartnomaRoyxat> getShartnomaWithMissingInfo() {
+        List<Shartnoma> list = shartnomaRepository.findShartnomaWithMissingInfo();
+
+        return list.stream().map(s -> {
+            ShartnomaRoyxat dto = new ShartnomaRoyxat();
+            dto.setId(s.getId());
+            dto.setSumma(s.getSumma());
+            dto.setMuddat(s.getMuddat());
+            dto.setStatus(s.getStatus());
+
+            String fish = ((s.getMijoz() != null && s.getMijoz().getFamiliya() != null) ? s.getMijoz().getFamiliya() : "") +
+                    " " +
+                    ((s.getMijoz() != null && s.getMijoz().getIsm() != null) ? s.getMijoz().getIsm() : "");
+            dto.setFish(fish.trim());
+            dto.setTel(s.getMijoz() != null ? s.getMijoz().getTel1() : null);
+
+            boolean mahsulotYoq  = s.getMahsulot()  == null || s.getMahsulot().trim().isEmpty();
+            boolean tannarxYoq   = s.getTannarx()   == null || s.getTannarx().trim().isEmpty();
+            boolean joylashuvYoq = s.getJoylashuv() == null || s.getJoylashuv().trim().isEmpty();
+
+            List<String> yetishmagan = new ArrayList<>();
+            if (mahsulotYoq)  yetishmagan.add("mahsulot nomi");
+            if (tannarxYoq)   yetishmagan.add("tannarx");
+            if (joylashuvYoq) yetishmagan.add("joylashuv");
+
+            String sabab = yetishmagan.isEmpty()
+                    ? "—"
+                    : (yetishmagan.size() == 1 ? " " : " ") + String.join(", ", yetishmagan);
+            dto.setSabab(sabab);
+
+            return dto;
+        }).toList();
     }
 }

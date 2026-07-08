@@ -41,7 +41,7 @@ public class KassaService {
     private final ShartnomaRepository shartnomaRepository;
     private final JadvalRepository jadvalRepository;
 
-    public KassaStatDto getKassaStat(String period,LocalDateTime customFrom, LocalDateTime customTo) {
+    public KassaStatDto getKassaStat(String period, LocalDateTime customFrom, LocalDateTime customTo) {
         LocalDateTime now = LocalDateTime.now();
 
         Range current  = resolveRange(period, now, customFrom, customTo);
@@ -59,7 +59,6 @@ public class KassaService {
             jamiDiff = calcDiff(jami, prevJami);
         }
 
-        // Turi bo'yicha guruhlash (Naqd / Terminal / O'tkazma)
         Map<String, Long> turiSumma = new HashMap<>();
         for (PaymentHistory p : payments) {
             String t = p.getTuri() == null ? "Boshqa" : p.getTuri();
@@ -73,12 +72,16 @@ public class KassaService {
         int terminalPct = jami == 0 ? 0 : (int) Math.round(terminalSumma * 100.0 / jami);
         int otkazmaPct  = jami == 0 ? 0 : Math.max(0, 100 - naqdPct - terminalPct);
 
-        // Kutilayotgan / muddati o'tgan — davrga bog'liq emas, global holat
-        // TODO: mavjud Jadval-based logikangiz bilan almashtiring
-        long kutilayotganSumma = 0L;
-        long kutilayotganSon   = 0L;
-        long overdueSumma      = 0L;
-        long overdueSon        = 0L;
+        // ── Shu oy to'lovi bo'lishi kerak (joriy kalendar oy, davrga bog'liq emas) ──
+        LocalDateTime oyBoshi = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
+        LocalDateTime oyOxiri = oyBoshi.plusMonths(1);
+        long oylikKerakSumma = jadvalRepository.sumOylikKerakSumma(oyBoshi, oyOxiri);
+        long oylikKerakSon   = jadvalRepository.countOylikKerak(oyBoshi, oyOxiri);
+
+        // ── Shartnoma-asosidagi statistikalar (davrga bog'liq emas, global) ──
+        long yopilganShartnomaSoni     = shartnomaRepository.countByStatus("yopilgan");
+        long activShartnomaSoni        = shartnomaRepository.countByStatus("ochiq");
+        long muddatiOtganShartnomaSoni = shartnomaRepository.countMuddatiOtganShartnoma(now);
 
         ChartResult chartResult = buildChart(period, now, current);
 
@@ -87,10 +90,11 @@ public class KassaService {
                 .son(son)
                 .ortacha(ortacha)
                 .jamiDiff(jamiDiff)
-                .kutilayotganSumma(kutilayotganSumma)
-                .kutilayotganSon(kutilayotganSon)
-                .overdueSumma(overdueSumma)
-                .overdueSon(overdueSon)
+                .oylikKerakSumma(oylikKerakSumma)
+                .oylikKerakSon(oylikKerakSon)
+                .yopilganShartnomaSoni(yopilganShartnomaSoni)
+                .activShartnomaSoni(activShartnomaSoni)
+                .muddatiOtganShartnomaSoni(muddatiOtganShartnomaSoni)
                 .naqdPct(naqdPct)
                 .terminalPct(terminalPct)
                 .otkazmaPct(otkazmaPct)

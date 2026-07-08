@@ -35,4 +35,18 @@ public interface JadvalRepository extends JpaRepository<Jadval, Long> {
     List<Jadval> findOverdueUnpaid(@Param("hozir") LocalDateTime hozir);
     @Query("SELECT COALESCE(SUM(j.tulangan), 0) FROM Jadval j")
     long sumTulangan();
+
+    @Query("""
+        SELECT COALESCE(SUM(j.summa), 0) FROM Jadval j
+        WHERE j.holat = 'tulanmagan'
+          AND j.sana >= :boshi AND j.sana < :oxiri
+    """)
+    long sumOylikKerakSumma(@Param("boshi") LocalDateTime boshi, @Param("oxiri") LocalDateTime oxiri);
+
+    @Query("""
+        SELECT COUNT(j) FROM Jadval j
+        WHERE j.holat = 'tulanmagan'
+          AND j.sana >= :boshi AND j.sana < :oxiri
+    """)
+    long countOylikKerak(@Param("boshi") LocalDateTime boshi, @Param("oxiri") LocalDateTime oxiri);
 }
