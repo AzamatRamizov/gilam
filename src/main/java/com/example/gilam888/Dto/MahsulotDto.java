@@ -12,4 +12,5 @@ public class MahsulotDto {
     private String nomi;
     private String sana;   // "yyyy-MM-dd"
     private String narx;
+    private String lokatsiya; // Telegramdan olingan lokatsiya (link yoki matn), string sifatida saqlanadi
 }

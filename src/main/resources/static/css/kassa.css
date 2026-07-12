@@ -213,3 +213,11 @@ body { background: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: v
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(0,0,0,.08);
 }
+.date-range-panel input[type="date"] {
+    border: 1px solid var(--color-border);
+    background: var(--bg-input);
+    color: var(--color-text);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+}

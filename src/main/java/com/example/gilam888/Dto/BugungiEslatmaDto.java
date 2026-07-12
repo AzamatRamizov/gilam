@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class QarzdorlarDto {
+public class BugungiEslatmaDto {
     private Long mijozId;
     private String ism;
     private String familiya;
@@ -16,10 +18,7 @@ public class QarzdorlarDto {
     private String tel3;
     private Long shartnomaId;
     private long qolganQarz;
-    private String keyingiTolovSana; // ISO_LOCAL_DATE_TIME string
-    private long muddatiOtganKun;
     private String status;
-    private String tuman;
-    private String undiruvSababi;
-
+    private LocalDate vadaSana;
+    private String izoh; // oxirgi qo'ng'iroqdagi izoh (va'da matni)
 }

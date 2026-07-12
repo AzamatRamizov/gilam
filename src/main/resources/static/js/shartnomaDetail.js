@@ -282,14 +282,26 @@ function saveMijoz() {
 }
 
 // ── Mahsulot fill & save (2.2) ──
-// NOTE: backend hali ulanmagan. Kutilayotgan maydonlar: c.mahsulot = { nomi, sana, narx }
 function fillMahsulot(c) {
     c = c || {};
     const m = c.mahsulot || {};
     document.getElementById('pr_nomi').value = m.nomi || c.about || '';
     document.getElementById('pr_sana').value = m.sana ? String(m.sana).slice(0,10) : '';
     document.getElementById('pr_narx').value = (m.narx !== undefined && m.narx !== null) ? m.narx : '';
+    document.getElementById('pr_lokatsiya').value = m.lokatsiya || '';
+    prUpdateLokatsiyaLink();
 }
+function prUpdateLokatsiyaLink() {
+    const val = document.getElementById('pr_lokatsiya').value.trim();
+    const link = document.getElementById('pr_lokatsiya_link');
+    if (val && /^https?:\/\//i.test(val)) {
+        link.href = val;
+        link.style.display = 'inline-flex';
+    } else {
+        link.style.display = 'none';
+    }
+}
+document.getElementById('pr_lokatsiya').addEventListener('input', prUpdateLokatsiyaLink);
 function saveMahsulot() {
     const btn  = document.getElementById('mahsulotSaveBtn');
     const succ = document.getElementById('mahsulotSaveSuccess');
@@ -299,11 +311,11 @@ function saveMahsulot() {
         shartnomaId: _currentShartnomaId,
         nomi: document.getElementById('pr_nomi').value.trim(),
         sana: document.getElementById('pr_sana').value,
-        narx: String(document.getElementById('pr_narx').value||'0')
+        narx: String(document.getElementById('pr_narx').value||'0'),
+        lokatsiya: document.getElementById('pr_lokatsiya').value.trim()
     };
     if (!payload.nomi) { errEl.textContent='⚠️ Mahsulot nomini kiriting'; errEl.style.display='block'; return; }
     btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
-    // TODO: backend endpoint ulanganda '/admin/update-mahsulot' ga almashtiriladi
     fetch('/admin/update-mahsulot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
         .then(function(r){ return r.text().then(function(t){ if(!r.ok) throw t||('Xatolik: '+r.status); return t; }); })
         .then(function(){ succ.style.display='block'; setTimeout(function(){succ.style.display='none';},3000); })
@@ -563,7 +575,7 @@ function openPayModal() {
     document.getElementById('pay_tulangan').textContent = fmtSumma(_currentTotalTulandi);
     document.getElementById('pay_qolgan').textContent   = fmtSumma(_currentTotalQolgan);
     document.getElementById('pay_summa').value = _currentTotalQolgan>0 ? _currentTotalQolgan : '';
-    document.getElementById('pay_sana_input').value = nowLocalISO();
+    // document.getElementById('pay_sana_input').value = nowLocalISO();
     document.getElementById('pay_turi_hidden').value='';
     document.querySelectorAll('.pay-type-btn').forEach(function(b){b.classList.remove('selected');});
     const msg=document.getElementById('payFormMsg');
@@ -629,7 +641,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closePay
 // boshlab FIFO tartibida taqsimlab, har biriga alohida so'rov yuboradi.
 function submitPayment() {
     const summaInput = Math.round(Number(document.getElementById('pay_summa').value) || 0);
-    const sanaVal     = document.getElementById('pay_sana_input').value;
+    // const sanaVal     = document.getElementById('pay_sana_input').value;
     const dokonId     = document.getElementById('pay_dokon').value;
     const turi        = document.getElementById('pay_turi_hidden').value;
     const msg = document.getElementById('payFormMsg');
@@ -637,11 +649,11 @@ function submitPayment() {
     msg.className = 'form-msg'; msg.textContent = '';
 
     if (!summaInput || summaInput <= 0) { msg.className = 'form-msg error show'; msg.textContent = "To'lov summasini to'g'ri kiriting."; return; }
-    if (!sanaVal)  { msg.className = 'form-msg error show'; msg.textContent = "To'lov sanasini kiriting."; return; }
+    // if (!sanaVal)  { msg.className = 'form-msg error show'; msg.textContent = "To'lov sanasini kiriting."; return; }
     if (!dokonId)  { msg.className = 'form-msg error show'; msg.textContent = "Do'konni tanlang."; return; }
     if (!turi)     { msg.className = 'form-msg error show'; msg.textContent = "To'lov turini tanlang."; return; }
 
-    const sana = sanaVal.length === 16 ? sanaVal + ':00' : sanaVal;
+    // const sana = sanaVal.length === 16 ? sanaVal + ':00' : sanaVal;
 
     btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
 
@@ -649,7 +661,7 @@ function submitPayment() {
         + '?shartnomaId=' + _currentShartnomaId
         + '&summa=' + summaInput
         + '&turi=' + encodeURIComponent(turi)
-        + '&sana=' + encodeURIComponent(sana)
+        // + '&sana=' + encodeURIComponent(sana)
         + '&dokonId=' + dokonId;
 
     fetch(url, { method: 'PUT' })

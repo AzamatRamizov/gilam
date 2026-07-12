@@ -17,6 +17,8 @@ public class YaqinJadvalDto {
     private LocalDateTime sana;        // to'lov sanasi
     private String  mijozFish;         // Familiya Ism Sharif
     private String  mijozTel;
+    private String  mijozTel2;
+    private String  mijozTel3;
     private Long    shartnomaSumma;
     private String  shartnomaMuddat;
     private Long    shartnomaId;

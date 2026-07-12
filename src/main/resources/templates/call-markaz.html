@@ -6,7 +6,97 @@
   <title>Call markazi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="/css/call.css">
+  <link rel="icon" type="image/png" href="/images/888.png">
 
+  <style>
+    /* ── Qora fonda (dark theme) matn oq bo'lishi uchun ── */
+    [data-theme="dark"] { color-scheme: dark; }
+    [data-theme="dark"] input,
+    [data-theme="dark"] textarea,
+    [data-theme="dark"] select,
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .form-control-c,
+    [data-theme="dark"] .form-select {
+      color: #eaf4fb !important;
+      caret-color: #eaf4fb;
+    }
+    [data-theme="dark"] input::placeholder,
+    [data-theme="dark"] textarea::placeholder {
+      color: #6f93a8 !important;
+      opacity: 1;
+    }
+    [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) brightness(1.3);
+    }
+    [data-theme="dark"] .cc-item-name,
+    [data-theme="dark"] .cc-caller-name,
+    [data-theme="dark"] .modal-title,
+    [data-theme="dark"] .call-izoh-cell {
+      color: #eaf4fb;
+    }
+    [data-theme="dark"] .result-type-btn {
+      color: #d0e8f5;
+    }
+    [data-theme="dark"] .cc-summary-item span:last-child {
+      color: #eaf4fb;
+    }
+
+    /* ── Telefon raqamlari (3 tagacha) ── */
+    .cc-phone-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .cc-phone-pill {
+      display:flex; align-items:center; gap:6px;
+      background:var(--bg-input); border:1.5px solid var(--color-border);
+      border-radius:20px; padding:6px 12px; font-size:13px; font-weight:600;
+      color:var(--color-text); text-decoration:none; transition:all .15s ease;
+      font-family:monospace;
+    }
+    .cc-phone-pill:hover { border-color:#1a9a5a; background:#e8f9ef; color:#1a7a50; }
+    [data-theme="dark"] .cc-phone-pill:hover { background:#173625; color:#4dc886; }
+    .cc-phone-pill.primary { border-color:#1a9a5a; color:#1a7a50; background:#e8f9ef; }
+    [data-theme="dark"] .cc-phone-pill.primary { background:#173625; color:#4dc886; border-color:#2a6a48; }
+    .cc-phone-pill-label { font-size:10px; font-weight:700; opacity:.65; text-transform:uppercase; letter-spacing:.03em; }
+    .cc-phone-empty { font-size:12.5px; color:var(--color-hint); }
+
+    /* ── Shartnoma link ── */
+    .cc-shartnoma-link {
+      font-weight:700; color:#1a6fa8; text-decoration:none; margin-left:auto;
+      display:inline-flex; align-items:center; gap:3px;
+    }
+    .cc-shartnoma-link:hover { text-decoration:underline; color:#155d8e; }
+    [data-theme="dark"] .cc-shartnoma-link { color:#6ab8e8; }
+
+    /* ── Undiruvga topshirish tugmasi ── */
+    .btn-undiruv {
+      display:flex; align-items:center; gap:6px;
+      background:#fff3e0; border:1.5px solid #e0a030; color:#a06000;
+      border-radius:9px; padding:10px 16px; font-size:13px; font-weight:700;
+      cursor:pointer; transition:all .15s ease;
+    }
+    .btn-undiruv:hover:not(:disabled) { background:#ffe4b8; border-color:#c07800; }
+    .btn-undiruv:disabled { opacity:.65; cursor:default; }
+    [data-theme="dark"] .btn-undiruv { background:#3a2e14; border-color:#8a6000; color:#f0b850; }
+    [data-theme="dark"] .btn-undiruv:hover:not(:disabled) { background:#4a3a18; }
+
+    /* ── "Undiruvda" holati (status="undiruv" bo'lganda) uchun neytral ko'rinish ── */
+    .btn-undiruv.status-undiruv {
+      background:#f0f0f0; border-color:#b8b8b8; color:#707070;
+    }
+    [data-theme="dark"] .btn-undiruv.status-undiruv {
+      background:#2a2a2a; border-color:#484848; color:#a0a0a0;
+    }
+
+    /* ── Ro'yxatdagi status belgilari ── */
+    .cc-item-kun.undiruv-tag {
+      color:#b03030; font-weight:700;
+      display:inline-flex; align-items:center; gap:3px;
+    }
+    [data-theme="dark"] .cc-item-kun.undiruv-tag { color:#e07070; }
+    .cc-item-kun.tugatilgan-tag {
+      color:#1a7a50; font-weight:700;
+      display:inline-flex; align-items:center; gap:3px;
+    }
+    [data-theme="dark"] .cc-item-kun.tugatilgan-tag { color:#4dc886; }
+  </style>
 </head>
 <body>
 <nav th:replace="~{fragment :: navbar}"></nav>
@@ -19,8 +109,20 @@
   </div>
 
   <div class="cc-layout">
-    <!-- ══════ CHAP: QARZDORLAR RO'YXATI ══════ -->
-    <div class="main-card cc-left">
+    <!-- ══════ CHAP: ESLATMA + QARZDORLAR RO'YXATI ══════ -->
+    <div class="cc-left-col">
+      <!-- ── Bugungi eslatmalar (doimiy ochiq kartochka) ── -->
+      <div class="main-card cc-reminder-card" id="ccReminderCard">
+        <div class="cc-reminder-head">
+          <p class="section-title mb-0">&#128276; Bugungi eslatmalar</p>
+          <span class="cc-count-pill warn" id="ccReminderCountPill">0</span>
+        </div>
+        <div class="cc-reminder-list" id="ccReminderList">
+          <div class="cc-reminder-empty">Yuklanmoqda...</div>
+        </div>
+      </div>
+
+      <div class="main-card cc-left">
       <div class="cc-left-head">
         <div class="cc-left-head-row">
           <p class="section-title mb-0">Qarzdorlar</p>
@@ -36,7 +138,7 @@
               </svg>
             </button>
             <div class="cc-filter-menu" id="ccFilterMenu">
-              <div class="cc-filter-menu-item disabled" data-f="bugun" onclick="ccChooseFilter('bugun')">
+              <div class="cc-filter-menu-item" data-f="bugun" onclick="ccChooseFilter('bugun')">
                 <span>☀️</span><span>Bugun</span>
               </div>
               <div class="cc-filter-menu-item active" data-f="buoy" onclick="ccChooseFilter('buoy')">
@@ -45,7 +147,10 @@
               <div class="cc-filter-menu-item" data-f="otgan" onclick="ccChooseFilter('otgan')">
                 <span>🚨</span><span>Muddati o'tgan</span>
               </div>
-              <div class="cc-filter-menu-item disabled" data-f="tugatilgan" onclick="ccChooseFilter('tugatilgan')">
+              <div class="cc-filter-menu-item" data-f="undiruv" onclick="ccChooseFilter('undiruv')">
+                <span>📤</span><span>Undiruvdagilar</span>
+              </div>
+              <div class="cc-filter-menu-item" data-f="tugatilgan" onclick="ccChooseFilter('tugatilgan')">
                 <span>✅</span><span>Tugatilgan</span>
               </div>
               <div class="cc-filter-menu-item" data-f="barchasi" onclick="ccChooseFilter('barchasi')">
@@ -62,6 +167,7 @@
       <div class="cc-list" id="ccList">
         <div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>
       </div>
+      </div>
     </div>
 
     <!-- ══════ O'NG: TANLANGAN MIJOZ ══════ -->
@@ -77,17 +183,18 @@
           <div class="cc-caller-avatar" id="cc_avatar">&#8212;</div>
           <div class="cc-caller-info">
             <p class="cc-caller-name" id="cc_name">&#8212;</p>
-            <p class="cc-caller-phone" id="cc_phone">&#8212;</p>
-            <p class="cc-phone-alt" id="cc_phone_alt"></p>
+            <div class="cc-phone-list" id="cc_phone_list">
+              <!-- 3 ta raqam shu yerga JS orqali chiqariladi -->
+            </div>
           </div>
           <div class="cc-call-actions">
-            <a class="btn-call" id="cc_call_btn" href="tel:" onclick="ccOnCallClick()">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/></svg>
-              Qo'ng'iroq qilish
-            </a>
             <button class="btn-log-call" onclick="openCallLogModal()">
               <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm.5-7.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 1 0zm0-3a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z" transform="rotate(0)"/><path d="M8 4a.5.5 0 0 1 .5.5v3.5a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zm0 7a.6.6 0 1 1 0 1.2.6.6 0 0 1 0-1.2z"/></svg>
               Natija kiritish
+            </button>
+            <button class="btn-undiruv" id="cc_undiruv_btn" onclick="openUndiruvModal()">
+              <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.891 0 1.439-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+              Undiruvga topshirish
             </button>
           </div>
         </div>
@@ -122,12 +229,26 @@
       <input type="hidden" id="cl_natija_hidden">
     </div>
     <div class="mb-3" id="cl_vada_wrap" style="display:none;">
-      <label class="form-label">Va'da qilingan sana</label>
+      <label class="form-label">Va'da qilingan sana <span class="required-star">*</span></label>
       <input type="date" id="cl_vada_sana" class="form-control">
     </div>
     <div class="mb-3">
       <label class="form-label">Izoh</label>
       <textarea id="cl_izoh" class="form-control" rows="3" placeholder="Suhbat mazmuni, kelishuvlar..."></textarea>
+    </div>
+
+    <div class="mb-3" id="cl_audio_wrap">
+      <label class="form-label">Ovoz yozish (ixtiyoriy)</label>
+      <div class="cl-audio-controls">
+        <button type="button" class="btn-audio-rec" id="cl_rec_btn" onclick="clToggleRecording()">
+          &#127908; Yozishni boshlash
+        </button>
+        <span id="cl_rec_timer" class="cl-rec-timer" style="display:none;">00:00</span>
+      </div>
+      <audio id="cl_audio_preview" controls style="display:none; width:100%; margin-top:8px;"></audio>
+      <button type="button" class="btn-audio-clear" id="cl_audio_clear_btn" style="display:none;" onclick="clClearRecording()">
+        &#10060; Yozuvni o'chirish
+      </button>
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-3">
@@ -136,6 +257,25 @@
     </div>
   </div>
 </div>
+
+<!-- ══════ UNDIRUVGA TOPSHIRISH MODAL ══════ -->
+<div class="modal-overlay" id="undiruvModal">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <p class="modal-title">📤 Undiruvga topshirish</p>
+    <div class="form-msg" id="undMsg"></div>
+
+    <div class="mb-3">
+      <label class="form-label">Sabab <span class="required-star">*</span></label>
+      <textarea id="und_sabab" class="form-control" rows="3" placeholder="Undiruvga topshirish sababini kiriting..."></textarea>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button class="btn-cancel-form" onclick="closeUndiruvModal()">Bekor qilish</button>
+      <button class="btn-save-form" id="undSaveBtn" onclick="submitUndiruv()">📤 Topshirish</button>
+    </div>
+  </div>
+</div>
+
 <div class="cc-ctx-menu" id="ccCtxMenu">
   <div class="cc-ctx-item" id="ccCtxToggleItem" onclick="ccCtxToggleMark()">
     <span id="ccCtxToggleIcon">★</span>
@@ -166,6 +306,7 @@
   let _ccFilter     = 'buoy';
   let _ccSelectedId = null;
   let _ccSelected   = null;
+  let _ccEslatmalar = [];   // bugungi eslatmalar (oxirgi qo'ng'iroq "Va'da berdi" + vadaSana=bugun)
   // ── Belgilangan qarzdorlar ──
   let _ccMarkedIds     = new Set(JSON.parse(localStorage.getItem('cc_marked_ids') || '[]'));
   let _ccCtxTargetKey  = null;
@@ -248,58 +389,104 @@
     return (((ism||'')[0]||'')+((familiya||'')[0]||'')).toUpperCase()||'—';
   }
 
+  // Sana obyektining "bugun" (mahalliy kalendar kuni) ekanini tekshirish
+  function isSanaBugun(sana) {
+    if (!sana) return false;
+    const d = new Date(sana);
+    if (isNaN(d.getTime())) return false;
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() &&
+            d.getMonth() === now.getMonth() &&
+            d.getDate() === now.getDate();
+  }
+
+  // ══════ BUGUNGI ESLATMALAR ══════
+  function loadBugungiEslatmalar() {
+    fetch('/admin/bugungi-eslatmalar')
+            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data){ _ccEslatmalar = Array.isArray(data)?data:[]; renderEslatmalar(); })
+            .catch(function(){ document.getElementById('ccReminderList').innerHTML = '<div class="cc-reminder-empty">Yuklab bo\'lmadi</div>'; });
+  }
+
+  function renderEslatmalar() {
+    document.getElementById('ccReminderCountPill').textContent = _ccEslatmalar.length;
+    const wrap = document.getElementById('ccReminderList');
+    if (!_ccEslatmalar.length) { wrap.innerHTML = '<div class="cc-reminder-empty">Bugun uchun eslatma yo\'q</div>'; return; }
+    wrap.innerHTML = _ccEslatmalar.map(function(e){
+      const subParts = ['&#128222; ' + (e.tel1 || '—')];
+      if (e.izoh) subParts.push(e.izoh);
+      return '<div class="cc-reminder-item" onclick="ccOpenEslatma(\''+e.mijozId+'\')">'+
+              '<div class="cc-reminder-avatar">'+initials(e.ism,e.familiya)+'</div>'+
+              '<div class="cc-reminder-body">'+
+              '<div class="cc-reminder-name">'+[e.familiya,e.ism].filter(Boolean).join(' ')+'</div>'+
+              '<div class="cc-reminder-sub">'+subParts.join(' &middot; ')+'</div>'+
+              '</div>'+
+              '</div>';
+    }).join('');
+  }
+
+  // Eslatma bosilganda — mijozni o'ng panelda ochish (agar hozirgi ro'yxatda bo'lmasa ham)
+  function ccOpenEslatma(mijozId) {
+    const e = _ccEslatmalar.find(function(x){ return String(x.mijozId)===String(mijozId); });
+    if (!e) return;
+
+    const obj = {
+      mijozId: e.mijozId, ism: e.ism, familiya: e.familiya,
+      tel1: e.tel1, tel2: e.tel2, tel3: e.tel3,
+      shartnomaId: e.shartnomaId, qolganQarz: e.qolganQarz,
+      keyingiTolovSana: null, muddatiOtganKun: 0, status: e.status
+    };
+    const idx = _qarzdorlar.findIndex(function(x){ return String(x.mijozId)===String(mijozId); });
+    if (idx === -1) _qarzdorlar.unshift(obj);
+    else _qarzdorlar[idx] = Object.assign({}, _qarzdorlar[idx], obj);
+
+    ccFilterAndRender();
+    selectQarzdor(mijozId);
+  }
+
   // ══════ CHAP: RO'YXATNI YUKLASH ══════
-  // filter='barchasi' -> /admin/get-qarzdorlar?filter=barchasi   (QarzdorDto[])
-  // filter='otgan'    -> /admin/get-overdue-debts                (OverdueDebtDto[])
-  // filter='buoy'     -> /admin/get-last-muddat                  (YaqinJadvalDto[])
+  // "buoy" -> eski /admin/get-last-muddat (YaqinJadvalDto[]) — eski algoritm ishlaydi
+  // "bugun" -> xuddi shu manbadan (get-last-muddat), lekin faqat sanasi bugun bo'lganlar filtrlanadi
+  // qolgan filtrlar (otgan/barchasi/undiruv/tugatilgan) -> /admin/get-qarzdorlar?filter=... (QarzdorlarDto[])
   function loadQarzdorlar(filter) {
     filter = filter || _ccFilter;
-    document.getElementById('ccList').innerHTML='<div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>';
+    document.getElementById('ccList').innerHTML = '<div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>';
 
-    let url, mapper;
-    if (filter === 'otgan') {
-      url = '/admin/get-overdue-debts';
-      mapper = mapOverdueDebts;
-    } else {
-      url = '/admin/get-last-muddat';
-      mapper = mapYaqinJadval;
+    if (filter === 'buoy') {
+      fetch('/admin/get-last-muddat')
+              .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+              .then(function(data){ _qarzdorlar = mapYaqinJadval(Array.isArray(data)?data:[]); ccFilterAndRender(); })
+              .catch(function(err){ showError("Qarzdorlar ro'yxatini yuklab bo'lmadi: "+err); document.getElementById('ccList').innerHTML='<div class="cc-empty-list">Yuklashda xatolik yuz berdi</div>'; });
+      return;
     }
 
-    fetch(url)
+    // "Bugun" filtri -- "Bu oy" bilan bir xil manbadan (get-last-muddat) olinadi,
+    // so'ng orasidan faqat sanasi bugun bo'lganlar ajratib olinadi.
+    if (filter === 'bugun') {
+      fetch('/admin/get-last-muddat')
+              .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+              .then(function(data){
+                const hammasi = mapYaqinJadval(Array.isArray(data)?data:[]);
+                _qarzdorlar = hammasi.filter(function(m){ return isSanaBugun(m.keyingiTolovSana); });
+                ccFilterAndRender();
+              })
+              .catch(function(err){ showError("Qarzdorlar ro'yxatini yuklab bo'lmadi: "+err); document.getElementById('ccList').innerHTML='<div class="cc-empty-list">Yuklashda xatolik yuz berdi</div>'; });
+      return;
+    }
+
+    fetch('/admin/get-qarzdorlar?filter=' + encodeURIComponent(filter))
             .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
-            .then(function(data){ _qarzdorlar = mapper(Array.isArray(data)?data:[]); ccFilterAndRender(); })
+            .then(function(data){ _qarzdorlar = mapQarzdorlar(Array.isArray(data)?data:[]); ccFilterAndRender(); })
             .catch(function(err){ showError("Qarzdorlar ro'yxatini yuklab bo'lmadi: "+err); document.getElementById('ccList').innerHTML='<div class="cc-empty-list">Yuklashda xatolik yuz berdi</div>'; });
   }
 
-  // "Familiya Ism [Sharif]" ko'rinishidagi to'liq ismni familiya/ism ga ajratish
+  // "Familiya Ism [Sharif]" ko'rinishidagi to'liq ismni familiya/ism ga ajratish (faqat eski "buoy" yo'li uchun)
   function splitFish(fish) {
     const parts = (fish||'').trim().split(/\s+/).filter(Boolean);
     return { familiya: parts[0]||'', ism: parts.slice(1).join(' ') };
   }
 
-  // OverdueDebtDto[] -> umumiy shakl
-  function mapOverdueDebts(list) {
-    const byShartnoma = new Map();
-    list.forEach(function(o){
-      const nm = splitFish(o.mijoz);
-      const item = {
-        mijozId: o.mijozId,
-        ism: nm.ism, familiya: nm.familiya,
-        tel1: o.tel, tel2: null, tel3: null,
-        shartnomaId: o.shartnomaId,
-        qolganQarz: o.qolgan,
-        keyingiTolovSana: o.oxirgiTolov,
-        muddatiOtganKun: o.kun
-      };
-      const key = o.shartnomaId ?? o.mijozId;
-      const mavjud = byShartnoma.get(key);
-      if (!mavjud) { byShartnoma.set(key, item); }
-      else { mavjud.qolganQarz += item.qolganQarz; mavjud.muddatiOtganKun = Math.max(mavjud.muddatiOtganKun, item.muddatiOtganKun); }
-    });
-    return Array.from(byShartnoma.values());
-  }
-
-  // YaqinJadvalDto[] -> umumiy shakl
+  // YaqinJadvalDto[] -> umumiy shakl (eski "Bu oy" algoritmi)
   function mapYaqinJadval(list) {
     const now = new Date();
     const byShartnoma = new Map();
@@ -311,11 +498,12 @@
       const item = {
         mijozId: y.mijozId,
         ism: nm.ism, familiya: nm.familiya,
-        tel1: y.mijozTel, tel2: null, tel3: null,
+        tel1: y.mijozTel || null, tel2: y.mijozTel2 || null, tel3: y.mijozTel3 || null,
         shartnomaId: y.shartnomaId,
         qolganQarz: Math.max(0, (Number(y.summa)||0) - (Number(y.tulangan)||0)),
         keyingiTolovSana: y.sana,
-        muddatiOtganKun: otganKun
+        muddatiOtganKun: otganKun,
+        status: y.status || null
       };
       const key = y.shartnomaId ?? y.mijozId;
       const mavjud = byShartnoma.get(key);
@@ -323,6 +511,26 @@
       else { mavjud.qolganQarz += item.qolganQarz; }
     });
     return Array.from(byShartnoma.values());
+  }
+
+  // QarzdorlarDto[] -> frontend ichki shakli. Backend maydon nomlari bilan aynan bir xil,
+  // shu sababli tel1/tel2/tel3 har doim to'g'ri keladi
+  function mapQarzdorlar(list) {
+    return list.map(function(d){
+      return {
+        mijozId: d.mijozId,
+        ism: d.ism || '',
+        familiya: d.familiya || '',
+        tel1: d.tel1 || null,
+        tel2: d.tel2 || null,
+        tel3: d.tel3 || null,
+        shartnomaId: d.shartnomaId,
+        qolganQarz: Number(d.qolganQarz) || 0,
+        keyingiTolovSana: d.keyingiTolovSana || null,
+        muddatiOtganKun: Number(d.muddatiOtganKun) || 0,
+        status: d.status || null
+      };
+    });
   }
 
   let _ccMarkedOnly = false;
@@ -350,8 +558,6 @@
   });
 
   function ccChooseFilter(f) {
-    if (f === 'bugun' || f === 'tugatilgan') return; // hali tayyor emas
-
     _ccFilter = f;
     document.querySelectorAll('.cc-filter-menu-item').forEach(function(b) {
       b.classList.toggle('active', b.getAttribute('data-f') === f);
@@ -360,6 +566,7 @@
       bugun: '☀️ Bugun',
       buoy: '📅 Bu oy',
       otgan: "🚨 Muddati o'tgan",
+      undiruv: '📤 Undiruvdagilar',
       tugatilgan: '✅ Tugatilgan',
       barchasi: '📋 Barchasi'
     };
@@ -374,6 +581,7 @@
     document.getElementById('ccMarkedToggle').classList.toggle('active', _ccMarkedOnly);
     ccFilterAndRender();
   }
+
   // Faqat qidiruv (ism/familiya/telefon) — filtrga oid tanlov allaqachon backenddan kelgan
   function ccFilterAndRender() {
     const q = (document.getElementById('ccSearch').value||'').trim().toLowerCase();
@@ -396,8 +604,16 @@
     if (!list.length) { wrap.innerHTML = '<div class="cc-empty-list">Qarzdor topilmadi</div>'; return; }
     wrap.innerHTML = list.map(function(m){
       const kunOtgan = Number(m.muddatiOtganKun)||0;
-      const kunHtml  = kunOtgan>0 ? '<div class="cc-item-kun overdue">'+kunOtgan+' kun kechikdi</div>'
-              : '<div class="cc-item-kun">'+(m.keyingiTolovSana?fmtDate(m.keyingiTolovSana):'—')+'</div>';
+      let kunHtml;
+      if (m.status === 'undiruv') {
+        kunHtml = '<div class="cc-item-kun undiruv-tag">&#128680; Undiruvda</div>';
+      } else if (m.status === 'yopilgan') {
+        kunHtml = '<div class="cc-item-kun tugatilgan-tag">&#9989; Tugatilgan</div>';
+      } else if (kunOtgan>0) {
+        kunHtml = '<div class="cc-item-kun overdue">'+kunOtgan+' kun kechikdi</div>';
+      } else {
+        kunHtml = '<div class="cc-item-kun">'+(m.keyingiTolovSana?fmtDate(m.keyingiTolovSana):'—')+'</div>';
+      }
       const markKey   = ccMarkKey(m);
       const markedCls = ccIsMarked(m) ? ' marked' : '';
       return '<div class="cc-item'+(String(m.mijozId)===String(_ccSelectedId)?' selected':'')+markedCls+'" '+
@@ -435,18 +651,45 @@
     m = m || {};
     document.getElementById('cc_avatar').textContent = initials(m.ism,m.familiya);
     document.getElementById('cc_name').textContent = [m.familiya,m.ism].filter(Boolean).join(' ') || '—';
-    document.getElementById('cc_phone').textContent = m.tel1 || '—';
-    const altParts = [m.tel2,m.tel3].filter(Boolean);
-    document.getElementById('cc_phone_alt').textContent = altParts.length ? 'Qo\'shimcha: '+altParts.join(', ') : '';
-    const callBtn = document.getElementById('cc_call_btn');
-    callBtn.href = m.tel1 ? ('tel:'+m.tel1.replace(/\s+/g,'')) : 'tel:';
+
+    // ── 3 ta telefon raqamini alohida bosiladigan qilib chiqarish ──
+    const phones = [m.tel1, m.tel2, m.tel3].filter(Boolean);
+    const phoneListEl = document.getElementById('cc_phone_list');
+    if (!phones.length) {
+      phoneListEl.innerHTML = '<span class="cc-phone-empty">Telefon raqami kiritilmagan</span>';
+    } else {
+      phoneListEl.innerHTML = phones.map(function(tel, idx){
+        const cleanTel = tel.replace(/\s+/g,'');
+        const label = idx===0 ? 'Asosiy' : (idx===1 ? 'Qo\'shimcha 1' : 'Qo\'shimcha 2');
+        return '<a class="cc-phone-pill'+(idx===0?' primary':'')+'" href="tel:'+cleanTel+'" onclick="ccOnCallClick(\''+cleanTel+'\')">'+
+                '<svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/></svg>'+
+                '<span>'+tel+'</span><span class="cc-phone-pill-label">'+label+'</span>'+
+                '</a>';
+      }).join('');
+    }
 
     const kunOtgan = Number(m.muddatiOtganKun)||0;
+    const shartnomaLink = m.shartnomaId
+            ? '<a href="/admin/shartnoma-detail?id='+m.shartnomaId+'" class="cc-shartnoma-link">№'+m.shartnomaId+' &#8599;</a>'
+            : '—';
     document.getElementById('ccSummaryBar').innerHTML =
-            '<div class="cc-summary-item"><span>Shartnoma</span><span>№'+(m.shartnomaId??'—')+'</span></div>'+
+            '<div class="cc-summary-item"><span>Shartnoma</span>'+shartnomaLink+'</div>'+
             '<div class="cc-summary-item"><span>Qolgan qarz</span><span style="color:#c0392b">'+fmtSumma(m.qolganQarz)+'</span></div>'+
             '<div class="cc-summary-item"><span>Keyingi to\'lov</span><span>'+(m.keyingiTolovSana?fmtDate(m.keyingiTolovSana):'—')+'</span></div>'+
             '<div class="cc-summary-item"><span>Holati</span><span style="color:'+(kunOtgan>0?'#c0392b':'#1a7a50')+'">'+(kunOtgan>0?(kunOtgan+' kun kechikdi'):'Muddatida')+'</span></div>';
+
+    // ── Undiruv tugmasini shartnoma statusiga qarab boshqarish ──
+    const undBtn = document.getElementById('cc_undiruv_btn');
+    const undiruvIcon = '<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.891 0 1.439-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>';
+    if (m.status === 'undiruv') {
+      undBtn.disabled = true;
+      undBtn.classList.add('status-undiruv');
+      undBtn.innerHTML = undiruvIcon + ' Undiruvda';
+    } else {
+      undBtn.disabled = false;
+      undBtn.classList.remove('status-undiruv');
+      undBtn.innerHTML = undiruvIcon + ' Undiruvga topshirish';
+    }
   }
 
   function loadQongiroqTarixi(mijozId) {
@@ -463,6 +706,7 @@
     return 'notogri';
   }
 
+  // ══════ TARIXNI TO'LIQ CHIROYLI KO'RSATISH ══════
   function renderCallHistory(list) {
     list = list.slice().sort(function(a,b){
       const da = a.sana ? new Date(a.sana).getTime() : 0;
@@ -471,24 +715,97 @@
     });
     const wrap = document.getElementById('ccHistoryWrap');
     if (!list.length) { wrap.innerHTML = '<div class="schedule-empty">Hali qo\'ng\'iroqlar tarixi mavjud emas</div>'; return; }
+
     let rows = '';
     list.forEach(function(c){
+      const isVada = c.natija === "Va'da berdi";
+
+      // Natija ustuni: agar "Va'da berdi" bo'lsa, sana bilan alohida ajratilgan badge chiqadi
+      const natijaCell = isVada
+              ? '<span class="call-result '+resultClass(c.natija)+'">'+c.natija+'</span>'
+              + (c.vadaSana ? '<div class="vada-badge">&#128197; '+fmtDate(c.vadaSana)+'</div>' : '')
+              : '<span class="call-result '+resultClass(c.natija)+'">'+(c.natija||'—')+'</span>';
+
+      const audioCell = c.audioUrl
+              ? '<audio controls preload="none" style="height:32px;max-width:190px;"><source src="'+c.audioUrl+'" type="audio/webm"></audio>'
+              : '<span class="text-muted">—</span>';
+
       rows += '<tr>'+
               '<td>'+fmtDateTime(c.sana)+'</td>'+
-              '<td><span class="call-result '+resultClass(c.natija)+'">'+(c.natija||'—')+'</span></td>'+
+              '<td>'+natijaCell+'</td>'+
               '<td class="call-izoh-cell">'+(c.izoh||'—')+'</td>'+
               '<td>'+(c.operator||'—')+'</td>'+
+              '<td>'+audioCell+'</td>'+
               '</tr>';
     });
     wrap.innerHTML = '<div style="overflow-x:auto;"><table class="call-history-table">'+
-            '<thead><tr><th>Sana</th><th>Natija</th><th>Izoh</th><th>Operator</th></tr></thead>'+
+            '<thead><tr><th>Sana</th><th>Natija</th><th>Izoh</th><th>Operator</th><th>Ovoz</th></tr></thead>'+
             '<tbody>'+rows+'</tbody></table></div>';
   }
 
-  function ccOnCallClick() {
+  function ccOnCallClick(tel) {
     // tel: havolasi brauzer/qurilma orqali qo'ng'iroqni boshlaydi;
     // shu bilan bir qatorda natija kiritish oynasini ham ochib qo'yamiz
     setTimeout(function(){ openCallLogModal(); }, 300);
+  }
+
+  // ══════ UNDIRUVGA TOPSHIRISH MODAL ══════
+  function openUndiruvModal() {
+    if (!_ccSelected || !_ccSelected.shartnomaId) { showError("Shartnoma topilmadi."); return; }
+    if (_ccSelected.status === 'undiruv') return; // allaqachon undiruvda — tugma disabled bo'lishi kerak
+
+    document.getElementById('und_sabab').value = '';
+    const msg = document.getElementById('undMsg');
+    msg.className = 'form-msg'; msg.textContent = '';
+    const btn = document.getElementById('undSaveBtn');
+    btn.disabled = false; btn.textContent = '📤 Topshirish';
+    document.getElementById('undiruvModal').classList.add('show');
+  }
+
+  function closeUndiruvModal() {
+    document.getElementById('undiruvModal').classList.remove('show');
+  }
+  document.getElementById('undiruvModal').addEventListener('click', function(e){ if(e.target===this) closeUndiruvModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeUndiruvModal(); });
+
+  function submitUndiruv() {
+    const msg = document.getElementById('undMsg');
+    const btn = document.getElementById('undSaveBtn');
+    msg.className = 'form-msg'; msg.textContent = '';
+
+    const sabab = document.getElementById('und_sabab').value.trim();
+    if (!sabab) { msg.className = 'form-msg error show'; msg.textContent = "Sababni kiriting."; return; }
+    if (!_ccSelected || !_ccSelected.shartnomaId) { msg.className = 'form-msg error show'; msg.textContent = "Shartnoma topilmadi."; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Yuborilmoqda...';
+
+    const params = new URLSearchParams({ shartnomaId: _ccSelected.shartnomaId, sabab: sabab });
+
+    fetch('/admin/to-undiruv?' + params.toString(), { method: 'POST' })
+            .then(function(r){ return r.json().then(function(data){ return { ok: r.ok, data: data }; }); })
+            .then(function(res){
+              if (!res.ok || !res.data || res.data.holat === false) {
+                throw (res.data && res.data.message) || 'Server xatosi';
+              }
+              msg.className = 'form-msg success show';
+              msg.textContent = res.data.message || 'Shartnoma undiruvga topshirildi';
+
+              // Lokal holatni yangilash — tugma darhol "Undiruvda" holatiga o'tsin
+              if (_ccSelected) _ccSelected.status = 'undiruv';
+              const idx = _qarzdorlar.findIndex(function(x){ return String(x.mijozId)===String(_ccSelectedId); });
+              if (idx !== -1) _qarzdorlar[idx].status = 'undiruv';
+              fillCallerBar(_ccSelected);
+
+              setTimeout(function(){
+                closeUndiruvModal();
+              }, 700);
+            })
+            .catch(function(err){
+              msg.className = 'form-msg error show';
+              msg.textContent = 'Xatolik: ' + err;
+              btn.disabled = false;
+              btn.textContent = '📤 Topshirish';
+            });
   }
 
   // ══════ QO'NG'IROQ NATIJASI MODAL ══════
@@ -503,9 +820,13 @@
     msg.className='form-msg'; msg.textContent='';
     const btn=document.getElementById('clSaveBtn');
     btn.disabled=false; btn.textContent='💾 Saqlash';
+    clClearRecording();
     document.getElementById('callLogModal').classList.add('show');
   }
-  function closeCallLogModal() { document.getElementById('callLogModal').classList.remove('show'); }
+  function closeCallLogModal() {
+    if (_clMediaRecorder && _clMediaRecorder.state === 'recording') clStopRecording();
+    document.getElementById('callLogModal').classList.remove('show');
+  }
   document.getElementById('callLogModal').addEventListener('click', function(e){ if(e.target===this) closeCallLogModal(); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeCallLogModal(); });
 
@@ -527,67 +848,112 @@
     const vadaSana = document.getElementById('cl_vada_sana').value;
 
     if (!natija) { msg.className='form-msg error show'; msg.textContent="Qo'ng'iroq natijasini tanlang."; return; }
+    if (natija==="Va'da berdi" && !vadaSana) { msg.className='form-msg error show'; msg.textContent="Va'da qilingan sanani kiriting."; return; }
 
-    const dto = {
-      mijozId: _ccSelectedId,
-      natija:  natija,
-      izoh:    izoh,
-      vadaSana: natija==="Va'da berdi" ? vadaSana : null,
-      sana: new Date().toISOString()
-    };
+    if (_clMediaRecorder && _clMediaRecorder.state === 'recording') clStopRecording();
+
+    const fd = new FormData();
+    fd.append('mijozId', _ccSelectedId);
+    fd.append('natija', natija);
+    if (izoh) fd.append('izoh', izoh);
+    if (natija==="Va'da berdi" && vadaSana) fd.append('vadaSana', vadaSana);
+    if (_clAudioBlob) fd.append('audio', _clAudioBlob, 'qongiroq.webm');
 
     btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
-    fetch('/admin/add-qongiroq', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(dto)})
+    fetch('/admin/add-qongiroq', {method:'POST', body: fd})
             .then(function(r){ return r.text().then(function(t){ if(!r.ok) throw t||('Server xatosi: '+r.status); return t; }); })
             .then(function(){
               msg.className='form-msg success show';
               msg.textContent="✅ Qo'ng'iroq natijasi saqlandi";
-              setTimeout(function(){ closeCallLogModal(); loadQongiroqTarixi(_ccSelectedId); }, 700);
+              setTimeout(function(){ closeCallLogModal(); loadQongiroqTarixi(_ccSelectedId); loadBugungiEslatmalar(); }, 700);
             })
             .catch(function(err){ msg.className='form-msg error show'; msg.textContent='Xatolik: '+err; btn.disabled=false; btn.textContent='💾 Saqlash'; });
   }
 
-  loadQarzdorlar(_ccFilter);
+  // ══════ OVOZ YOZISH (brauzer mikrofoni, MediaRecorder) ══════
+  let _clMediaRecorder = null;
+  let _clAudioChunks = [];
+  let _clAudioBlob = null;
+  let _clRecTimerInterval = null;
+  let _clRecSeconds = 0;
 
-  function loadQarzdorlar(filter) {
-    filter = filter || _ccFilter;
-    document.getElementById('ccList').innerHTML = '<div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>';
-
-    let url, mapper;
-    if (filter === 'otgan') {
-      url = '/admin/get-overdue-debts';
-      mapper = mapOverdueDebts;
-    } else if (filter === 'barchasi') {
-      url = '/admin/get-qarzdorlar?filter=barchasi';
-      mapper = mapBarchasi;
+  function clToggleRecording() {
+    if (_clMediaRecorder && _clMediaRecorder.state === 'recording') {
+      clStopRecording();
     } else {
-      url = '/admin/get-last-muddat';
-      mapper = mapYaqinJadval;
+      clStartRecording();
     }
-
-    fetch(url)
-            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
-            .then(function(data){ _qarzdorlar = mapper(Array.isArray(data)?data:[]); ccFilterAndRender(); })
-            .catch(function(err){ showError("Qarzdorlar ro'yxatini yuklab bo'lmadi: "+err); document.getElementById('ccList').innerHTML='<div class="cc-empty-list">Yuklashda xatolik yuz berdi</div>'; });
   }
 
-  // QarzdorDto[] -> umumiy shakl (backend field nomlari taxminiy — pastdagi izohga qarang)
-  function mapBarchasi(list) {
-    return list.map(function(o){
-      return {
-        mijozId: o.mijozId,
-        ism: o.ism || '',
-        familiya: o.familiya || '',
-        tel1: o.tel1 || o.tel,
-        tel2: o.tel2 || null,
-        tel3: o.tel3 || null,
-        shartnomaId: o.shartnomaId,
-        qolganQarz: Number(o.qolgan ?? o.qolganQarz ?? 0),
-        keyingiTolovSana: o.keyingiTolovSana || o.sana || null,
-        muddatiOtganKun: Number(o.kun ?? o.muddatiOtganKun ?? 0)
-      };
-    });
+  function clStartRecording() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showError("Bu brauzer ovoz yozishni qo'llab-quvvatlamaydi.");
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+              _clAudioChunks = [];
+              _clMediaRecorder = new MediaRecorder(stream);
+              _clMediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) _clAudioChunks.push(e.data); };
+              _clMediaRecorder.onstop = function() {
+                _clAudioBlob = new Blob(_clAudioChunks, { type: 'audio/webm' });
+                const url = URL.createObjectURL(_clAudioBlob);
+                const preview = document.getElementById('cl_audio_preview');
+                preview.src = url;
+                preview.style.display = 'block';
+                document.getElementById('cl_audio_clear_btn').style.display = 'inline-flex';
+                stream.getTracks().forEach(function(t){ t.stop(); });
+              };
+              _clMediaRecorder.start();
+
+              const btn = document.getElementById('cl_rec_btn');
+              btn.textContent = "⏹ To'xtatish";
+              btn.classList.add('recording');
+              document.getElementById('cl_audio_preview').style.display = 'none';
+              document.getElementById('cl_audio_clear_btn').style.display = 'none';
+
+              _clRecSeconds = 0;
+              const timerEl = document.getElementById('cl_rec_timer');
+              timerEl.style.display = 'inline';
+              timerEl.textContent = '00:00';
+              _clRecTimerInterval = setInterval(function() {
+                _clRecSeconds++;
+                const mm = String(Math.floor(_clRecSeconds/60)).padStart(2,'0');
+                const ss = String(_clRecSeconds%60).padStart(2,'0');
+                timerEl.textContent = mm+':'+ss;
+              }, 1000);
+            })
+            .catch(function() {
+              showError("Mikrofonga ruxsat berilmadi.");
+            });
   }
+
+  function clStopRecording() {
+    if (_clMediaRecorder && _clMediaRecorder.state === 'recording') {
+      _clMediaRecorder.stop();
+    }
+    clearInterval(_clRecTimerInterval);
+    document.getElementById('cl_rec_timer').style.display = 'none';
+    const btn = document.getElementById('cl_rec_btn');
+    btn.textContent = '🎙️ Yozishni boshlash';
+    btn.classList.remove('recording');
+  }
+
+  function clClearRecording() {
+    _clAudioBlob = null;
+    _clAudioChunks = [];
+    clearInterval(_clRecTimerInterval);
+    document.getElementById('cl_rec_timer').style.display = 'none';
+    document.getElementById('cl_audio_preview').style.display = 'none';
+    document.getElementById('cl_audio_preview').src = '';
+    document.getElementById('cl_audio_clear_btn').style.display = 'none';
+    const btn = document.getElementById('cl_rec_btn');
+    btn.textContent = '🎙️ Yozishni boshlash';
+    btn.classList.remove('recording');
+  }
+
+  loadQarzdorlar(_ccFilter);
+  loadBugungiEslatmalar();
 </script>
 </body>
 </html>

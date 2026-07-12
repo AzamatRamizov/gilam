@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,6 +29,9 @@ public class Shartnoma extends AbstractLongEntity {
     private Mijoz mijoz;
 
     private String status;
+    // Yangi: undiruvga topshirilganda sabab va vaqtni saqlash uchun
+    private String undiruvSababi;
+    private LocalDateTime undiruvVaqti;
 
     @ManyToMany(fetch = FetchType.LAZY)
     List<Jadval> jadvalList;

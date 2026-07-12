@@ -213,52 +213,39 @@ public class AdminService {
 
         List<Long> jadvalIds = s.getJadvalList().stream().map(Jadval::getId).toList();
 
-        List<PaymentHistory> paymentsRaw = jadvalIds.isEmpty()
+        // 1) Eski to'lovlar — jadval bo'yicha bog'langan
+        List<PaymentHistory> jadvalOrqali = jadvalIds.isEmpty()
                 ? List.of()
                 : paymentRepository.findByJadvalIdInOrderBySanaDesc(jadvalIds);
 
-//        List<PaymentDto> tulovTarixi = paymentsRaw.stream()
-//                .map(p -> new PaymentDto(
-//                        p.getSana() != null ? p.getSana().toString() : null,
-//                        p.getSumma(),
-//                        p.getTuri(),
-//                        resolveDokonNomi(p.getDokonId())
-//                ))
-//                .toList();
+        // 2) Yangi to'lovlar — shartnoma bo'yicha to'g'ridan-to'g'ri bog'langan
+        List<PaymentHistory> shartnomaOrqali = paymentRepository.findByShartnomaIdOrderBySanaAsc(s.getId());
 
-//        String mijozFish = s.getMijoz() != null ? s.getMijoz().getFish() : "—";
+        // Ikkalasini birlashtirib, id bo'yicha dublikatlarni olib tashlaymiz
+        Map<Long, PaymentHistory> birlashgan = new LinkedHashMap<>();
+        for (PaymentHistory p : jadvalOrqali) birlashgan.put(p.getId(), p);
+        for (PaymentHistory p : shartnomaOrqali) birlashgan.put(p.getId(), p);
 
-//        List<PaymentDto> tulovTarixi = paymentsRaw.stream()
-//                .map(p -> {
-//                    PaymentDto dto = new PaymentDto();
-//                    dto.setSana(p.getSana() != null ? p.getSana().toString() : null);
-//                    dto.setSumma(p.getSumma());
-//                    dto.setTuri(p.getTuri());
-//                    dto.setDokon(resolveDokonNomi(p.getDokonId()));
-//                    dto.setShartnomaId(s.getId());
-//                    return dto;
-//                })
-//                .toList();
-
-        List<PaymentHistory> tarix = paymentRepository.findByShartnomaIdOrderBySanaAsc(s.getId());
-
-        List<PaymentDto> tulovTarixi = tarix.stream().map(p -> {
-            PaymentDto dto = new PaymentDto();
-            dto.setSana(String.valueOf(p.getSana()));                       // to'liq LocalDateTime — frontda soat:daqiqa chiqadi
-            dto.setSumma(p.getSumma());
-            dto.setTuri(p.getTuri());
-            dto.setDokon(resolveDokonNomi(p.getDokonId()));     // mavjud do'kon-nomi olish metodingiz
-            return dto;
-        }).toList();
+        List<PaymentDto> tulovTarixi = birlashgan.values().stream()
+                .sorted(Comparator.comparing(PaymentHistory::getSana,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(p -> {
+                    PaymentDto dto = new PaymentDto();
+                    dto.setSana(String.valueOf(p.getSana()));
+                    dto.setSumma(p.getSumma());
+                    dto.setTuri(p.getTuri());
+                    dto.setDokon(resolveDokonNomi(p.getDokonId()));
+                    return dto;
+                })
+                .toList();
 
         MahsulotDto mahsulot = new MahsulotDto(
                 0,
                 s.getMahsulot(),
                 s.getSotibOlinganSana(),
-                s.getTannarx()
+                s.getTannarx(),
+                s.getJoylashuv()
         );
-
-
 
         return new ShartnomaDetailDto(
                 s.getId(), s.getSumma(), s.getMuddat(), s.getStatus(), s.getIzoh(),
@@ -276,6 +263,7 @@ public class AdminService {
         s.setMahsulot(dto.getNomi());
         s.setTannarx(dto.getNarx());              // String → String, parse shart emas
         s.setSotibOlinganSana(dto.getSana());     // String → String, parse shart emas
+        s.setJoylashuv(dto.getLokatsiya());
         shartnomaRepository.save(s);
 
         return shartnomaDetail(s.getId());
@@ -395,7 +383,8 @@ public class AdminService {
         return new ApiResponse("Muvaffaqiyatli tulov qilindi",true);
     }
     @Transactional
-    public ApiResponse tulovShartnoma(Long shartnomaId, long summa, String turi, LocalDateTime sana, Long dokonId) {
+    public ApiResponse tulovShartnoma(Long shartnomaId, long summa, String turi, Long dokonId) {
+        LocalDateTime now = LocalDateTime.now();
         if (summa <= 0) {
             return new ApiResponse("To'lov summasi noto'g'ri", false);
         }
@@ -429,7 +418,7 @@ public class AdminService {
             long qoshiladigan = Math.min(qoldiq, jadvalQolgan);
 
             jadval.setTulangan(jadval.getTulangan() + qoshiladigan);
-            jadval.setTulovSana(sana);
+            jadval.setTulovSana(now);
             jadval.setTuri(turi);
             jadval.setDokonId(dokonId.toString());
             if (jadval.getTulangan() >= jadval.getSumma()) {
@@ -461,10 +450,10 @@ public class AdminService {
         paymentHistory.setShartnomaId(shartnomaId);
         paymentHistory.setJadvalId(birinchiTegilganJadvalId);
         paymentHistory.setSumma(qabulQilingan);
-        paymentHistory.setSana(sana);
+        paymentHistory.setSana(now);
         paymentHistory.setTuri(turi);
         paymentHistory.setDokonId(dokonId);
-        paymentHistory.setCreatedTime(LocalDateTime.now());
+        paymentHistory.setCreatedTime(now);
         paymentRepository.save(paymentHistory);
 
         if (qoldiq > 0) {
@@ -746,6 +735,13 @@ public class AdminService {
     }
 
     public List<QarzdorlarDto> getQarzdorlar(String filter) {
+        if ("undiruv".equals(filter)) {
+            return shartnomaHolatiBoyichaRoyxat("undiruv");
+        }
+        if ("tugatilgan".equals(filter)) {
+            return shartnomaHolatiBoyichaRoyxat("yopilgan");
+        }
+
         LocalDateTime hozir = LocalDateTime.now();
         List<Jadval> jadvalList;
 
@@ -762,7 +758,6 @@ public class AdminService {
                     boshi.atStartOfDay(), oxiri.atStartOfDay());
         }
 
-        // Bitta shartnomaga bir nechta jadval qatori tegishli bo'lishi mumkin — dedupe qilamiz
         Map<Long, QarzdorlarDto> result = new LinkedHashMap<>();
         for (Jadval jadval : jadvalList) {
             shartnomaRepository.findByJadvalListContaining(jadval).ifPresent(shartnoma ->
@@ -770,6 +765,20 @@ public class AdminService {
             );
         }
         return new ArrayList<>(result.values());
+    }
+
+    // "undiruv" va "tugatilgan" uchun umumiy — status bo'yicha to'g'ridan-to'g'ri qidirish
+    private List<QarzdorlarDto> shartnomaHolatiBoyichaRoyxat(String status) {
+        List<Shartnoma> shartnomalar = shartnomaRepository.findByStatus(status);
+        List<QarzdorlarDto> result = new ArrayList<>();
+        for (Shartnoma shartnoma : shartnomalar) {
+            Jadval engErtaTulanmagan = shartnoma.getJadvalList().stream()
+                    .filter(j -> "tulanmagan".equals(j.getHolat()))
+                    .min(Comparator.comparing(Jadval::getSana))
+                    .orElse(null);
+            result.add(toQarzdorDto(shartnoma, engErtaTulanmagan));
+        }
+        return result;
     }
 
     private QarzdorlarDto toQarzdorDto(Shartnoma shartnoma, Jadval activeJadval) {
@@ -800,7 +809,10 @@ public class AdminService {
                 shartnoma.getId(),
                 qolganQarz,
                 activeJadval != null && activeJadval.getSana() != null ? activeJadval.getSana().toString() : null,
-                muddatiOtganKun
+                muddatiOtganKun,
+                shartnoma.getStatus(),   // ← qo'shildi
+                mijoz.getTuman(),
+                shartnoma.getUndiruvSababi()
         );
     }
 
@@ -864,5 +876,20 @@ public class AdminService {
 
             return dto;
         }).toList();
+    }
+
+    public ApiResponse shartnomaniUndiruvgaOtkazish(Long shartnomaId, String sabab) {
+        if (sabab == null || sabab.isBlank()) {
+            return new ApiResponse("Sabab kiritilishi shart", false);
+        }
+        Shartnoma shartnoma = shartnomaRepository.findById(shartnomaId).orElse(null);
+        if (shartnoma == null) {
+            return new ApiResponse("Shartnoma topilmadi", false);
+        }
+        shartnoma.setStatus("undiruv");
+        shartnoma.setUndiruvSababi(sabab);
+        shartnoma.setUndiruvVaqti(LocalDateTime.now());
+        shartnomaRepository.save(shartnoma);
+        return new ApiResponse("Shartnoma undiruvga topshirildi", true);
     }
 }

@@ -112,8 +112,15 @@ public class KassaService {
     private record Range(LocalDateTime from, LocalDateTime to) {}
 
     private Range resolveRange(String period, LocalDateTime now, LocalDateTime customFrom, LocalDateTime customTo) {
-        if (customFrom != null && customTo != null) {
-            return new Range(customFrom, customTo);
+        if ("oy".equals(period) || "maxsus".equals(period)) {
+            if (customFrom != null && customTo != null) {
+                return new Range(customFrom, customTo);
+            }
+            if ("maxsus".equals(period)) {
+                // customFrom/customTo kelmasa, "maxsus" ma'nosiz — xatolik qaytaramiz
+                throw new IllegalArgumentException("Maxsus davr uchun boshi va oxiri sanalari majburiy");
+            }
+            // "oy" uchun customFrom/customTo bo'lmasa, pastdagi "oy" case ishlaydi (joriy oy)
         }
 
         LocalDate today = now.toLocalDate();

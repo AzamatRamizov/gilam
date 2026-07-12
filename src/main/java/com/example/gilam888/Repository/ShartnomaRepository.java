@@ -62,4 +62,7 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
 """)
     List<Shartnoma> findShartnomaWithMissingInfo();
 
+    List<Shartnoma> findByStatus(String status);
+
+    List<Shartnoma> findByMijoz_Id(Long mijozId);
 }

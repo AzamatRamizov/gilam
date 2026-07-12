@@ -6,6 +6,7 @@
     <title>Kassa — Gilam888</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="/css/kassa.css">
+    <link rel="icon" type="image/png" href="/images/888.png">
 </head>
 <body>
 
@@ -32,6 +33,7 @@
         <button class="period-tab"        data-period="oy"      onclick="setPeriod(this)">Oy</button>
         <button class="period-tab"        data-period="yil"     onclick="setPeriod(this)">Yil</button>
         <button class="period-tab"        data-period="barchasi" onclick="setPeriod(this)">Barchasi</button>
+        <button class="period-tab"        data-period="maxsus"  onclick="setPeriod(this)">&#128197; Sana oralig'i</button>
     </div>
     <div class="month-tabs" id="monthTabs" style="display:none; margin-top:8px; margin-bottom:16px; flex-wrap:wrap; gap:6px;">
         <button class="month-tab" data-month="1"  onclick="setMonth(this)">Yan</button>
@@ -46,6 +48,18 @@
         <button class="month-tab" data-month="10" onclick="setMonth(this)">Okt</button>
         <button class="month-tab" data-month="11" onclick="setMonth(this)">Noy</button>
         <button class="month-tab" data-month="12" onclick="setMonth(this)">Dek</button>
+    </div>
+    <div class="date-range-panel" id="dateRangePanel" style="display:none; margin-top:8px; margin-bottom:16px; align-items:end; gap:12px; flex-wrap:wrap;">
+        <div>
+            <label class="form-label-c" style="display:block; font-size:12px; margin-bottom:4px; color:var(--color-sub);">Dan</label>
+            <input type="date" id="dr_from" class="form-control-c" style="min-width:150px;">
+        </div>
+        <div>
+            <label class="form-label-c" style="display:block; font-size:12px; margin-bottom:4px; color:var(--color-sub);">Gacha</label>
+            <input type="date" id="dr_to" class="form-control-c" style="min-width:150px;">
+        </div>
+        <button class="period-tab active" style="height:38px;" onclick="applyDateRange()">&#9989; Qo'llash</button>
+        <span id="drError" style="display:none; color:#c0392b; font-size:12.5px; font-weight:600;"></span>
     </div>
 
     <!-- ── UMUMIY STATISTIKA (davrga bog'liq emas) ── -->
@@ -344,6 +358,10 @@
         currentPeriod = btn.getAttribute('data-period');
 
         const monthTabs = document.getElementById('monthTabs');
+        const rangePanel = document.getElementById('dateRangePanel');
+
+        monthTabs.style.display  = 'none';
+        rangePanel.style.display = 'none';
 
         if (currentPeriod === 'oy') {
             monthTabs.style.display = 'flex';
@@ -351,12 +369,20 @@
                 m.classList.toggle('active', Number(m.getAttribute('data-month')) === currentMonth);
             });
             fetchMonthStat(currentYear, currentMonth);
+        } else if (currentPeriod === 'maxsus') {
+            rangePanel.style.display = 'flex';
+            // Standart: joriy oy boshidan bugungacha
+            if (!document.getElementById('dr_from').value) {
+                const now = new Date();
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                document.getElementById('dr_from').value = monthStart.toISOString().slice(0, 10);
+                document.getElementById('dr_to').value   = now.toISOString().slice(0, 10);
+            }
+            // Panel ochilganda avtomatik so'rov yubormaymiz — "Qo'llash" bosilishini kutamiz
         } else {
-            monthTabs.style.display = 'none';
             fetchKassaStat(currentPeriod);
         }
     }
-
     function setMonth(btn) {
         document.querySelectorAll('.month-tab').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
@@ -453,7 +479,8 @@
             hafta: "Haftalik to'lovlar",
             oy: "Oylik to'lovlar",
             yil: "Yillik to'lovlar",
-            barchasi: "Barcha to'lovlar"
+            barchasi: "Barcha to'lovlar",
+            maxsus: "Tanlangan davr to'lovlari"
         };
         document.getElementById('payTableTitle').textContent = titles[period] || "To'lovlar";
         document.getElementById('sp_jami').textContent  = d.payments.length + ' ta';
@@ -621,6 +648,50 @@
 
         circles[2].setAttribute('stroke-dasharray', o_len.toFixed(1) + ' ' + (circ - o_len).toFixed(1));
         circles[2].setAttribute('stroke-dashoffset', (-(n_len + t_len)).toFixed(1));
+    }
+
+    function applyDateRange() {
+        const fromVal = document.getElementById('dr_from').value;
+        const toVal   = document.getElementById('dr_to').value;
+        const errEl   = document.getElementById('drError');
+        errEl.style.display = 'none';
+
+        if (!fromVal || !toVal) {
+            errEl.textContent = "Ikkala sanani ham tanlang.";
+            errEl.style.display = 'inline';
+            return;
+        }
+
+        const boshi = new Date(fromVal + 'T00:00:00');
+        const oxiri = new Date(toVal + 'T00:00:00');
+        oxiri.setDate(oxiri.getDate() + 1); // tanlangan kunning oxirigacha (exclusive keyingi kun)
+
+        if (boshi >= oxiri) {
+            errEl.textContent = "\"Dan\" sanasi \"Gacha\" sanasidan oldin bo'lishi kerak.";
+            errEl.style.display = 'inline';
+            return;
+        }
+
+        const boshiStr = formatLocalDateTime(boshi);
+        const oxiriStr = formatLocalDateTime(oxiri);
+
+        const url = '/admin/get-kassa-stat?period=maxsus'
+            + '&boshi=' + encodeURIComponent(boshiStr)
+            + '&oxiri=' + encodeURIComponent(oxiriStr);
+
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                renderPage('maxsus', data);
+            })
+            .catch(function(err) {
+                errEl.textContent = "Ma'lumotlarni yuklab bo'lmadi.";
+                errEl.style.display = 'inline';
+                console.error('kassa-stat (maxsus) xatolik:', err);
+            });
     }
 
     // ══════════════════════════════════════════

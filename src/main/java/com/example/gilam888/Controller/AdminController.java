@@ -1,15 +1,17 @@
 package com.example.gilam888.Controller;
 
 import com.example.gilam888.Configurations.ApiResponse;
-import com.example.gilam888.Dto.MahsulotDto;
-import com.example.gilam888.Dto.MijozDataDto;
-import com.example.gilam888.Dto.YaqinJadvalDto;
+import com.example.gilam888.Configurations.TokenGenerator;
+import com.example.gilam888.Dto.*;
 import com.example.gilam888.Entity.*;
 import com.example.gilam888.Repository.*;
 import com.example.gilam888.Service.AdminService;
 import com.example.gilam888.Service.KassaService;
+import com.example.gilam888.Service.QongiroqService;
 import com.example.gilam888.Service.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -38,8 +40,10 @@ public class AdminController {
     private final JadvalRepository jadvalRepository;
     private final ShartnomaRepository shartnomaRepository;
     private final KassaService kassaService;
+    private final QongiroqService qongiroqService;
+    private final TokenGenerator tokenGenerator;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -48,6 +52,8 @@ public class AdminController {
         this.jadvalRepository = jadvalRepository;
         this.shartnomaRepository = shartnomaRepository;
         this.kassaService = kassaService;
+        this.qongiroqService = qongiroqService;
+        this.tokenGenerator = tokenGenerator;
     }
 
 //    @PreAuthorize("hasRole('owner')")
@@ -246,6 +252,8 @@ public class AdminController {
             dto.setSana(jadval.getSana());
             dto.setMijozFish(fish);
             dto.setMijozTel(nvl(mijoz.getTel1()));
+            dto.setMijozTel2(nvl(mijoz.getTel2()));
+            dto.setMijozTel3(nvl(mijoz.getTel3()));
             dto.setShartnomaId(shartnoma.getId());
             dto.setShartnomaSumma(shartnoma.getSumma());
             dto.setShartnomaMuddat(shartnoma.getMuddat() + " oy");
@@ -313,6 +321,11 @@ public class AdminController {
     public String callMarkaz(){
         return "call-markaz";
     }
+
+    @GetMapping("/undirish")
+    public String undirish(){
+        return "undirish";
+    }
     @GetMapping("/get-qarzdorlar")
     public ResponseEntity<?> getQarzdorlar(@RequestParam(defaultValue = "barchasi") String filter) {
         return ResponseEntity.ok(adminService.getQarzdorlar(filter));
@@ -335,20 +348,65 @@ public class AdminController {
         return ResponseEntity.ok(adminService.checkAllShartnoma());
     }
 
-    @PreAuthorize("hasRole('owner')")
     @PutMapping("/tulov-shartnoma")
     public ResponseEntity<?> tulovShartnoma(
             @RequestParam Long shartnomaId,
             @RequestParam long summa,
             @RequestParam String turi,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime sana,
             @RequestParam Long dokonId) {
-        return ResponseEntity.ok(adminService.tulovShartnoma(shartnomaId, summa, turi, sana, dokonId));
+        return ResponseEntity.ok(adminService.tulovShartnoma(shartnomaId, summa, turi, dokonId));
     }
 
-//    @PreAuthorize("hasRole('owner')")
     @GetMapping("/get-missing-info-shartnoma")
     public ResponseEntity<?> getMissingInfoShartnoma() {
         return ResponseEntity.ok(adminService.getShartnomaWithMissingInfo());
     }
+    @PostMapping(value = "/add-qongiroq", consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse> addQongiroq(
+            @RequestParam Long mijozId,
+            @RequestParam String natija,
+            @RequestParam(required = false) String izoh,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vadaSana,
+            @RequestParam(required = false) MultipartFile audio,
+            HttpServletRequest request) {
+
+        QongiroqSaveDto dto = new QongiroqSaveDto();
+        dto.setMijozId(mijozId);
+        dto.setNatija(natija);
+        dto.setIzoh(izoh);
+        dto.setVadaSana(vadaSana);
+
+        Users user = adminService.getMydata(request);
+        String operator = (user != null) ? user.getUsername() : "Noma'lum";
+
+        ApiResponse response = qongiroqService.addQongiroq(dto, audio, operator);
+        return ResponseEntity.status(response.isHolat() ? 200 : 400).body(response);
+    }
+
+    @GetMapping("/qongiroq-tarixi/{mijozId}")
+    public ResponseEntity<List<QongiroqTarixiDto>> getQongiroqTarixi(@PathVariable Long mijozId) {
+        return ResponseEntity.ok(qongiroqService.getTarixi(mijozId));
+    }
+
+    @GetMapping("/bugungi-eslatmalar")
+    public ResponseEntity<?> getBugungiEslatmalar() {
+        return ResponseEntity.ok(qongiroqService.getBugungiEslatmalar());
+    }
+
+    @GetMapping("/qongiroq-audio/{tarixiId}")
+    public ResponseEntity<byte[]> getQongiroqAudio(@PathVariable Long tarixiId) {
+        QongiroqAudio audio = qongiroqService.getAudio(tarixiId);
+        if (audio == null || audio.getBayt() == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok()
+                .header("Content-Type", audio.getContentType())
+                .body(audio.getBayt());
+    }
+
+    @PostMapping("/to-undiruv")
+    public ResponseEntity<ApiResponse> toUndiruv(@RequestParam Long shartnomaId,
+                                                 @RequestParam String sabab) {
+        ApiResponse response = adminService.shartnomaniUndiruvgaOtkazish(shartnomaId, sabab);
+        return ResponseEntity.status(response.isHolat() ? 200 : 400).body(response);
+    }
+
 }

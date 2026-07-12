@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Shartnomalar</title>
+    <title>Undirish</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
     <link rel="icon" type="image/png" href="/images/888.png">
     <style>
@@ -57,7 +57,6 @@
         .dropdown-divider { border-color: var(--color-divider); margin: 4px 0; }
         .navbar-toggler { border-color: rgba(255,255,255,0.3); }
         .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
-        .nav-badge { font-size: 10px; background: #ff6b6b; color: #fff; border-radius: 10px; padding: 1px 6px; margin-left: 4px; font-weight: 600; }
         .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
         .theme-toggle:hover { background: rgba(255,255,255,0.25); }
 
@@ -66,18 +65,13 @@
         [data-theme="dark"] .stat-card { box-shadow: 0 2px 14px rgba(0,0,0,0.2); }
         .stat-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
         .stat-icon.blue   { background: #dbeeff; color: #1a6fa8; }
-        .stat-icon.green  { background: #d8f5e8; color: #1a9a5a; }
         .stat-icon.orange { background: #fff0dc; color: #c87800; }
         .stat-icon.red    { background: #fde8e8; color: #c0392b; }
         [data-theme="dark"] .stat-icon.blue   { background: #1a3a5c; color: #6ab8e8; }
-        [data-theme="dark"] .stat-icon.green  { background: #1a3a2a; color: #4dc886; }
         [data-theme="dark"] .stat-icon.orange { background: #3a2e18; color: #f0a830; }
         [data-theme="dark"] .stat-icon.red    { background: #3a1a1a; color: #e07070; }
         .stat-value { font-size: 26px; font-weight: 700; line-height: 1; color: var(--color-text); }
         .stat-label { font-size: 12px; color: var(--color-sub); margin-top: 3px; }
-
-        .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1a6fa8; margin-bottom: 14px; }
-        [data-theme="dark"] .section-title { color: #5ab4dc; }
 
         .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(26,111,168,0.07); }
         [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
@@ -93,9 +87,6 @@
         .search-box input:focus { border-color:#1a6fa8; box-shadow:0 0 0 3px rgba(26,111,168,0.12); }
         .search-box input::placeholder { color: var(--color-hint); }
         .search-box svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--color-sub); }
-        .filter-select { background:#f0f8ff; border:1px solid var(--color-border); border-radius:8px; padding:9px 12px; font-size:14px; color:var(--color-text); outline:none; }
-        [data-theme="dark"] .filter-select { background:#1a3048; }
-        .filter-select:focus { border-color:#1a6fa8; }
 
         /* Table */
         .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
@@ -116,12 +107,11 @@
 
         .badge-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-flex; align-items:center; gap:5px; white-space:nowrap; }
         .badge-status .dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; }
-        .badge-active   { background: #d8f5e8; color: #1a7a50; }
-        .badge-closed   { background: #e4e9ee; color: #5a6b7d; }
         .badge-overdue  { background: #fde8e8; color: #b03030; }
-        [data-theme="dark"] .badge-active   { background: #1a3a28; color: #4dc886; }
-        [data-theme="dark"] .badge-closed   { background: #28333d; color: #97a7b8; }
         [data-theme="dark"] .badge-overdue  { background: #3a1a1a; color: #e07070; }
+
+        .kun-badge { font-size:12px; font-weight:700; color:#b03030; }
+        [data-theme="dark"] .kun-badge { color:#e07070; }
 
         .action-link { font-size:12px; text-decoration:none; font-weight:600; margin-right:10px; cursor:pointer; }
         .action-link.view { color:#1a6fa8; }
@@ -154,8 +144,8 @@
     <!-- Header -->
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-            <p class="page-title">📄 Shartnomalar</p>
-            <p class="page-subtitle">Tizimdagi barcha shartnomalar ro'yxati</p>
+            <p class="page-title">📤 Undirish</p>
+            <p class="page-subtitle">Undiruvga topshirilgan shartnomalar ro'yxati</p>
         </div>
     </div>
 
@@ -171,20 +161,14 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.598 1.04a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
                 </svg>
-                <input type="text" id="searchInput" placeholder="Shartnoma raqami, F.I.Sh yoki telefon bo'yicha qidirish..." oninput="renderTable()">
+                <input type="text" id="searchInput" placeholder="Shartnoma raqami, F.I.Sh, telefon, tuman yoki sabab bo'yicha qidirish..." oninput="renderTable()">
             </div>
-            <select class="filter-select" id="statusFilter" onchange="renderTable()">
-                <option value="">Barcha holat</option>
-                <option value="Faol">Faol</option>
-                <option value="Yopilgan">Yopilgan</option>
-                <option value="Muddati o'tgan">Muddati o'tgan</option>
-            </select>
         </div>
 
         <!-- Loading -->
         <div class="loading-state" id="loadingState">
             <div class="spinner-border-custom"></div>
-            <p style="font-size:14px;">Shartnomalar yuklanmoqda...</p>
+            <p style="font-size:14px;">Yuklanmoqda...</p>
         </div>
 
         <!-- Table -->
@@ -192,11 +176,13 @@
             <table class="table-custom" id="contractTable">
                 <thead>
                 <tr>
-                    <th onclick="sortBy('id')">Shartnoma №<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('shartnomaId')">Shartnoma №<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('fish')">F.I.Sh<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('tel')">Tel<span class="sort-icon">↕</span></th>
-                    <th onclick="sortBy('muddat')">Muddat<span class="sort-icon">↕</span></th>
-                    <th onclick="sortBy('summa')">Summa<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('tuman')">Tuman<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('qolganQarz')">Qolgan qarz<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('muddatiOtganKun')">Muddati o'tgan<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('undiruvSababi')">Sababi<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('status')">Holat<span class="sort-icon">↕</span></th>
                     <th></th>
                 </tr>
@@ -207,7 +193,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5.5 1.5V5H13L9.5 1.5ZM4 7a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Zm0 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4ZM4 12a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H4Z"/>
                 </svg>
-                <p style="margin-top:8px;font-size:14px;">Shartnoma topilmadi</p>
+                <p style="margin-top:8px;font-size:14px;">Undiruvdagi shartnoma topilmadi</p>
             </div>
         </div>
 
@@ -234,7 +220,7 @@
         applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
-    // ── Model: backend Shartnoma entity (id, fish, muddat, summa, status) ──
+    // ── Model: backend QarzdorlarDto (mijozId, ism, familiya, tel1, tel2, tel3, shartnomaId, qolganQarz, keyingiTolovSana, muddatiOtganKun, status, tuman, undiruvSababi) ──
     const AVATAR_COLORS = [
         {bg:'#dbeeff', c:'#1a6fa8'}, {bg:'#d8f5e8', c:'#1a7a50'}, {bg:'#fff0dc', c:'#b07000'},
         {bg:'#e8ddfb', c:'#6b3fc8'}, {bg:'#ffe4ef', c:'#c8447a'}, {bg:'#dcf7f0', c:'#0f9b8e'}
@@ -248,29 +234,31 @@
     function fmtSumma(n){
         return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
     }
-
-    function badgeInfo(status){
-        if(status === 'ochiq')   return { cls:'badge-active',  label:'Faol' };
-        if(status === 'yopilgan') return { cls:'badge-closed', label:'Yopilgan' };
-        if(status === 'undiruv') return { cls:'badge-overdue', label:'Undiruvda' };
-        if(status === "Muddati o'tgan") return { cls:'badge-overdue', label:"Muddati o'tgan" };
-        return { cls:'badge-closed', label: status || '—' };
+    function fmtSana(s){
+        if(!s) return '—';
+        const d = new Date(s);
+        if(isNaN(d.getTime())) return s;
+        return d.toLocaleDateString('uz-UZ');
     }
 
-    let contracts = [];
-    let sortCol = 'id', sortDir = 1, page = 1;
+    let rows = [];
+    let sortCol = 'muddatiOtganKun', sortDir = -1, page = 1;
     const PER_PAGE = 10;
 
-    // ── Load from backend: GET /admin/shartnoma-all ──
+    // ── Load from backend: GET /admin/get-qarzdorlar?filter=undiruv ──
     function loadContracts(){
         document.getElementById('loadingState').style.display = 'block';
         document.getElementById('tableWrap').style.display = 'none';
         document.getElementById('paginationRow').style.display = 'none';
 
-        fetch('/admin/shartnoma-all')
+        fetch('/admin/get-qarzdorlar?filter=undiruv')
             .then(res => res.json())
             .then(data => {
-                contracts = Array.isArray(data) ? data : [];
+                rows = (Array.isArray(data) ? data : []).map(r => ({
+                    ...r,
+                    fish: [r.familiya, r.ism].filter(Boolean).join(' '),
+                    tel: r.tel1 || r.tel2 || r.tel3 || ''
+                }));
                 renderStats();
                 renderTable();
                 document.getElementById('tableWrap').style.display = 'block';
@@ -278,7 +266,7 @@
             })
             .catch(err => {
                 console.error(err);
-                contracts = [];
+                rows = [];
                 renderStats();
             })
             .finally(() => {
@@ -288,43 +276,34 @@
 
     // ── Stats ──
     function renderStats(){
-        const total = contracts.length;
-        const active = contracts.filter(c => c.status === 'Faol').length;
-        const closed = contracts.filter(c => c.status === 'Yopilgan').length;
-        const overdue = contracts.filter(c => c.status === "Muddati o'tgan").length;
-        const totalSumma = contracts.reduce((s,c) => s + (Number(c.summa)||0), 0);
+        const total = rows.length;
+        const jamiQarz = rows.reduce((s,c) => s + (Number(c.qolganQarz)||0), 0);
+        const eskiSoni = rows.filter(c => (Number(c.muddatiOtganKun)||0) > 30).length;
+        const ortachaKun = total ? Math.round(rows.reduce((s,c)=>s+(Number(c.muddatiOtganKun)||0),0) / total) : 0;
 
         document.getElementById('statsRow').innerHTML = `
-            <div class="col-sm-6 col-xl-3">
-              <div class="stat-card">
-                <div class="stat-icon blue">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5.5 1.5V5H13L9.5 1.5ZM4 7a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Zm0 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4ZM4 12a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H4Z"/></svg>
-                </div>
-                <div><div class="stat-value">${total}</div><div class="stat-label">Jami shartnomalar</div></div>
-              </div>
-            </div>
-            <div class="col-sm-6 col-xl-3">
-              <div class="stat-card">
-                <div class="stat-icon green">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>
-                </div>
-                <div><div class="stat-value">${active}</div><div class="stat-label">Faol</div></div>
-              </div>
-            </div>
-            <div class="col-sm-6 col-xl-3">
-              <div class="stat-card">
-                <div class="stat-icon red">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
-                </div>
-                <div><div class="stat-value">${overdue}</div><div class="stat-label">Muddati o'tgan</div></div>
-              </div>
-            </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col-sm-6 col-xl-4">
               <div class="stat-card">
                 <div class="stat-icon orange">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4Zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05Zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.838 1.823-2.231 1.974V8.71l.379.107Z"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.891 0 1.439-.99.982-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
                 </div>
-                <div><div class="stat-value">${fmtSumma(totalSumma)}</div><div class="stat-label">Jami summa</div></div>
+                <div><div class="stat-value">${total}</div><div class="stat-label">Undiruvdagi shartnomalar</div></div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-4">
+              <div class="stat-card">
+                <div class="stat-icon red">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0ZM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
+                </div>
+                <div><div class="stat-value">${fmtSumma(jamiQarz)}</div><div class="stat-label">Jami qolgan qarz</div></div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-4">
+              <div class="stat-card">
+                <div class="stat-icon blue">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8.5 4.5a.5.5 0 0 0-1 0v3.793L5.354 6.146a.5.5 0 1 0-.708.708l2.5 2.5a.5.5 0 0 0 .708 0l2.5-2.5a.5.5 0 0 0-.708-.708L8.5 8.293V4.5z"/><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5.5 1.5V5H13L9.5 1.5ZM4 7a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Zm0 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Z"/></svg>
+                </div>
+                <div><div class="stat-value">${ortachaKun} kun</div><div class="stat-label">O'rtacha muddati o'tgan (${eskiSoni} ta 30+ kun)</div></div>
               </div>
             </div>
         `;
@@ -333,13 +312,12 @@
     // ── Filter + sort ──
     function getFiltered(){
         const q = document.getElementById('searchInput').value.toLowerCase();
-        const st = document.getElementById('statusFilter').value;
-        return contracts.filter(c => {
-            const blob = `${c.id||''} ${c.fish||''} ${c.tel||''}`.toLowerCase();   // ← tel qo'shildi
-            return (!q || blob.includes(q)) && (!st || c.status === st);
+        return rows.filter(c => {
+            const blob = `${c.shartnomaId||''} ${c.fish||''} ${c.tel||''} ${c.tuman||''} ${c.undiruvSababi||''}`.toLowerCase();
+            return !q || blob.includes(q);
         }).sort((a,b) => {
             let va = a[sortCol], vb = b[sortCol];
-            if(sortCol === 'id' || sortCol === 'muddat' || sortCol === 'summa'){
+            if(['shartnomaId','muddatiOtganKun','qolganQarz'].includes(sortCol)){
                 va = Number(va)||0; vb = Number(vb)||0;
             } else {
                 va = (va||'').toString(); vb = (vb||'').toString();
@@ -360,7 +338,7 @@
         if(page > pages) page = 1;
         const slice = data.slice((page-1)*PER_PAGE, page*PER_PAGE);
 
-        const cols = ['id','fish','tel','muddat','summa','status'];   // ← 'tel' qo'shildi
+        const cols = ['shartnomaId','fish','tel','tuman','qolganQarz','muddatiOtganKun','undiruvSababi','status'];
         document.querySelectorAll('.table-custom thead th').forEach((th,i)=>{
             const sp = th.querySelector('.sort-icon');
             if(!sp) return;
@@ -375,11 +353,10 @@
         } else {
             empty.style.display = 'none';
             tbody.innerHTML = slice.map(c => {
-                const ac = rndColor(c.id);
-                const b = badgeInfo(c.status);
+                const ac = rndColor(c.shartnomaId);
                 return `
                 <tr>
-                    <td><span class="contract-no">№${c.id}</span></td>
+                    <td><span class="contract-no">№${c.shartnomaId}</span></td>
                     <td>
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm" style="background:${ac.bg};color:${ac.c}">${initialsOf(c.fish)}</div>
@@ -387,11 +364,13 @@
                         </div>
                     </td>
                     <td>${c.tel ? c.tel : '-'}</td>
-                    <td>${c.muddat ? c.muddat + ' oy' : '—'}</td>
-                    <td>${fmtSumma(c.summa)}</td>
-                    <td><span class="badge-status ${b.cls}"><span class="dot"></span>${b.label}</span></td>
+                    <td>${c.tuman ? c.tuman : '—'}</td>
+                    <td>${fmtSumma(c.qolganQarz)}</td>
+                    <td><span class="kun-badge">${c.muddatiOtganKun ? c.muddatiOtganKun + ' kun' : '—'}</span></td>
+                    <td>${c.undiruvSababi ? c.undiruvSababi : '—'}</td>
+                    <td><span class="badge-status badge-overdue"><span class="dot"></span>Undiruvda</span></td>
                     <td style="white-space:nowrap;">
-                        <a class="action-link view" href="/admin/shartnoma-detail?id=${c.id}">Batafsil</a>
+                        <a class="action-link view" href="/admin/shartnoma-detail?id=${c.shartnomaId}">Batafsil</a>
                     </td>
                 </tr>`;
             }).join('');
