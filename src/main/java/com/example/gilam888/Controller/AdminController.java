@@ -268,13 +268,13 @@ public class AdminController {
         return s != null ? s : "";
     }
 
-    @PreAuthorize("hasRole('owner')")
+//    @PreAuthorize("hasRole('owner')")
     @GetMapping("/kassa")
     public String kassa(){
         return "Admin/kassa";
     }
 
-    @PreAuthorize("hasRole('owner')")
+//    @PreAuthorize("hasRole('owner')")
     @GetMapping("/get-today-payment")
     public ResponseEntity<?> getTodayPay(){
         return ResponseEntity.ok(adminService.getTodayPayment());
@@ -336,7 +336,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllSumma());
     }
 
-    @PreAuthorize("hasRole('owner')")
+//    @PreAuthorize("hasRole('owner')")
     @GetMapping("/get-kassa-stat")
     public ResponseEntity<?> getKassaStat(@RequestParam(defaultValue = "bugun") String period, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime boshi,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime oxiri) {

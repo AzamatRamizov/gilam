@@ -322,12 +322,15 @@
         <div class="mb-3">
             <label class="form-label">To'lov summasi <span class="required-star">*</span></label>
             <div class="input-group">
-                <input type="number" id="pay_summa" class="form-control" placeholder="0" min="1" step="1000">
+                <input type="number" id="pay_summa" class="form-control" placeholder="0" step="1000">
                 <span class="input-group-text">so'm</span>
             </div>
             <div style="font-size:12px;color:var(--color-sub);margin-top:4px;">
-                Summa avtomatik ravishda eng eski to'lanmagan jadval(lar)ga taqsimlanadi.
+                Summa avtomatik ravishda eng eski to'lanmagan jadval(lar)ga taqsimlanadi. Manfiy son kiritsangiz (masalan -500000), to'lov shunga mos ayiriladi (bekor qilinadi).
             </div>
+            <button type="button" class="btn-cancel-form" id="closeOneMonthBtn" style="margin-top:8px;font-size:13px;padding:6px 12px;" onclick="fillOneMonthAmount()">
+                &#128197; 1 oylikni yopib yuborish
+            </button>
         </div>
 <!--        <div class="mb-3">-->
 <!--            <label class="form-label">To'lov sanasi <span class="required-star">*</span></label>-->

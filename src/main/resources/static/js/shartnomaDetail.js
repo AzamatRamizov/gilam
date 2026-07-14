@@ -586,6 +586,21 @@ function openPayModal() {
     document.getElementById('payModal').classList.add('show');
     setTimeout(function(){document.getElementById('pay_summa').focus();},120);
 }
+// Eng yaqin (eng eski) to'lanmagan oyni topib, uni yopish uchun kerak bo'lgan
+// summani "To'lov summasi" maydoniga qo'yadi.
+function fillOneMonthAmount() {
+    const grafik = _currentGrafik || [];
+    const engYaqinOy = grafik.find(function(g) { return g.holat === 'tulanmagan'; });
+    if (!engYaqinOy) {
+        const msg = document.getElementById('payFormMsg');
+        msg.className = 'form-msg error show';
+        msg.textContent = "Yopilishi kerak bo'lgan oy topilmadi.";
+        return;
+    }
+    const kerak = (Number(engYaqinOy.summa) || 0) - (Number(engYaqinOy.tulangan) || 0);
+    document.getElementById('pay_summa').value = kerak > 0 ? kerak : '';
+    document.getElementById('pay_summa').focus();
+}
 function selectTuri(btn) {
     document.querySelectorAll('.pay-type-btn').forEach(function(b){b.classList.remove('selected');});
     btn.classList.add('selected');
@@ -648,7 +663,7 @@ function submitPayment() {
     const btn = document.getElementById('paySaveBtn');
     msg.className = 'form-msg'; msg.textContent = '';
 
-    if (!summaInput || summaInput <= 0) { msg.className = 'form-msg error show'; msg.textContent = "To'lov summasini to'g'ri kiriting."; return; }
+    if (!summaInput) { msg.className = 'form-msg error show'; msg.textContent = "To'lov summasini to'g'ri kiriting."; return; }
     // if (!sanaVal)  { msg.className = 'form-msg error show'; msg.textContent = "To'lov sanasini kiriting."; return; }
     if (!dokonId)  { msg.className = 'form-msg error show'; msg.textContent = "Do'konni tanlang."; return; }
     if (!turi)     { msg.className = 'form-msg error show'; msg.textContent = "To'lov turini tanlang."; return; }

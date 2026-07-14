@@ -385,7 +385,7 @@ public class AdminService {
     @Transactional
     public ApiResponse tulovShartnoma(Long shartnomaId, long summa, String turi, Long dokonId) {
         LocalDateTime now = LocalDateTime.now();
-        if (summa <= 0) {
+        if (summa == 0) {
             return new ApiResponse("To'lov summasi noto'g'ri", false);
         }
 
@@ -400,6 +400,15 @@ public class AdminService {
             return new ApiResponse("Bu shartnomada to'lov jadvali mavjud emas", false);
         }
 
+        if (summa > 0) {
+            return tulovQoshish(shartnoma, jadvalList, summa, turi, dokonId, now);
+        } else {
+            return tulovAyirish(shartnoma, jadvalList, -summa, turi, dokonId, now);
+        }
+    }
+
+    // Musbat to'lov — eng eski sanadan boshlab FIFO tartibida to'lanmagan jadvallarga taqsimlanadi
+    private ApiResponse tulovQoshish(Shartnoma shartnoma, List<Jadval> jadvalList, long summa, String turi, Long dokonId, LocalDateTime now) {
         // Eng eski sanadan boshlab tartiblaymiz — FIFO
         List<Jadval> tartiblangan = jadvalList.stream()
                 .sorted(Comparator.comparing(Jadval::getSana))
@@ -447,7 +456,7 @@ public class AdminService {
 
         // ── Bitta umumiy to'lov tarixi yozuvi ──
         PaymentHistory paymentHistory = new PaymentHistory();
-        paymentHistory.setShartnomaId(shartnomaId);
+        paymentHistory.setShartnomaId(shartnoma.getId());
         paymentHistory.setJadvalId(birinchiTegilganJadvalId);
         paymentHistory.setSumma(qabulQilingan);
         paymentHistory.setSana(now);
@@ -463,6 +472,73 @@ public class AdminService {
             );
         }
         return new ApiResponse("Muvaffaqiyatli to'lov qilindi", true);
+    }
+
+    // Manfiy to'lov (ayirish/bekor qilish) — eng so'nggi sanadan boshlab orqaga qarab,
+    // to'langan jadvallardan xuddi to'lov algoritmi kabi (bitta oy yetmasa keyingisidan olib) ayiriladi
+    private ApiResponse tulovAyirish(Shartnoma shartnoma, List<Jadval> jadvalList, long ayiriladiganSumma, String turi, Long dokonId, LocalDateTime now) {
+        // Eng so'nggi sanadan boshlab tartiblaymiz — orqaga qarab (LIFO)
+        List<Jadval> tartiblangan = jadvalList.stream()
+                .sorted(Comparator.comparing(Jadval::getSana).reversed())
+                .toList();
+
+        long qoldiq = ayiriladiganSumma;
+        Long birinchiTegilganJadvalId = null;
+
+        for (Jadval jadval : tartiblangan) {
+            if (qoldiq <= 0) break;
+
+            long jadvalTulangan = jadval.getTulangan();
+            if (jadvalTulangan <= 0) continue;
+
+            long ayriladigan = Math.min(qoldiq, jadvalTulangan);
+
+            jadval.setTulangan(jadvalTulangan - ayriladigan);
+            jadval.setTulovSana(now);
+            jadval.setTuri(turi);
+            jadval.setDokonId(dokonId.toString());
+            if (jadval.getTulangan() < jadval.getSumma()) {
+                jadval.setHolat("tulanmagan");
+            }
+            jadvalRepository.save(jadval);
+
+            if (birinchiTegilganJadvalId == null) {
+                birinchiTegilganJadvalId = jadval.getId();
+            }
+
+            qoldiq -= ayriladigan;
+        }
+
+        long ayirilganSumma = ayiriladiganSumma - qoldiq;
+        if (ayirilganSumma <= 0) {
+            return new ApiResponse("Ayirish uchun to'langan mablag' topilmadi", false);
+        }
+
+        // ── Shartnoma "yopilgan" bo'lsa va endi to'liq to'lanmagan bo'lsa — qayta ochamiz ──
+        boolean hammasiTulangan = tartiblangan.stream().allMatch(j -> "tulangan".equals(j.getHolat()));
+        if (!hammasiTulangan && "yopilgan".equals(shartnoma.getStatus())) {
+            shartnoma.setStatus("ochiq");
+            shartnomaRepository.save(shartnoma);
+        }
+
+        // ── Bitta umumiy to'lov tarixi yozuvi (manfiy summa bilan) ──
+        PaymentHistory paymentHistory = new PaymentHistory();
+        paymentHistory.setShartnomaId(shartnoma.getId());
+        paymentHistory.setJadvalId(birinchiTegilganJadvalId);
+        paymentHistory.setSumma(-ayirilganSumma);
+        paymentHistory.setSana(now);
+        paymentHistory.setTuri(turi);
+        paymentHistory.setDokonId(dokonId);
+        paymentHistory.setCreatedTime(now);
+        paymentRepository.save(paymentHistory);
+
+        if (qoldiq > 0) {
+            return new ApiResponse(
+                    "Ayirish saqlandi. Diqqat: " + qoldiq + " so'm ayirib bo'lmadi (to'langan mablag' yetarli emas).",
+                    true
+            );
+        }
+        return new ApiResponse("To'lov muvaffaqiyatli ayirildi", true);
     }
 
     public Object getTodayPayment() {
