@@ -32,6 +32,7 @@ public class QongiroqService {
     private final MijozRepository mijozRepository;
     private final QongiroqAudioRepository qongiroqAudioRepository;
     private final ShartnomaRepository shartnomaRepository;
+    private final AmalService amalService;
 
     public ApiResponse addQongiroq(QongiroqSaveDto dto, MultipartFile audio, String operator) {
         if (dto.getMijozId() == null) {
@@ -69,6 +70,12 @@ public class QongiroqService {
             }
         }
 
+        amalService.log("QONGIROQ",
+                "Qo'ng'iroq natijasi kiritildi: " + (mijoz.getFamiliya() != null ? mijoz.getFamiliya() + " " : "") + (mijoz.getIsm() != null ? mijoz.getIsm() : "")
+                        + " — " + dto.getNatija()
+                        + (dto.getVadaSana() != null ? " (va'da: " + dto.getVadaSana() + ")" : "")
+                        + (dto.getIzoh() != null && !dto.getIzoh().isBlank() ? ". Izoh: " + dto.getIzoh() : ""),
+                mijoz.getId(), null, null);
         return new ApiResponse("Qo'ng'iroq natijasi saqlandi", true);
     }
 

@@ -56,10 +56,10 @@ public class Gilam888TelegramBot implements SpringLongPollingBot, LongPollingSin
     private String guruhlarConfig;
 
     public Gilam888TelegramBot(TelegramClient telegramClient,
-                               TelegramFoydalanuvchiRepository telegramFoydalanuvchiRepository,
-                               ShartnomaRepository shartnomaRepository,
-                               MijozRepository mijozRepository,
-                               TelegramXabarService telegramXabarService) {
+                                TelegramFoydalanuvchiRepository telegramFoydalanuvchiRepository,
+                                ShartnomaRepository shartnomaRepository,
+                                MijozRepository mijozRepository,
+                                TelegramXabarService telegramXabarService) {
         this.telegramClient = telegramClient;
         this.telegramFoydalanuvchiRepository = telegramFoydalanuvchiRepository;
         this.shartnomaRepository = shartnomaRepository;

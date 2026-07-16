@@ -32,8 +32,9 @@ public class AdminService {
     private final JadvalRepository jadvalRepository;
     private final PaymentRepository paymentRepository;
     private final TelegramXabarService telegramXabarService;
+    private final AmalService amalService;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository, TelegramXabarService telegramXabarService) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository, TelegramXabarService telegramXabarService, AmalService amalService) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
@@ -44,6 +45,7 @@ public class AdminService {
         this.jadvalRepository = jadvalRepository;
         this.paymentRepository = paymentRepository;
         this.telegramXabarService = telegramXabarService;
+        this.amalService = amalService;
     }
 
     public ApiResponse addHodim(Users user) {
@@ -59,11 +61,14 @@ public class AdminService {
         users.setTel(user.getTel());
         users.setIzoh(user.getIzoh());
         usersRepository.save(users);
+        amalService.log("HODIM", "Yangi hodim qo'shildi: " + users.getFish() + " (" + users.getUsername() + ")");
         return new ApiResponse("Hodim qo'shildi",true);
     }
 
     public ApiResponse deleteHodim(Long id) {
+        String fish = usersRepository.findById(id).map(Users::getFish).orElse("#" + id);
         usersRepository.deleteById(id);
+        amalService.log("HODIM", "Hodim o'chirildi: " + fish);
         return new ApiResponse("Hodim o'chirildi",true);
     }
 
@@ -79,6 +84,7 @@ public class AdminService {
                 users.setPassword(passwordEncoder.encode(user.getPassword()));
             }
             usersRepository.save(users);
+            amalService.log("HODIM", "Hodim tahrirlandi: " + users.getFish() + " (" + users.getUsername() + ")");
             return new ApiResponse("Hodim o'zgartirildi",true);
         }
         return new ApiResponse("Hodim topilmadi",false);
@@ -168,6 +174,11 @@ public class AdminService {
 
         shartnomaRepository.save(shartnoma);
         telegramXabarService.yangiShartnomaXabarYuborish(shartnoma);
+
+        amalService.log("MIJOZ_QOSHISH",
+                "Yangi mijoz va shartnoma qo'shildi: " + mijozIsmi(mijozSave)
+                        + (shartnoma.getMahsulot() != null ? ", mahsulot: " + shartnoma.getMahsulot() : ""),
+                mijozSave.getId(), shartnoma.getId(), shartnoma.getSumma());
 
 //        ------------------------------------
 
@@ -269,6 +280,10 @@ public class AdminService {
         s.setJoylashuv(dto.getLokatsiya());
         shartnomaRepository.save(s);
 
+        amalService.log("SHARTNOMA_TAHRIR",
+                "Shartnoma #" + s.getId() + " mahsulot ma'lumotlari tahrirlandi: " + dto.getNomi(),
+                s.getMijoz() != null ? s.getMijoz().getId() : null, s.getId(), null);
+
         return shartnomaDetail(s.getId());
     }
 
@@ -288,6 +303,7 @@ public class AdminService {
         magazin1.setManzil(magazin.getManzil());
         magazin1.setNomi(magazin.getNomi());
         magazinRepository.save(magazin1);
+        amalService.log("DOKON", "Yangi do'kon qo'shildi: " + magazin1.getNomi());
         return new ApiResponse("Magazin qo'shildi",true);
     }
 
@@ -404,9 +420,21 @@ public class AdminService {
         }
 
         if (summa > 0) {
-            return tulovQoshish(shartnoma, jadvalList, summa, turi, dokonId, now);
+            ApiResponse natija = tulovQoshish(shartnoma, jadvalList, summa, turi, dokonId, now);
+            if (natija.isHolat()) {
+                amalService.log("TOLOV",
+                        "To'lov qabul qilindi: " + mijozIsmi(shartnoma.getMijoz()) + ", shartnoma #" + shartnoma.getId() + " (" + turi + ")",
+                        shartnoma.getMijoz() != null ? shartnoma.getMijoz().getId() : null, shartnoma.getId(), summa);
+            }
+            return natija;
         } else {
-            return tulovAyirish(shartnoma, jadvalList, -summa, turi, dokonId, now);
+            ApiResponse natija = tulovAyirish(shartnoma, jadvalList, -summa, turi, dokonId, now);
+            if (natija.isHolat()) {
+                amalService.log("TOLOV_AYIRISH",
+                        "To'lov qaytarildi/ayirildi: " + mijozIsmi(shartnoma.getMijoz()) + ", shartnoma #" + shartnoma.getId() + " (" + turi + ")",
+                        shartnoma.getMijoz() != null ? shartnoma.getMijoz().getId() : null, shartnoma.getId(), summa);
+            }
+            return natija;
         }
     }
 
@@ -618,6 +646,10 @@ public class AdminService {
 
         shartnomaRepository.save(shartnoma);
         telegramXabarService.yangiShartnomaXabarYuborish(shartnoma);
+        amalService.log("SHARTNOMA_QOSHISH",
+                "Yangi shartnoma yaratildi: " + mijozIsmi(shartnoma.getMijoz())
+                        + (shartnoma.getMahsulot() != null ? ", mahsulot: " + shartnoma.getMahsulot() : ""),
+                shartnoma.getMijoz() != null ? shartnoma.getMijoz().getId() : null, shartnoma.getId(), shartnoma.getSumma());
         return new ApiResponse("Shartnoma yaratildi",true);
     }
     public List<OverdueDebtDto> getOverdueDebts() {
@@ -768,6 +800,7 @@ public class AdminService {
         }
 
         mijozRepository.save(mijoz1);
+        amalService.log("MIJOZ_TAHRIR", "Mijoz ma'lumotlari tahrirlandi: " + mijozIsmi(mijoz1), mijoz1.getId(), null, null);
         return new ApiResponse("Mijoz o'zgartirildi", true);
     }
 
@@ -786,6 +819,7 @@ public class AdminService {
         }
 
         shartnomaRepository.save(shartnoma);
+        amalService.log("SHARTNOMA_TAHRIR", "Shartnoma #" + shartnomaId + " kafolat rasmlari yangilandi", null, shartnomaId, null);
         return new ApiResponse("Kafolat xati yangilandi", true);
     }
 
@@ -832,7 +866,12 @@ public class AdminService {
         }
 
         // 3) Shartnomaning o'zini o'chirish
+        Long mijozIdSaqla = shartnoma.getMijoz() != null ? shartnoma.getMijoz().getId() : null;
+        String mijozNomi = mijozIsmi(shartnoma.getMijoz());
         shartnomaRepository.delete(shartnoma);
+
+        amalService.log("SHARTNOMA_OCHIRISH",
+                "Shartnoma #" + id + " o'chirildi (mijoz: " + mijozNomi + ")", mijozIdSaqla, id, null);
 
         return new ApiResponse("Shartnoma muvaffaqiyatli o'chirildi", true);
     }
@@ -993,6 +1032,19 @@ public class AdminService {
         shartnoma.setUndiruvSababi(sabab);
         shartnoma.setUndiruvVaqti(LocalDateTime.now());
         shartnomaRepository.save(shartnoma);
+        amalService.log("UNDIRUV",
+                "Shartnoma #" + shartnomaId + " undiruvga topshirildi (mijoz: " + mijozIsmi(shartnoma.getMijoz()) + "). Sabab: " + sabab,
+                shartnoma.getMijoz() != null ? shartnoma.getMijoz().getId() : null, shartnomaId, null);
         return new ApiResponse("Shartnoma undiruvga topshirildi", true);
+    }
+
+    // Amallar tarixidagi tavsiflar uchun mijoz ismini xavfsiz shakllantiradi
+    private String mijozIsmi(Mijoz mijoz) {
+        if (mijoz == null) return "noma'lum mijoz";
+        StringBuilder sb = new StringBuilder();
+        if (mijoz.getFamiliya() != null) sb.append(mijoz.getFamiliya()).append(" ");
+        if (mijoz.getIsm() != null) sb.append(mijoz.getIsm());
+        String natija = sb.toString().trim();
+        return natija.isEmpty() ? ("mijoz #" + mijoz.getId()) : natija;
     }
 }

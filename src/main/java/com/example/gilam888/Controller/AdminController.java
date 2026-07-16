@@ -6,6 +6,7 @@ import com.example.gilam888.Dto.*;
 import com.example.gilam888.Entity.*;
 import com.example.gilam888.Repository.*;
 import com.example.gilam888.Service.AdminService;
+import com.example.gilam888.Service.AmalService;
 import com.example.gilam888.Service.KassaService;
 import com.example.gilam888.Service.QongiroqService;
 import com.example.gilam888.Service.UserService;
@@ -41,9 +42,10 @@ public class AdminController {
     private final ShartnomaRepository shartnomaRepository;
     private final KassaService kassaService;
     private final QongiroqService qongiroqService;
+    private final AmalService amalService;
     private final TokenGenerator tokenGenerator;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -54,6 +56,7 @@ public class AdminController {
         this.kassaService = kassaService;
         this.qongiroqService = qongiroqService;
         this.tokenGenerator = tokenGenerator;
+        this.amalService = amalService;
     }
 
     //    @PreAuthorize("hasRole('owner')")
@@ -331,6 +334,32 @@ public class AdminController {
     @GetMapping("/call-markaz")
     public String callMarkaz(){
         return "call-markaz";
+    }
+
+    // ─────────── SO'NGI AMALLAR (audit log) ───────────
+
+    @GetMapping("/amallar")
+    public String amallarPage() {
+        return "Admin/amallar";
+    }
+
+    @GetMapping("/get-amallar")
+    public ResponseEntity<?> getAmallar(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String amalTuri,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sana,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate boshi,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate oxiri,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(defaultValue = "vaqt") String sort,
+            @RequestParam(defaultValue = "desc") String dir) {
+        return ResponseEntity.ok(amalService.getAmallar(userId, amalTuri, sana, boshi, oxiri, page, size, sort, dir));
+    }
+
+    @GetMapping("/get-amal-userlar")
+    public ResponseEntity<?> getAmalUserlar() {
+        return ResponseEntity.ok(amalService.getAmalUserlar());
     }
 
     @GetMapping("/undirish")

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>So'ngi amallar</title>
+  <link rel="icon" type="image/png" href="/images/888.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <style>
+    :root {
+      --bg-body:#dceef8; --bg-card:#ffffff; --color-text:#1a3a52; --color-sub:#5a8fa8;
+      --color-border:#b3d6ee; --color-divider:#d0e9f5; --color-card-bdr:#c5dff0;
+      --color-hint:#90b8cc; --bg-input:#f5fafd; --bg-input-grp:#daeef9; --transition:0.25s ease;
+    }
+    [data-theme="dark"] {
+      --bg-body:#0f1e2b; --bg-card:#162534; --color-text:#d0e8f5; --color-sub:#5a8fa8;
+      --color-border:#2a4f6a; --color-divider:#1e3d55; --color-card-bdr:#1e3d55;
+      --color-hint:#4a7a94; --bg-input:#1c2f40; --bg-input-grp:#1a3048;
+    }
+    *{box-sizing:border-box;transition:background-color var(--transition),color var(--transition),border-color var(--transition);}
+    body{background-color:var(--bg-body);font-family:'Segoe UI',sans-serif;color:var(--color-text);min-height:100vh;}
+
+    .navbar{background:#1a6fa8!important;box-shadow:0 2px 10px rgba(26,111,168,0.3);padding:0;}
+    [data-theme="dark"] .navbar{background:#0e3f60!important;}
+    .navbar-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:#fff!important;}
+    .navbar-brand .logo-icon{width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+    .navbar-brand span{color:#a8dcf5;}
+    .navbar-nav .nav-link{color:rgba(255,255,255,0.88)!important;font-size:14px;font-weight:500;padding:20px 14px!important;border-bottom:2px solid transparent;}
+    .navbar-nav .nav-link:hover,.navbar-nav .nav-link.active{color:#fff!important;border-bottom-color:rgba(255,255,255,0.6);}
+    .theme-toggle{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;padding:5px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;margin-left:10px;}
+    .theme-toggle:hover{background:rgba(255,255,255,0.25);}
+
+    .main-card{background:var(--bg-card);border:1px solid var(--color-card-bdr);border-radius:12px;padding:1.5rem;box-shadow:0 2px 12px rgba(26,111,168,0.07);}
+    [data-theme="dark"] .main-card{box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a6fa8;margin-bottom:12px;}
+    [data-theme="dark"] .section-title{color:#5ab4dc;}
+
+    .form-select,.form-control{background:var(--bg-input);border:1px solid var(--color-border);color:var(--color-text);font-size:13px;}
+    .form-select:focus,.form-control:focus{background:var(--bg-input);color:var(--color-text);border-color:#1a6fa8;box-shadow:0 0 0 0.15rem rgba(26,111,168,0.15);}
+    .form-label{font-size:12px;font-weight:600;color:var(--color-sub);margin-bottom:4px;}
+
+    .table{color:var(--color-text);font-size:13px;margin-bottom:0;}
+    .table thead th{background:var(--bg-input-grp);color:var(--color-text);font-size:12px;text-transform:uppercase;letter-spacing:0.03em;border-color:var(--color-divider);white-space:nowrap;cursor:pointer;user-select:none;}
+    .table thead th.no-sort{cursor:default;}
+    .table td{border-color:var(--color-divider);vertical-align:middle;background:transparent;color:var(--color-text);}
+    .table tbody tr:hover td{background:var(--bg-input);}
+    .sort-arrow{font-size:10px;margin-left:3px;opacity:0.7;}
+
+    .amal-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .b-QONGIROQ{background:#e3f2fd;color:#1565c0;} [data-theme="dark"] .b-QONGIROQ{background:#12344f;color:#7cc0ee;}
+    .b-TOLOV{background:#e8f5e9;color:#2e7d32;} [data-theme="dark"] .b-TOLOV{background:#12391c;color:#7fd28c;}
+    .b-TOLOV_AYIRISH{background:#fdecea;color:#c62828;} [data-theme="dark"] .b-TOLOV_AYIRISH{background:#4a1614;color:#f19d99;}
+    .b-MIJOZ_QOSHISH{background:#f3e5f5;color:#7b1fa2;} [data-theme="dark"] .b-MIJOZ_QOSHISH{background:#3a1a44;color:#d6a3e8;}
+    .b-MIJOZ_TAHRIR{background:#ede7f6;color:#5e35b1;} [data-theme="dark"] .b-MIJOZ_TAHRIR{background:#2a2050;color:#b9a5ec;}
+    .b-SHARTNOMA_QOSHISH{background:#e0f2f1;color:#00695c;} [data-theme="dark"] .b-SHARTNOMA_QOSHISH{background:#0d3330;color:#7ad0c6;}
+    .b-SHARTNOMA_TAHRIR{background:#fff8e1;color:#b28704;} [data-theme="dark"] .b-SHARTNOMA_TAHRIR{background:#3d3410;color:#e8cc6a;}
+    .b-SHARTNOMA_OCHIRISH{background:#fdecea;color:#c62828;} [data-theme="dark"] .b-SHARTNOMA_OCHIRISH{background:#4a1614;color:#f19d99;}
+    .b-UNDIRUV{background:#ffe0e6;color:#ad1457;} [data-theme="dark"] .b-UNDIRUV{background:#471525;color:#ef9ab8;}
+    .b-HODIM{background:#e8eaf6;color:#3949ab;} [data-theme="dark"] .b-HODIM{background:#1c2350;color:#a4b0ee;}
+    .b-DOKON{background:#efebe9;color:#5d4037;} [data-theme="dark"] .b-DOKON{background:#332622;color:#c9a696;}
+
+    .summa-plus{color:#2e7d32;font-weight:700;} [data-theme="dark"] .summa-plus{color:#7fd28c;}
+    .summa-minus{color:#c62828;font-weight:700;} [data-theme="dark"] .summa-minus{color:#f19d99;}
+    .mijoz-link{color:#1a6fa8;text-decoration:none;font-weight:600;}
+    .mijoz-link:hover{text-decoration:underline;}
+    [data-theme="dark"] .mijoz-link{color:#5ab4dc;}
+    .hint-text{font-size:12px;color:var(--color-hint);}
+
+    .pagination .page-link{background:var(--bg-input);border-color:var(--color-border);color:var(--color-text);font-size:13px;}
+    .pagination .page-item.active .page-link{background:#1a6fa8;border-color:#1a6fa8;color:#fff;}
+    .pagination .page-item.disabled .page-link{background:var(--bg-input-grp);color:var(--color-hint);}
+    .btn-tozalash{font-size:13px;}
+  </style>
+</head>
+<body>
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<div class="container-fluid py-4 px-4">
+  <div class="main-card">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div>
+        <h5 class="mb-0" style="font-weight:700;">🕘 So'ngi amallar</h5>
+        <div class="hint-text">Tizimda bajarilgan barcha amallar: kim, qachon va nima qilgani</div>
+      </div>
+      <div class="hint-text" id="jamiInfo"></div>
+    </div>
+
+    <!-- ── Filtrlar ── -->
+    <div class="section-title">Filtrlash</div>
+    <div class="row g-2 mb-3 align-items-end">
+      <div class="col-md-2 col-6">
+        <label class="form-label">Hodim</label>
+        <select id="fUser" class="form-select form-select-sm"><option value="">Barchasi</option></select>
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Amal turi</label>
+        <select id="fTuri" class="form-select form-select-sm">
+          <option value="">Barchasi</option>
+          <option value="QONGIROQ">📞 Qo'ng'iroq natijasi</option>
+          <option value="TOLOV">💵 To'lov</option>
+          <option value="TOLOV_AYIRISH">↩️ To'lov qaytarish</option>
+          <option value="MIJOZ_QOSHISH">👤 Mijoz qo'shish</option>
+          <option value="MIJOZ_TAHRIR">✏️ Mijoz tahrirlash</option>
+          <option value="SHARTNOMA_QOSHISH">📄 Shartnoma yaratish</option>
+          <option value="SHARTNOMA_TAHRIR">✏️ Shartnoma tahrirlash</option>
+          <option value="SHARTNOMA_OCHIRISH">🗑 Shartnoma o'chirish</option>
+          <option value="UNDIRUV">⚖️ Undiruv</option>
+          <option value="HODIM">👷 Hodim amallari</option>
+          <option value="DOKON">🏪 Do'kon</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Aniq kun</label>
+        <input type="date" id="fSana" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Dan (oraliq)</label>
+        <input type="date" id="fBoshi" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Gacha (oraliq)</label>
+        <input type="date" id="fOxiri" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2 col-6 d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary btn-tozalash w-100" onclick="filtrTozalash()">✖ Tozalash</button>
+      </div>
+    </div>
+
+    <!-- ── Jadval ── -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+        <tr>
+          <th data-sort="vaqt">Vaqti<span class="sort-arrow" id="ar-vaqt"></span></th>
+          <th data-sort="userFish">Hodim<span class="sort-arrow" id="ar-userFish"></span></th>
+          <th data-sort="amalTuri">Amal turi<span class="sort-arrow" id="ar-amalTuri"></span></th>
+          <th class="no-sort">Tavsif</th>
+          <th data-sort="summa" class="text-end">Summa<span class="sort-arrow" id="ar-summa"></span></th>
+          <th class="no-sort">Bog'liq</th>
+        </tr>
+        </thead>
+        <tbody id="amallarBody">
+        <tr><td colspan="6" class="text-center py-4 hint-text">Yuklanmoqda...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Pagination ── -->
+    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="hint-text">Sahifada:</span>
+        <select id="fSize" class="form-select form-select-sm" style="width:auto;">
+          <option>25</option><option>50</option><option>100</option>
+        </select>
+      </div>
+      <nav><ul class="pagination pagination-sm mb-0" id="pagination"></ul></nav>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ── Mavzu (dark/light) — boshqa sahifalardagi bilan bir xil kalit ──
+  function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
+  applyTheme(localStorage.getItem('mb-theme') || 'light');
+  document.addEventListener('click', function(e){
+    if (e.target.closest('.theme-toggle')) {
+      const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(t); localStorage.setItem('mb-theme', t);
+    }
+  });
+
+  // ── Holat ──
+  let page = 0, sort = 'vaqt', dir = 'desc', totalPages = 0;
+
+  const TURI_NOMLARI = {
+    QONGIROQ: "📞 Qo'ng'iroq", TOLOV: "💵 To'lov", TOLOV_AYIRISH: "↩️ Qaytarish",
+    MIJOZ_QOSHISH: "👤 Mijoz +", MIJOZ_TAHRIR: "✏️ Mijoz", SHARTNOMA_QOSHISH: "📄 Shartnoma +",
+    SHARTNOMA_TAHRIR: "✏️ Shartnoma", SHARTNOMA_OCHIRISH: "🗑 O'chirish",
+    UNDIRUV: "⚖️ Undiruv", HODIM: "👷 Hodim", DOKON: "🏪 Do'kon"
+  };
+
+  // ── Hodimlar dropdown ──
+  fetch('/admin/get-amal-userlar')
+    .then(r => r.json())
+    .then(userlar => {
+      const sel = document.getElementById('fUser');
+      userlar.forEach(u => {
+        const o = document.createElement('option');
+        o.value = u.id; o.textContent = u.fish;
+        sel.appendChild(o);
+      });
+    })
+    .catch(() => {});
+
+  // ── Ma'lumot yuklash ──
+  function yuklash() {
+    const p = new URLSearchParams();
+    const userId = document.getElementById('fUser').value;
+    const turi = document.getElementById('fTuri').value;
+    const sana = document.getElementById('fSana').value;
+    const boshi = document.getElementById('fBoshi').value;
+    const oxiri = document.getElementById('fOxiri').value;
+    if (userId) p.set('userId', userId);
+    if (turi) p.set('amalTuri', turi);
+    if (sana) p.set('sana', sana);
+    else { if (boshi) p.set('boshi', boshi); if (oxiri) p.set('oxiri', oxiri); }
+    p.set('page', page);
+    p.set('size', document.getElementById('fSize').value);
+    p.set('sort', sort); p.set('dir', dir);
+
+    fetch('/admin/get-amallar?' + p.toString())
+      .then(r => r.json())
+      .then(data => {
+        totalPages = data.totalPages || 0;
+        document.getElementById('jamiInfo').textContent = 'Jami: ' + (data.totalElements || 0) + ' ta amal';
+        chizish(data.content || []);
+        paginationChizish();
+        strelkalarYangilash();
+      })
+      .catch(() => {
+        document.getElementById('amallarBody').innerHTML =
+          '<tr><td colspan="6" class="text-center py-4 hint-text">Ma\'lumot yuklashda xatolik</td></tr>';
+      });
+  }
+
+  function chizish(amallar) {
+    const tbody = document.getElementById('amallarBody');
+    if (!amallar.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 hint-text">Amallar topilmadi</td></tr>';
+      return;
+    }
+    tbody.innerHTML = amallar.map(a => {
+      const vaqt = a.vaqt ? a.vaqt.replace('T', ' ').substring(0, 16) : '';
+      const badge = '<span class="amal-badge b-' + (a.amalTuri || '') + '">' + (TURI_NOMLARI[a.amalTuri] || a.amalTuri || '-') + '</span>';
+      let summa = '';
+      if (a.summa !== null && a.summa !== undefined) {
+        const cls = a.summa >= 0 ? 'summa-plus' : 'summa-minus';
+        summa = '<span class="' + cls + '">' + Number(a.summa).toLocaleString('uz-UZ') + '</span>';
+      }
+      let boglik = '';
+      if (a.shartnomaId) boglik += '<a class="mijoz-link" href="/admin/shartnoma-detail?id=' + a.shartnomaId + '">Shartnoma #' + a.shartnomaId + '</a>';
+      const tavsif = (a.tavsif || '').replace(/</g, '&lt;');
+      return '<tr>' +
+        '<td style="white-space:nowrap;">' + vaqt + '</td>' +
+        '<td style="white-space:nowrap;">' + (a.userFish || '-') + '</td>' +
+        '<td>' + badge + '</td>' +
+        '<td>' + tavsif + '</td>' +
+        '<td class="text-end" style="white-space:nowrap;">' + summa + '</td>' +
+        '<td style="white-space:nowrap;">' + boglik + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ── Universal tartiblash: sarlavha bosilganda ──
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const maydon = th.getAttribute('data-sort');
+      if (sort === maydon) { dir = dir === 'desc' ? 'asc' : 'desc'; }
+      else { sort = maydon; dir = 'desc'; }
+      page = 0;
+      yuklash();
+    });
+  });
+
+  function strelkalarYangilash() {
+    document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+    const el = document.getElementById('ar-' + sort);
+    if (el) el.textContent = dir === 'desc' ? '▼' : '▲';
+  }
+
+  // ── Pagination ──
+  function paginationChizish() {
+    const ul = document.getElementById('pagination');
+    ul.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    const li = (label, target, disabled, active) =>
+      '<li class="page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '') + '">' +
+      '<a class="page-link" href="#" data-page="' + target + '">' + label + '</a></li>';
+
+    let html = li('«', page - 1, page === 0, false);
+    const dan = Math.max(0, page - 2), gacha = Math.min(totalPages - 1, page + 2);
+    if (dan > 0) html += li('1', 0, false, false) + (dan > 1 ? '<li class="page-item disabled"><span class="page-link">…</span></li>' : '');
+    for (let i = dan; i <= gacha; i++) html += li(i + 1, i, false, i === page);
+    if (gacha < totalPages - 1) html += (gacha < totalPages - 2 ? '<li class="page-item disabled"><span class="page-link">…</span></li>' : '') + li(totalPages, totalPages - 1, false, false);
+    html += li('»', page + 1, page >= totalPages - 1, false);
+    ul.innerHTML = html;
+
+    ul.querySelectorAll('a[data-page]').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = parseInt(a.getAttribute('data-page'));
+      if (!isNaN(t) && t >= 0 && t < totalPages) { page = t; yuklash(); }
+    }));
+  }
+
+  // ── Filtr o'zgarishlari ──
+  ['fUser', 'fTuri', 'fSize'].forEach(id =>
+    document.getElementById(id).addEventListener('change', () => { page = 0; yuklash(); }));
+
+  // Aniq kun tanlansa — oraliq tozalanadi (va aksincha)
+  document.getElementById('fSana').addEventListener('change', () => {
+    if (document.getElementById('fSana').value) {
+      document.getElementById('fBoshi').value = '';
+      document.getElementById('fOxiri').value = '';
+    }
+    page = 0; yuklash();
+  });
+  ['fBoshi', 'fOxiri'].forEach(id =>
+    document.getElementById(id).addEventListener('change', () => {
+      if (document.getElementById(id).value) document.getElementById('fSana').value = '';
+      page = 0; yuklash();
+    }));
+
+  function filtrTozalash() {
+    ['fUser', 'fTuri', 'fSana', 'fBoshi', 'fOxiri'].forEach(id => document.getElementById(id).value = '');
+    page = 0; sort = 'vaqt'; dir = 'desc';
+    yuklash();
+  }
+
+  yuklash();
+</script>
+</body>
+</html>
