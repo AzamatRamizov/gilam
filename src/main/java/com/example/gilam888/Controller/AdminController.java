@@ -56,7 +56,7 @@ public class AdminController {
         this.tokenGenerator = tokenGenerator;
     }
 
-//    @PreAuthorize("hasRole('owner')")
+    //    @PreAuthorize("hasRole('owner')")
     @GetMapping("/dashboard")
     public String admin(){
         return "dashboard";
@@ -128,6 +128,17 @@ public class AdminController {
             @RequestParam(value = "rasm2", required = false) MultipartFile passport2) throws IOException {
 
         ApiResponse apiResponse = adminService.editMijoz(mijoz, passport, passport2);
+        return ResponseEntity.status(apiResponse.isHolat() ? 200 : 208)
+                .body(Map.of("message", apiResponse.getMessage()));
+    }
+
+    @PostMapping(value = "/update-shartnoma-kafolat", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editShartnomaKafolat(
+            @RequestParam("shartnomaId") Long shartnomaId,
+            @RequestParam(value = "kafolat1", required = false) MultipartFile kafolat1,
+            @RequestParam(value = "kafolat2", required = false) MultipartFile kafolat2) throws IOException {
+
+        ApiResponse apiResponse = adminService.editShartnomaKafolat(shartnomaId, kafolat1, kafolat2);
         return ResponseEntity.status(apiResponse.isHolat() ? 200 : 208)
                 .body(Map.of("message", apiResponse.getMessage()));
     }
@@ -268,13 +279,13 @@ public class AdminController {
         return s != null ? s : "";
     }
 
-//    @PreAuthorize("hasRole('owner')")
+    //    @PreAuthorize("hasRole('owner')")
     @GetMapping("/kassa")
     public String kassa(){
         return "Admin/kassa";
     }
 
-//    @PreAuthorize("hasRole('owner')")
+    //    @PreAuthorize("hasRole('owner')")
     @GetMapping("/get-today-payment")
     public ResponseEntity<?> getTodayPay(){
         return ResponseEntity.ok(adminService.getTodayPayment());
@@ -336,7 +347,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllSumma());
     }
 
-//    @PreAuthorize("hasRole('owner')")
+    //    @PreAuthorize("hasRole('owner')")
     @GetMapping("/get-kassa-stat")
     public ResponseEntity<?> getKassaStat(@RequestParam(defaultValue = "bugun") String period, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime boshi,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime oxiri) {

@@ -31,8 +31,9 @@ public class AdminService {
     private final TokenGenerator tokenGenerator;
     private final JadvalRepository jadvalRepository;
     private final PaymentRepository paymentRepository;
+    private final TelegramXabarService telegramXabarService;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository, TelegramXabarService telegramXabarService) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
@@ -42,6 +43,7 @@ public class AdminService {
         this.tokenGenerator = tokenGenerator;
         this.jadvalRepository = jadvalRepository;
         this.paymentRepository = paymentRepository;
+        this.telegramXabarService = telegramXabarService;
     }
 
     public ApiResponse addHodim(Users user) {
@@ -165,6 +167,7 @@ public class AdminService {
         shartnoma.setCreatedTime(localDateTime);
 
         shartnomaRepository.save(shartnoma);
+        telegramXabarService.yangiShartnomaXabarYuborish(shartnoma);
 
 //        ------------------------------------
 
@@ -465,6 +468,11 @@ public class AdminService {
         paymentHistory.setCreatedTime(now);
         paymentRepository.save(paymentHistory);
 
+        long umumiyQolgan = tartiblangan.stream()
+                .mapToLong(j -> Math.max(0, j.getSumma() - j.getTulangan()))
+                .sum();
+        telegramXabarService.tulovXabarYuborish(shartnoma.getMijoz(), qabulQilingan, shartnoma.getMahsulot(), shartnoma.getId(), umumiyQolgan);
+
         if (qoldiq > 0) {
             return new ApiResponse(
                     "To'lov saqlandi. Diqqat: " + qoldiq + " so'm ortiqcha (barcha jadvallar to'liq to'landi).",
@@ -609,6 +617,7 @@ public class AdminService {
         shartnoma.setCreatedTime(localDateTime);
 
         shartnomaRepository.save(shartnoma);
+        telegramXabarService.yangiShartnomaXabarYuborish(shartnoma);
         return new ApiResponse("Shartnoma yaratildi",true);
     }
     public List<OverdueDebtDto> getOverdueDebts() {
@@ -760,6 +769,24 @@ public class AdminService {
 
         mijozRepository.save(mijoz1);
         return new ApiResponse("Mijoz o'zgartirildi", true);
+    }
+
+    public ApiResponse editShartnomaKafolat(Long shartnomaId, MultipartFile kafolat1, MultipartFile kafolat2) throws IOException {
+        Optional<Shartnoma> byId = shartnomaRepository.findById(shartnomaId);
+        if (byId.isEmpty()) {
+            return new ApiResponse("Shartnoma topilmadi", false);
+        }
+        Shartnoma shartnoma = byId.get();
+
+        if (kafolat1 != null && !kafolat1.isEmpty()) {
+            shartnoma.setKafolat(saqlashYokiYangilash(shartnoma.getKafolat(), kafolat1));
+        }
+        if (kafolat2 != null && !kafolat2.isEmpty()) {
+            shartnoma.setKafolat2(saqlashYokiYangilash(shartnoma.getKafolat2(), kafolat2));
+        }
+
+        shartnomaRepository.save(shartnoma);
+        return new ApiResponse("Kafolat xati yangilandi", true);
     }
 
     // Mavjud FaylBayt bo'lsa ID bo'yicha topib o'sha yozuvni yangilaydi,

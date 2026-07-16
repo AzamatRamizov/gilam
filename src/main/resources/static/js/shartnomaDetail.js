@@ -161,6 +161,88 @@ function viewPassportPhoto(ev, url, title) {
     openLightbox([{url:url,title:title}], 0);
 }
 
+// ══════ KAFOLAT XATI PHOTOS (editable) ══════
+let _kafolatFiles      = {};   // { kafolat1: File, kafolat2: File } — tanlangan lekin hali saqlanmagan fayllar
+let _lastKafolatPhotos = [];   // renderni qayta chizish uchun oxirgi ma'lumot
+
+function renderEditableKafolatGroup(photos) {
+    _lastKafolatPhotos = photos;
+    const wrap = document.getElementById('kafolatPhotosWrap');
+    const noSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>';
+
+    wrap.innerHTML = photos.map(function(p){
+        const pending  = _kafolatFiles[p.key];
+        const previewSrc = pending ? pending._previewUrl : p.url;
+
+        const inner = previewSrc
+            ? '<img src="'+previewSrc+'" alt="'+p.title+'">'
+            : '<div class="no-photo">'+noSvg+'<div>Rasm mavjud emas</div></div>';
+
+        let overlayHtml = '';
+        if (pending) {
+            overlayHtml =
+                '<span class="photo-new-badge">&#9989; Yangi</span>'+
+                '<button class="photo-cancel-new" onclick="cancelKafolatPhoto(\''+p.key+'\',event)" title="Bekor qilish">&#10005;</button>';
+        } else {
+            overlayHtml =
+                (p.url ? '<button class="photo-view-btn" onclick="viewPassportPhoto(event,\''+p.url+'\',\''+p.title.replace(/'/g,"\\'")+'\')" title="Kattalashtirib ko\'rish">&#128065;</button>' : '')+
+                '<span class="photo-change-overlay">&#128260; Almashtirish</span>'+
+                '<input type="file" class="photo-change-input" accept="image/*" onchange="onKafolatPhotoChange(this,\''+p.key+'\')" title="Yangi rasm yuklash">';
+        }
+
+        return '<div class="col-md-6">'+
+            '<span class="photo-label">'+p.title+'</span>'+
+            '<div class="photo-edit-wrap'+(pending?' has-new-file':'')+'">'+
+            '<div class="photo-box">'+inner+overlayHtml+'</div>'+
+            '</div>'+
+            '</div>';
+    }).join('');
+
+    const anyPending = photos.some(function(p){ return !!_kafolatFiles[p.key]; });
+    document.getElementById('kafolatPendingNote').style.display = anyPending ? 'flex' : 'none';
+}
+
+function onKafolatPhotoChange(input, key) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+        file._previewUrl = e.target.result;
+        _kafolatFiles[key] = file;
+        renderEditableKafolatGroup(_lastKafolatPhotos);
+    };
+    reader.readAsDataURL(file);
+}
+function cancelKafolatPhoto(key, ev) {
+    if (ev) ev.stopPropagation();
+    delete _kafolatFiles[key];
+    renderEditableKafolatGroup(_lastKafolatPhotos);
+}
+function saveKafolat() {
+    const btn   = document.getElementById('kafolatSaveBtn');
+    const succ  = document.getElementById('kafolatSaveSuccess');
+    const errEl = document.getElementById('kafolatSaveError');
+    succ.style.display='none'; errEl.style.display='none';
+
+    const newK1 = _kafolatFiles.kafolat1;
+    const newK2 = _kafolatFiles.kafolat2;
+    if (!newK1 && !newK2) { errEl.textContent='⚠️ Avval yangi rasm tanlang'; errEl.style.display='block'; return; }
+    if (!_currentShartnomaId) { errEl.textContent='⚠️ Shartnoma topilmadi'; errEl.style.display='block'; return; }
+
+    btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';
+
+    const fd = new FormData();
+    fd.append('shartnomaId', _currentShartnomaId);
+    if (newK1) fd.append('kafolat1', newK1);
+    if (newK2) fd.append('kafolat2', newK2);
+
+    fetch('/admin/update-shartnoma-kafolat', {method:'POST', body:fd})
+        .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw (b.message||'Xatolik: '+r.status); return b; }); })
+        .then(function(){ _kafolatFiles={}; succ.style.display='block'; setTimeout(function(){succ.style.display='none';},3000); loadData(); })
+        .catch(function(msg){ errEl.textContent='⚠️ '+msg; errEl.style.display='block'; })
+        .finally(function(){ btn.disabled=false; btn.innerHTML='💾 Saqlash'; });
+}
+
 // ── Helpers ──
 function showError(msg) {
     document.getElementById('errorBannerText').textContent = msg;
@@ -414,9 +496,10 @@ function renderShartnoma(c) {
     } else {
         wrap.innerHTML='<div class="schedule-empty">To\'lov grafigi mavjud emas</div>';
     }
-    renderPhotoGroup('kafolatPhotosWrap',[
-        {url:photoUrl(c.kafolat),  title:'Kafolat xati (1-bet)'},
-        {url:photoUrl(c.kafolat2), title:'Kafolat xati (2-bet)'}
+    _kafolatFiles = {};
+    renderEditableKafolatGroup([
+        {url:photoUrl(c.kafolat),  title:'Kafolat xati (1-bet)', key:'kafolat1'},
+        {url:photoUrl(c.kafolat2), title:'Kafolat xati (2-bet)', key:'kafolat2'}
     ]);
     fillMahsulot(c);
     renderTulovTarixi(c);
