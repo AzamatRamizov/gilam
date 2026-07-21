@@ -19,6 +19,8 @@ public class MijozDataDto {
     private String muljal;
     private String passport;
     private String about;
+    private String tannarx;   // tovar asl (tan) narxi, string sifatida saqlanadi
+    private String joylashuv; // Telegramdan olingan lokatsiya (link yoki matn)
     private long dokonId;
     private long summa;
     private long foiz;

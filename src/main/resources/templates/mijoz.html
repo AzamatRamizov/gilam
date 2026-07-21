@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mijoz sahifasi</title>
+    <link rel="icon" type="image/png" href="/images/888.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --bg-sidebar:    #1a6fa8;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --color-dd-bg:   #ffffff;
+            --color-dd-hov:  #e8f4fd;
+            --color-dd-bdr:  #c5dff0;
+            --color-dd-item: #1a3a52;
+            --color-hint:    #90b8cc;
+            --bg-input:      #f5fafd;
+            --transition: 0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --bg-sidebar:    #0e3f60;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --color-dd-bg:   #162534;
+            --color-dd-hov:  #1c3448;
+            --color-dd-bdr:  #2a4f6a;
+            --color-dd-item: #c0ddf0;
+            --color-hint:    #4a7a94;
+            --bg-input:      #1c2f40;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+
+        /* Navbar (fragment bilan bir xil) */
+        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #fff !important; letter-spacing: -0.3px; }
+        .navbar-brand .logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .navbar-brand span { color: #a8dcf5; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.88) !important; font-size: 14px; font-weight: 500; padding: 20px 14px !important; border-bottom: 2px solid transparent; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #fff !important; border-bottom-color: rgba(255,255,255,0.6); }
+        .dropdown-menu { background: var(--color-dd-bg); border: 1px solid var(--color-dd-bdr); border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); padding: 6px 0; min-width: 190px; margin-top: 0 !important; }
+        .dropdown-item { font-size: 14px; color: var(--color-dd-item); padding: 9px 18px; display: flex; align-items: center; gap: 9px; }
+        .dropdown-item:hover { background: var(--color-dd-hov); color: #1a6fa8; }
+        .dropdown-divider { border-color: var(--color-divider); margin: 4px 0; }
+        .navbar-toggler { border-color: rgba(255,255,255,0.3); }
+        .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+        .nav-badge { font-size: 10px; background: #ff6b6b; color: #fff; border-radius: 10px; padding: 1px 6px; margin-left: 4px; font-weight: 600; }
+        .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+
+        .page-title { font-size: 22px; font-weight: 700; color: var(--color-text); margin: 0; }
+        .page-subtitle { font-size: 13px; color: var(--color-sub); margin: 2px 0 0; }
+
+        .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(26,111,168,0.07); }
+        [data-theme="dark"] .main-card { box-shadow: 0 2px 16px rgba(0,0,0,0.22); }
+
+        .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #1a6fa8; margin-bottom: 14px; }
+        [data-theme="dark"] .section-title { color: #5ab4dc; }
+
+        /* Profil */
+        .avatar-lg { width: 64px; height: 64px; border-radius: 14px; background: #dbeeff; color: #1a6fa8; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; flex-shrink: 0; }
+        [data-theme="dark"] .avatar-lg { background: #1a3a5c; color: #6ab8e8; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 22px; margin-top: 16px; }
+        .info-item .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-sub); }
+        .info-item .val { font-size: 14px; color: var(--color-text); margin-top: 2px; }
+
+        .region-badge { background:#dbeeff; color:#1a6fa8; font-size:11px; padding:3px 10px; border-radius:20px; white-space:nowrap; font-weight:500; }
+        [data-theme="dark"] .region-badge { background:#1a3a5c; color:#6ab8e8; }
+        .passport-chip { background:#fff0dc; color:#b07000; font-size:12px; padding:3px 9px; border-radius:6px; font-family: monospace; font-weight:600; letter-spacing:0.5px; }
+        [data-theme="dark"] .passport-chip { background:#3a2e18; color:#f0a830; }
+
+        .rasm-link { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#1a6fa8; text-decoration:none; border:1px solid var(--color-border); border-radius:8px; padding:6px 12px; margin-right:8px; margin-top:6px; }
+        .rasm-link:hover { background: var(--color-dd-hov); color:#155d8e; }
+
+        /* Status */
+        .status-badge { display:inline-flex; align-items:center; gap:7px; padding:7px 16px; border-radius:20px; font-weight:700; font-size:14px; }
+        .status-badge .dot { width:9px; height:9px; border-radius:50%; background: currentColor; }
+        .status-badge .src { font-size:11px; font-weight:500; opacity:0.75; }
+        .status-yaxshi { background:#d8f5e8; color:#1a9a5a; }
+        .status-qisman { background:#fff0dc; color:#c87800; }
+        .status-yomon  { background:#ffe0e0; color:#c0392b; }
+        [data-theme="dark"] .status-yaxshi { background:#1a3a2a; color:#4dc886; }
+        [data-theme="dark"] .status-qisman { background:#3a2e18; color:#f0a830; }
+        [data-theme="dark"] .status-yomon  { background:#3a1818; color:#f08080; }
+
+        .status-select { background: var(--bg-input); border:1px solid var(--color-border); border-radius:8px; padding:8px 12px; font-size:13px; color:var(--color-text); outline:none; }
+        .status-select:focus { border-color:#1a6fa8; }
+        .btn-save { background:#1a6fa8; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+        .btn-save:hover { background:#155d8e; }
+        .avto-hint { font-size:12px; color:var(--color-sub); margin-top:6px; }
+
+        /* Stat cards */
+        .stat-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 16px 18px; box-shadow: 0 2px 10px rgba(26,111,168,0.07); display: flex; align-items: center; gap: 14px; height:100%; }
+        [data-theme="dark"] .stat-card { box-shadow: 0 2px 14px rgba(0,0,0,0.2); }
+        .stat-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+        .stat-icon.blue   { background: #dbeeff; color: #1a6fa8; }
+        .stat-icon.green  { background: #d8f5e8; color: #1a9a5a; }
+        .stat-icon.purple { background: #e8ddfb; color: #6b3fc8; }
+        .stat-icon.orange { background: #fff0dc; color: #c87800; }
+        .stat-icon.red    { background: #ffe0e0; color: #c0392b; }
+        [data-theme="dark"] .stat-icon.blue   { background: #1a3a5c; color: #6ab8e8; }
+        [data-theme="dark"] .stat-icon.green  { background: #1a3a2a; color: #4dc886; }
+        [data-theme="dark"] .stat-icon.purple { background: #2e2350; color: #a886e8; }
+        [data-theme="dark"] .stat-icon.orange { background: #3a2e18; color: #f0a830; }
+        [data-theme="dark"] .stat-icon.red    { background: #3a1818; color: #f08080; }
+        .stat-value { font-size: 21px; font-weight: 700; line-height: 1; color: var(--color-text); }
+        .stat-label { font-size: 12px; color: var(--color-sub); margin-top: 3px; }
+
+        /* Table */
+        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+        .table-custom thead th { background: #f0f8ff; color: #1a6fa8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+        [data-theme="dark"] .table-custom thead th { background: #1a3048; color: #6ab8e8; }
+        .table-custom tbody td { padding: 11px 14px; border-bottom: 1px solid var(--color-divider); color: var(--color-text); vertical-align: middle; }
+        .table-custom tbody tr:last-child td { border-bottom: none; }
+        .table-custom tbody tr:hover td { background: #f4f9fd; }
+        [data-theme="dark"] .table-custom tbody tr:hover td { background: #1a2e3e; }
+
+        .action-link { color:#1a6fa8; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer; }
+        .action-link:hover { color:#155d8e; text-decoration:underline; }
+
+        .kechik-badge { background:#ffe0e0; color:#c0392b; font-size:12px; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap; }
+        [data-theme="dark"] .kechik-badge { background:#3a1818; color:#f08080; }
+        .holat-ochiq { color:#1a6fa8; font-weight:600; }
+        .holat-yopilgan { color:var(--color-sub); }
+
+        .empty-state { text-align:center; padding:2rem; color:var(--color-hint); display:none; }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<div class="container py-4" style="max-width: 1100px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h1 class="page-title">Mijoz sahifasi</h1>
+            <p class="page-subtitle">Mijozning to&#39;liq ma&#39;lumotlari va shartnomalari</p>
+        </div>
+        <a href="/admin/mijozlar" class="action-link">&#8592; Mijozlar ro&#39;yxati</a>
+    </div>
+
+    <!-- Profil + Status -->
+    <div class="main-card mb-3">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar-lg" id="avatar">?</div>
+                <div>
+                    <div style="font-size:19px; font-weight:700;" id="fish">Yuklanmoqda...</div>
+                    <div style="margin-top:4px;" id="passportChip"></div>
+                </div>
+            </div>
+            <div class="text-end">
+                <div id="statusBadge"></div>
+                <div class="d-flex align-items-center gap-2 mt-2 justify-content-end">
+                    <select id="statusSelect" class="status-select">
+                        <option value="avto">Avto</option>
+                        <option value="yaxshi">Yaxshi</option>
+                        <option value="qisman">Qisman</option>
+                        <option value="yomon">Yomon</option>
+                    </select>
+                    <button class="btn-save" onclick="saveStatus()">Saqlash</button>
+                </div>
+                <div class="avto-hint" id="avtoHint"></div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item"><div class="lbl">Tel 1</div><div class="val" id="tel1">—</div></div>
+            <div class="info-item"><div class="lbl">Tel 2</div><div class="val" id="tel2">—</div></div>
+            <div class="info-item"><div class="lbl">Tel 3</div><div class="val" id="tel3">—</div></div>
+            <div class="info-item"><div class="lbl">Viloyat</div><div class="val" id="viloyat">—</div></div>
+            <div class="info-item"><div class="lbl">Tuman</div><div class="val" id="tuman">—</div></div>
+            <div class="info-item"><div class="lbl">Manzil</div><div class="val" id="manzil">—</div></div>
+            <div class="info-item"><div class="lbl">Mo&#39;ljal</div><div class="val" id="muljal">—</div></div>
+        </div>
+        <div id="rasmlar" class="mt-2"></div>
+    </div>
+
+    <!-- Statistika -->
+    <div class="row g-2 mb-3">
+        <div class="col-6 col-md">
+            <div class="stat-card"><div class="stat-icon blue">📄</div><div><div class="stat-value" id="stShartnoma">—</div><div class="stat-label">Shartnomalar</div></div></div>
+        </div>
+        <div class="col-6 col-md">
+            <div class="stat-card"><div class="stat-icon purple">📂</div><div><div class="stat-value" id="stOchiq">—</div><div class="stat-label">Ochiq</div></div></div>
+        </div>
+        <div class="col-6 col-md">
+            <div class="stat-card"><div class="stat-icon blue">💰</div><div><div class="stat-value" id="stJami">—</div><div class="stat-label">Jami summa</div></div></div>
+        </div>
+        <div class="col-6 col-md">
+            <div class="stat-card"><div class="stat-icon green">✅</div><div><div class="stat-value" id="stTulangan">—</div><div class="stat-label">To&#39;langan</div></div></div>
+        </div>
+        <div class="col-6 col-md">
+            <div class="stat-card"><div class="stat-icon orange">⏳</div><div><div class="stat-value" id="stQoldiq">—</div><div class="stat-label">Qoldiq</div></div></div>
+        </div>
+        <div class="col-6 col-md">
+            <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-value" id="stKechik">—</div><div class="stat-label">Kechikkan oylar</div></div></div>
+        </div>
+    </div>
+
+    <!-- Shartnomalar -->
+    <div class="main-card">
+        <p class="section-title">Shartnomalar</p>
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mahsulot</th>
+                    <th>Sana</th>
+                    <th>Muddat</th>
+                    <th>Jami</th>
+                    <th>To&#39;langan</th>
+                    <th>Qoldiq</th>
+                    <th>Kechikish</th>
+                    <th>Holat</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="empty-state" id="emptyState">Bu mijozda shartnomalar yo&#39;q</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ── Theme (boshqa sahifalar bilan bir xil) ──
+    const html = document.documentElement;
+    applyTheme(localStorage.getItem('mb-theme') || 'light');
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('mb-theme', theme);
+        const ic = document.getElementById('themeIcon');
+        const lb = document.getElementById('themeLabel');
+        if (ic) ic.textContent = theme === 'dark' ? '☀️' : '🌙';
+        if (lb) lb.textContent = theme === 'dark' ? 'Kun' : 'Tun';
+    }
+    function toggleTheme() {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    // ── Mijoz ID (URL: /admin/mijoz?id=123) ──
+    const MIJOZ_ID = new URLSearchParams(window.location.search).get('id');
+
+    const STATUS_NOM = { yaxshi: 'Yaxshi', qisman: 'Qisman', yomon: 'Yomon' };
+
+    function fmt(n) {
+        return new Intl.NumberFormat('uz-UZ').format(n || 0);
+    }
+    function esc(s) {
+        return (s == null || s === '') ? null
+            : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function setVal(id, v) {
+        document.getElementById(id).innerHTML = esc(v) || '<span style="color:var(--color-hint)">—</span>';
+    }
+    function sanaFmt(s) {
+        if (!s) return '—';
+        return String(s).substring(0, 10);
+    }
+
+    async function loadMijoz() {
+        if (!MIJOZ_ID) {
+            document.getElementById('fish').textContent = "Mijoz ID ko'rsatilmagan";
+            return;
+        }
+        try {
+            const res = await fetch('/admin/mijoz-sahifa/' + MIJOZ_ID);
+            if (!res.ok) throw new Error('Server xatosi');
+            const d = await res.json();
+
+            const fish = [d.familiya, d.ism, d.sharif].filter(Boolean).join(' ');
+            document.getElementById('fish').textContent = fish || 'Nomsiz mijoz';
+            document.title = fish ? (fish + ' — Mijoz') : 'Mijoz sahifasi';
+            const initials = ((d.familiya || ' ')[0] + (d.ism || ' ')[0]).trim().toUpperCase() || '?';
+            document.getElementById('avatar').textContent = initials;
+            document.getElementById('passportChip').innerHTML =
+                d.passport ? '<span class="passport-chip">' + esc(d.passport) + '</span>' : '';
+
+            setVal('tel1', d.tel1); setVal('tel2', d.tel2); setVal('tel3', d.tel3);
+            setVal('viloyat', d.viloyat); setVal('tuman', d.tuman);
+            setVal('manzil', d.manzil); setVal('muljal', d.muljal);
+
+            // Rasm havolalari
+            let rasmlar = '';
+            if (d.passportRasmId) rasmlar += '<a class="rasm-link" href="/admin/fayl/' + d.passportRasmId + '" target="_blank">🪪 Passport rasmi</a>';
+            if (d.katmId) rasmlar += '<a class="rasm-link" href="/admin/fayl/' + d.katmId + '" target="_blank">📎 KATM</a>';
+            document.getElementById('rasmlar').innerHTML = rasmlar;
+
+            renderStatus(d);
+
+            document.getElementById('stShartnoma').textContent = d.shartnomaSoni;
+            document.getElementById('stOchiq').textContent = d.ochiqShartnomaSoni;
+            document.getElementById('stJami').textContent = fmt(d.jamiSumma);
+            document.getElementById('stTulangan').textContent = fmt(d.tulanganSumma);
+            document.getElementById('stQoldiq').textContent = fmt(d.qoldiqSumma);
+            document.getElementById('stKechik').textContent = d.muddatiOtganOylar;
+
+            renderShartnomalar(d.shartnomalar || []);
+        } catch (e) {
+            document.getElementById('fish').textContent = 'Xatolik: ' + e.message;
+        }
+    }
+
+    function renderStatus(d) {
+        const nom = STATUS_NOM[d.status] || d.status;
+        const src = d.qolda ? "qo&#39;lda" : 'avto';
+        document.getElementById('statusBadge').innerHTML =
+            '<span class="status-badge status-' + d.status + '">' +
+            '<span class="dot"></span>' + nom +
+            '<span class="src">(' + src + ')</span></span>';
+        document.getElementById('statusSelect').value = d.qolda ? d.status : 'avto';
+        document.getElementById('avtoHint').textContent =
+            d.qolda ? ('Avto hisob: ' + (STATUS_NOM[d.avtoStatus] || d.avtoStatus)) : '';
+    }
+
+    function renderShartnomalar(list) {
+        const tbody = document.getElementById('tableBody');
+        const empty = document.getElementById('emptyState');
+        if (!list.length) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        tbody.innerHTML = list.map(s => {
+            const kech = s.kechikkanOylar > 0
+                ? `<span class="kechik-badge">${s.kechikkanOylar} oy</span>`
+                : '<span style="color:var(--color-hint)">—</span>';
+            const holatCls = s.status === 'yopilgan' ? 'holat-yopilgan' : 'holat-ochiq';
+            return `
+            <tr>
+                <td style="color:var(--color-sub);">${s.id}</td>
+                <td>${esc(s.mahsulot) || '<span style="color:var(--color-hint)">—</span>'}</td>
+                <td>${sanaFmt(s.sotibOlinganSana)}</td>
+                <td>${s.muddat} oy</td>
+                <td>${fmt(s.jamiSumma)}</td>
+                <td>${fmt(s.tulangan)}</td>
+                <td>${fmt(s.qoldiq)}</td>
+                <td>${kech}</td>
+                <td class="${holatCls}">${esc(s.status) || '—'}</td>
+                <td><a class="action-link" href="/admin/shartnoma-detail?id=${s.id}">Batafsil</a></td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function saveStatus() {
+        const status = document.getElementById('statusSelect').value;
+        const form = new URLSearchParams();
+        form.append('mijozId', MIJOZ_ID);
+        form.append('status', status);
+        try {
+            const res = await fetch('/admin/mijoz-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: form.toString()
+            });
+            const data = await res.json();
+            if (data.holat) {
+                loadMijoz();
+            } else {
+                alert(data.message || 'Xatolik yuz berdi');
+            }
+        } catch (e) {
+            alert('Server bilan aloqa xatosi');
+        }
+    }
+
+    loadMijoz();
+</script>
+</body>
+</html>

@@ -18,6 +18,7 @@ public class QarzdorlarDto {
     private long qolganQarz;
     private String keyingiTolovSana; // ISO_LOCAL_DATE_TIME string
     private long muddatiOtganKun;
+    private long muddatiOtganQarz; // faqat sanasi o'tib ketgan jadvallar bo'yicha qolgan qarz
     private String status;
     private String tuman;
     private String undiruvSababi;

@@ -65,4 +65,8 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     List<Shartnoma> findByStatus(String status);
 
     List<Shartnoma> findByMijoz_Id(Long mijozId);
+
+    // Statistika uchun yengil projection — butun entity yuklanmaydi (heap tejash)
+    @Query("SELECT s.sotibOlinganSana, s.createdTime, s.summa FROM Shartnoma s")
+    List<Object[]> findAllForStatistika();
 }

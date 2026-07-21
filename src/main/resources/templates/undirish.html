@@ -131,6 +131,8 @@
         .loading-state { text-align:center; padding:3rem 1rem; color:var(--color-sub); }
         .spinner-border-custom { width:32px; height:32px; border:3px solid var(--color-divider); border-top-color:#1a6fa8; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .action-link.remove { color:#b03030; }
+        [data-theme="dark"] .action-link.remove { color:#e07070; }
     </style>
 </head>
 <body>
@@ -180,7 +182,7 @@
                     <th onclick="sortBy('fish')">F.I.Sh<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('tel')">Tel<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('tuman')">Tuman<span class="sort-icon">↕</span></th>
-                    <th onclick="sortBy('qolganQarz')">Qolgan qarz<span class="sort-icon">↕</span></th>
+                    <th onclick="sortBy('muddatiOtganQarz')">Muddati o'tgan qarz<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('muddatiOtganKun')">Muddati o'tgan<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('undiruvSababi')">Sababi<span class="sort-icon">↕</span></th>
                     <th onclick="sortBy('status')">Holat<span class="sort-icon">↕</span></th>
@@ -277,7 +279,7 @@
     // ── Stats ──
     function renderStats(){
         const total = rows.length;
-        const jamiQarz = rows.reduce((s,c) => s + (Number(c.qolganQarz)||0), 0);
+        const jamiQarz = rows.reduce((s,c) => s + (Number(c.muddatiOtganQarz)||0), 0);
         const eskiSoni = rows.filter(c => (Number(c.muddatiOtganKun)||0) > 30).length;
         const ortachaKun = total ? Math.round(rows.reduce((s,c)=>s+(Number(c.muddatiOtganKun)||0),0) / total) : 0;
 
@@ -295,7 +297,7 @@
                 <div class="stat-icon red">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0ZM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>
                 </div>
-                <div><div class="stat-value">${fmtSumma(jamiQarz)}</div><div class="stat-label">Jami qolgan qarz</div></div>
+                <div><div class="stat-value">${fmtSumma(jamiQarz)}</div><div class="stat-label">Jami muddati o'tgan qarz</div></div>
               </div>
             </div>
             <div class="col-sm-6 col-xl-4">
@@ -317,7 +319,7 @@
             return !q || blob.includes(q);
         }).sort((a,b) => {
             let va = a[sortCol], vb = b[sortCol];
-            if(['shartnomaId','muddatiOtganKun','qolganQarz'].includes(sortCol)){
+            if(['shartnomaId','muddatiOtganKun','qolganQarz','muddatiOtganQarz'].includes(sortCol)){
                 va = Number(va)||0; vb = Number(vb)||0;
             } else {
                 va = (va||'').toString(); vb = (vb||'').toString();
@@ -338,7 +340,7 @@
         if(page > pages) page = 1;
         const slice = data.slice((page-1)*PER_PAGE, page*PER_PAGE);
 
-        const cols = ['shartnomaId','fish','tel','tuman','qolganQarz','muddatiOtganKun','undiruvSababi','status'];
+        const cols = ['shartnomaId','fish','tel','tuman','muddatiOtganQarz','muddatiOtganKun','undiruvSababi','status'];
         document.querySelectorAll('.table-custom thead th').forEach((th,i)=>{
             const sp = th.querySelector('.sort-icon');
             if(!sp) return;
@@ -365,12 +367,13 @@
                     </td>
                     <td>${c.tel ? c.tel : '-'}</td>
                     <td>${c.tuman ? c.tuman : '—'}</td>
-                    <td>${fmtSumma(c.qolganQarz)}</td>
+                    <td>${fmtSumma(c.muddatiOtganQarz)}</td>
                     <td><span class="kun-badge">${c.muddatiOtganKun ? c.muddatiOtganKun + ' kun' : '—'}</span></td>
                     <td>${c.undiruvSababi ? c.undiruvSababi : '—'}</td>
                     <td><span class="badge-status badge-overdue"><span class="dot"></span>Undiruvda</span></td>
                     <td style="white-space:nowrap;">
                         <a class="action-link view" href="/admin/shartnoma-detail?id=${c.shartnomaId}">Batafsil</a>
+                        <a class="action-link remove" onclick="undiruvdanChiqarish(${c.shartnomaId}, '${(c.fish||'').replace(/'/g,"\\'")}')">Chiqarish</a>
                     </td>
                 </tr>`;
             }).join('');
@@ -390,6 +393,23 @@
         }
         btns += `<button class="page-btn" onclick="goPage(${page+1})" ${page>=pages?'disabled':''}>›</button>`;
         pb.innerHTML = btns;
+    }
+
+    function undiruvdanChiqarish(shartnomaId, fish){
+        if(!confirm(`№${shartnomaId} — ${fish}\n\nShartnomani undiruvdan chiqarishni tasdiqlaysizmi?`)) return;
+
+        fetch(`/admin/undiruvdan-chiqarish?shartnomaId=${shartnomaId}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.holat){
+                    rows = rows.filter(r => r.shartnomaId !== shartnomaId);
+                    renderStats();
+                    renderTable();
+                } else {
+                    alert(data.message || 'Xatolik yuz berdi');
+                }
+            })
+            .catch(() => alert('Server bilan bog\u02bclanishda xatolik'));
     }
 
     function goPage(p){ page = p; renderTable(); window.scrollTo(0,0); }

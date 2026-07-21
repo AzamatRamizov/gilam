@@ -24,6 +24,10 @@ public class Mijoz extends AbstractLongEntity {
     private String tel3;
     private String passport;
 
+    // Mijoz statusi: null = avtomatik hisoblanadi (to'lov intizomidan),
+    // qiymat bo'lsa operator qo'lda belgilagan: "yaxshi" | "qisman" | "yomon"
+    private String status;
+
     @ManyToOne
     private FaylBayt passportRasm;
     @ManyToOne

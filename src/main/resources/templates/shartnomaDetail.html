@@ -238,6 +238,21 @@
             <label class="form-label">Mahsulot haqida</label>
             <textarea id="ns_about" class="form-control" rows="2" placeholder="Mahsulot nomi yoki tavsifi"></textarea>
         </div>
+        <div class="mb-3">
+            <label class="form-label">Tovar asl narxi (tan narx)</label>
+            <div class="input-group">
+                <input type="number" id="ns_tannarx" class="form-control" placeholder="0" min="0">
+                <span class="input-group-text">so'm</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Lokatsiya</label>
+            <div class="input-group">
+                <input type="text" id="ns_joylashuv" class="form-control" placeholder="Telegramdan lokatsiyani nusxalab shu yerga joylashtiring (paste)">
+                <a href="#" target="_blank" class="input-group-text" id="ns_joylashuv_link" style="display:none;text-decoration:none;">&#128205; Ochish</a>
+            </div>
+            <div class="form-hint-c" style="font-size:12px;opacity:.65;margin-top:4px;">Telegramda lokatsiyani forward qiling &#8594; havolani nusxalang (Copy Link) &#8594; shu yerga joylashtiring</div>
+        </div>
 
         <div class="row g-3 mb-3">
             <div class="col-md-5">
@@ -365,6 +380,35 @@
         <div class="d-flex justify-content-end gap-2 mt-4">
             <button class="btn-cancel-form" onclick="closePayModal()">Bekor qilish</button>
             <button class="btn-save-form" id="paySaveBtn" onclick="submitPayment()">&#128190; Saqlash</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════ MUDDAT O'ZGARTIRISH MODAL ══════ -->
+<div class="modal-overlay" id="muddatModal">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <p class="modal-title">&#128197; Shartnoma muddatini o'zgartirish</p>
+        <div class="form-msg" id="muddatMsg"></div>
+        <div class="pay-info-box">
+            <div class="pay-info-row"><span>Umumiy summa</span><span id="md_summa">&#8212;</span></div>
+            <div class="pay-info-row"><span>Hozirgi muddat</span><span id="md_eski">&#8212;</span></div>
+            <div class="pay-info-row"><span>To'langan</span><span id="md_tulangan">&#8212;</span></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Yangi muddat <span class="required-star">*</span></label>
+            <div class="input-group">
+                <input type="number" id="md_yangi" class="form-control" placeholder="oy" min="1" max="120" oninput="muddatUpdatePreview()">
+                <span class="input-group-text">oy</span>
+            </div>
+            <div id="md_preview" style="display:none;font-size:12.5px;color:#1a7a50;font-weight:600;margin-top:6px;"></div>
+            <div style="font-size:12px;color:var(--color-sub);margin-top:6px;">
+                Umumiy summa yangi muddatga qayta bo'linadi va to'lov grafigi qaytadan tuziladi.
+                Hozirgacha to'langan summa yangi grafikning eng eski oylaridan boshlab avtomatik taqsimlanadi.
+            </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button class="btn-cancel-form" onclick="closeMuddatModal()">Bekor qilish</button>
+            <button class="btn-save-form" id="muddatSaveBtn" onclick="submitMuddat()">&#128190; Saqlash</button>
         </div>
     </div>
 </div>

@@ -139,6 +139,8 @@ public class AdminService {
         shartnoma.setIzoh(mijoz.getIzoh());
         shartnoma.setMuddat(mijoz.getMuddat());
         shartnoma.setSotibOlinganSana(String.valueOf(mijoz.getShartnomaSana()));
+        shartnoma.setTannarx(mijoz.getTannarx());
+        shartnoma.setJoylashuv(mijoz.getJoylashuv());
         shartnoma.setCreatedTime(mijoz.getShartnomaSana());
         long tulov=mijoz.getSumma()/mijoz.getMuddat();
         List<Jadval> jadvalList = new ArrayList<>();
@@ -285,6 +287,158 @@ public class AdminService {
                 s.getMijoz() != null ? s.getMijoz().getId() : null, s.getId(), null);
 
         return shartnomaDetail(s.getId());
+    }
+
+    /**
+     * Shartnoma muddatini o'zgartirish.
+     * Umumiy summa yangi muddatga qayta bo'linadi, to'lov grafigi qayta tuziladi,
+     * oldin to'langan summa yangi grafikga eng eski oydan boshlab (FIFO) taqsimlanadi.
+     */
+    @Transactional
+    public ApiResponse muddatOzgartirish(Long shartnomaId, long yangiMuddat) {
+        if (yangiMuddat < 1 || yangiMuddat > 120) {
+            return new ApiResponse("Muddat noto'g'ri kiritildi (1 dan 120 oygacha bo'lishi kerak)", false);
+        }
+
+        Shartnoma s = shartnomaRepository.findById(shartnomaId).orElse(null);
+        if (s == null) return new ApiResponse("Shartnoma topilmadi: " + shartnomaId, false);
+
+        long eskiMuddat = s.getMuddat();
+        if (eskiMuddat == yangiMuddat) {
+            return new ApiResponse("Shartnoma muddati allaqachon " + yangiMuddat + " oy", false);
+        }
+
+        // Eski jadvallar (eng eski sana birinchi)
+        List<Jadval> eski = s.getJadvalList() == null ? new ArrayList<>() : new ArrayList<>(s.getJadvalList());
+        eski.sort(Comparator.comparing(Jadval::getSana, Comparator.nullsLast(Comparator.naturalOrder())));
+
+        long jamiTulangan = eski.stream().mapToLong(Jadval::getTulangan).sum();
+
+        // Yangi grafik boshlanish sanasi — eski grafikning birinchi to'lov sanasi
+        LocalDateTime birinchiSana;
+        if (!eski.isEmpty() && eski.get(0).getSana() != null) {
+            birinchiSana = eski.get(0).getSana();
+        } else if (s.getCreatedTime() != null) {
+            birinchiSana = s.getCreatedTime().plusMonths(1);
+        } else {
+            birinchiSana = LocalDateTime.now().plusMonths(1);
+        }
+
+        // Oylik to'lov: qoldiq farq oxirgi oyga qo'shiladi (jami aynan summa bo'lishi uchun)
+        long oylik = s.getSumma() / yangiMuddat;
+        long qoldiqFarq = s.getSumma() - oylik * yangiMuddat;
+
+        // Yangi jadval ro'yxati — imkon qadar eski qatorlar qayta ishlatiladi
+        List<Jadval> yangiList = new ArrayList<>();
+        for (int i = 0; i < yangiMuddat; i++) {
+            Jadval j = i < eski.size() ? eski.get(i) : new Jadval();
+            j.setSana(birinchiSana.plusMonths(i));
+            j.setSumma(oylik + (i == yangiMuddat - 1 ? qoldiqFarq : 0));
+            j.setTulangan(0);
+            j.setHolat("tulanmagan");
+            j.setTulovSana(null);
+            yangiList.add(j);
+        }
+
+        // Muddat qisqargan bo'lsa — ortiqcha jadvallarning to'lov tarixini shartnomaga bog'lab qo'yamiz
+        List<Jadval> ortiqcha = eski.size() > yangiMuddat
+                ? new ArrayList<>(eski.subList((int) yangiMuddat, eski.size()))
+                : new ArrayList<>();
+        if (!ortiqcha.isEmpty()) {
+            List<Long> ortiqchaIds = ortiqcha.stream().map(Jadval::getId).toList();
+            List<PaymentHistory> bogliqTulovlar = paymentRepository.findByJadvalIdIn(ortiqchaIds);
+            for (PaymentHistory p : bogliqTulovlar) {
+                p.setShartnomaId(s.getId());
+                p.setJadvalId(0);
+            }
+            paymentRepository.saveAll(bogliqTulovlar);
+        }
+
+        // To'langan summani yangi grafikga FIFO tartibida taqsimlash
+        long qoldiq = jamiTulangan;
+        for (Jadval j : yangiList) {
+            if (qoldiq <= 0) break;
+            long q = Math.min(qoldiq, j.getSumma());
+            j.setTulangan(q);
+            if (q >= j.getSumma()) {
+                j.setHolat("tulangan");
+                j.setTulovSana(LocalDateTime.now());
+            }
+            qoldiq -= q;
+        }
+        // Agar to'langan summa umumiy summadan oshib ketgan bo'lsa — ortig'i oxirgi oyga yoziladi
+        if (qoldiq > 0 && !yangiList.isEmpty()) {
+            Jadval oxirgi = yangiList.get(yangiList.size() - 1);
+            oxirgi.setTulangan(oxirgi.getTulangan() + qoldiq);
+        }
+
+        jadvalRepository.saveAll(yangiList);
+        s.setMuddat(yangiMuddat);
+        s.setJadvalList(yangiList);
+        shartnomaRepository.save(s);
+        if (!ortiqcha.isEmpty()) {
+            jadvalRepository.deleteAll(ortiqcha);
+        }
+
+        amalService.log("SHARTNOMA_TAHRIR",
+                "Shartnoma #" + s.getId() + " muddati o'zgartirildi: " + eskiMuddat + " oy → " + yangiMuddat
+                        + " oy (oylik to'lov: " + oylik + " so'm)",
+                s.getMijoz() != null ? s.getMijoz().getId() : null, s.getId(), null);
+
+        return new ApiResponse("Muddat " + yangiMuddat + " oyga o'zgartirildi", true);
+    }
+
+    /**
+     * Oylar bo'yicha statistika: har oyda qo'shilgan shartnomalar soni va umumiy summasi.
+     * Oy sifatida shartnoma tuzilgan sana (sotibOlinganSana) olinadi,
+     * u bo'sh bo'lsa createdTime'ga qaraladi. Oraliqda bo'sh oylar 0 bilan to'ldiriladi.
+     */
+    public StatistikaResponseDto getStatistika() {
+        List<Object[]> qatorlar = shartnomaRepository.findAllForStatistika();
+
+        // TreeMap — oylar avtomatik o'sish tartibida saqlanadi ("2026-01" < "2026-02" ...)
+        TreeMap<String, long[]> oylar = new TreeMap<>(); // key: "yyyy-MM", value: [soni, summa]
+        long totalCount = 0, totalSumma = 0;
+
+        for (Object[] q : qatorlar) {
+            String sotibOlinganSana = (String) q[0];
+            LocalDateTime createdTime = (LocalDateTime) q[1];
+            long summa = q[2] != null ? ((Number) q[2]).longValue() : 0;
+
+            String oy = oyKey(sotibOlinganSana, createdTime);
+            if (oy == null) continue;
+
+            long[] v = oylar.computeIfAbsent(oy, k -> new long[2]);
+            v[0]++;
+            v[1] += summa;
+            totalCount++;
+            totalSumma += summa;
+        }
+
+        // Bo'sh oylarni 0 bilan to'ldirish (grafik uzluksiz bo'lishi uchun)
+        List<OylikStatDto> items = new ArrayList<>();
+        if (!oylar.isEmpty()) {
+            java.time.YearMonth boshi = java.time.YearMonth.parse(oylar.firstKey());
+            java.time.YearMonth oxiri = java.time.YearMonth.parse(oylar.lastKey());
+            for (java.time.YearMonth ym = boshi; !ym.isAfter(oxiri); ym = ym.plusMonths(1)) {
+                String key = String.format("%04d-%02d", ym.getYear(), ym.getMonthValue());
+                long[] v = oylar.getOrDefault(key, new long[2]);
+                items.add(new OylikStatDto(key, v[0], v[1]));
+            }
+        }
+
+        return new StatistikaResponseDto(items, totalCount, totalSumma);
+    }
+
+    private String oyKey(String sotibOlinganSana, LocalDateTime createdTime) {
+        if (sotibOlinganSana != null && sotibOlinganSana.length() >= 7) {
+            String k = sotibOlinganSana.substring(0, 7);
+            if (k.matches("\\d{4}-\\d{2}")) return k;
+        }
+        if (createdTime != null) {
+            return String.format("%04d-%02d", createdTime.getYear(), createdTime.getMonthValue());
+        }
+        return null;
     }
 
     private String resolveDokonNomi(Long dokonId) {
@@ -609,6 +763,8 @@ public class AdminService {
         shartnoma.setStatus("ochiq");
         shartnoma.setIzoh(mijoz.getIzoh());
         shartnoma.setMahsulot(mijoz.getAbout());
+        shartnoma.setTannarx(mijoz.getTannarx());
+        shartnoma.setJoylashuv(mijoz.getJoylashuv());
 
         shartnoma.setMuddat(mijoz.getMuddat());
         shartnoma.setCreatedTime(mijoz.getShartnomaSana());
@@ -941,6 +1097,13 @@ public class AdminService {
                 .map(eng -> Duration.between(eng, hozir).toDays())
                 .orElse(0L);
 
+        // Faqat sanasi o'tib ketgan (muddati o'tgan) jadvallar bo'yicha qolgan qarz
+        long muddatiOtganQarz = jadvalList.stream()
+                .filter(j -> "tulanmagan".equals(j.getHolat())
+                        && j.getSana() != null && j.getSana().isBefore(hozir))
+                .mapToLong(j -> Math.max(0, j.getSumma() - j.getTulangan()))
+                .sum();
+
         return new QarzdorlarDto(
                 mijoz.getId(),
                 mijoz.getIsm(),
@@ -952,6 +1115,7 @@ public class AdminService {
                 qolganQarz,
                 activeJadval != null && activeJadval.getSana() != null ? activeJadval.getSana().toString() : null,
                 muddatiOtganKun,
+                muddatiOtganQarz,
                 shartnoma.getStatus(),   // ← qo'shildi
                 mijoz.getTuman(),
                 shartnoma.getUndiruvSababi()
@@ -1046,5 +1210,39 @@ public class AdminService {
         if (mijoz.getIsm() != null) sb.append(mijoz.getIsm());
         String natija = sb.toString().trim();
         return natija.isEmpty() ? ("mijoz #" + mijoz.getId()) : natija;
+    }
+
+    @Transactional
+    public ApiResponse undiruvdanChiqarish(Long shartnomaId) {
+        Optional<Shartnoma> optional = shartnomaRepository.findById(shartnomaId);
+        if (optional.isEmpty()) {
+            return new ApiResponse("Shartnoma topilmadi", false);
+        }
+        Shartnoma shartnoma = optional.get();
+
+        if (!"undiruv".equals(shartnoma.getStatus())) {
+            return new ApiResponse("Bu shartnoma undiruvda emas", false);
+        }
+
+        // Agar hamma jadval to'langan bo'lsa "yopilgan", aks holda "ochiq" ga qaytaramiz
+        boolean hammasiTulangan = shartnoma.getJadvalList() != null
+                && !shartnoma.getJadvalList().isEmpty()
+                && shartnoma.getJadvalList().stream()
+                .allMatch(j -> "tulangan".equals(j.getHolat()));
+
+        shartnoma.setStatus(hammasiTulangan ? "yopilgan" : "ochiq");
+        shartnoma.setUndiruvSababi(null);
+        shartnoma.setUndiruvVaqti(null);
+        shartnomaRepository.save(shartnoma);
+
+        amalService.log(
+                "UNDIRUV",
+                "№" + shartnomaId + " shartnoma undiruvdan chiqarildi",
+                shartnoma.getMijoz() != null ? shartnoma.getMijoz().getId() : null,
+                shartnomaId,
+                null
+        );
+
+        return new ApiResponse("Shartnoma undiruvdan chiqarildi", true);
     }
 }

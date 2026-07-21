@@ -404,6 +404,21 @@
             <label class="form-label">Mahsulotga izoh</label>
             <textarea id="izoh" class="form-control" placeholder="Mahsulotga izoh" rows="3"></textarea>
         </div>
+        <div class="mb-3">
+            <label class="form-label">Tovar asl narxi (tan narx)</label>
+            <div class="input-group">
+                <input type="number" id="tannarx" class="form-control" placeholder="0" min="0">
+                <span class="input-group-text" style="border-radius:0 8px 8px 0;">so'm</span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Lokatsiya</label>
+            <div class="input-group">
+                <input type="text" id="joylashuv" class="form-control" placeholder="Telegramdan lokatsiyani nusxalab shu yerga joylashtiring (paste)">
+                <a href="#" target="_blank" class="input-group-text" id="joylashuv_link" style="display:none;text-decoration:none;">&#128205; Ochish</a>
+            </div>
+            <div class="form-hint" style="font-size:12px;opacity:.65;margin-top:4px;">Telegramda lokatsiyani forward qiling &#8594; havolani nusxalang (Copy Link) &#8594; shu yerga joylashtiring</div>
+        </div>
         <!-- To'lov sanasi -->
         <div class="mb-3">
             <label class="form-label">Shartnoma sanasi <span class="required-star">*</span></label>
@@ -790,11 +805,12 @@
     }
 
     function clearForm(){
-        ['ism','familiya','sharif','tel1','tel2','tel3','viloyat','tuman','manzil','muljal','passport','about','summa','foiz','muddat'].forEach(id=>{
+        ['ism','familiya','sharif','tel1','tel2','tel3','viloyat','tuman','manzil','muljal','passport','about','izoh','tannarx','joylashuv','summa','foiz','muddat'].forEach(id=>{
             document.getElementById(id).value='';
             document.getElementById(id).classList.remove('is-invalid');
         });
         document.getElementById('category').selectedIndex = 0;
+        document.getElementById('joylashuv_link').style.display = 'none';
         ['passportFile','hujjatFile','kafolatFile','kafolatFile2'].forEach(removeFile);
         document.getElementById('calcBox').style.display = 'none';
         document.getElementById('scheduleBody').innerHTML = '';
@@ -991,6 +1007,8 @@
         // 2-qism: shartnoma
         const about = $('#about').val().trim();
         const izoh = $('#izoh').val().trim();
+        const tannarx = $('#tannarx').val().trim();
+        const joylashuv = $('#joylashuv').val().trim();
         const category = $('#category').val();
         const summa = $('#summa').val().trim();
         const foiz = $('#foiz').val().trim();
@@ -1043,6 +1061,7 @@
             viloyat, tuman, manzil, muljal,
             passport,
             about, izoh,
+            tannarx, joylashuv,
             shartnomaSana,
             tulovSana,
             dokonId: category,
@@ -1087,6 +1106,19 @@
         el.addEventListener('input', ()=>el.classList.remove('is-invalid'));
         el.addEventListener('change', ()=>el.classList.remove('is-invalid'));
     });
+
+    // ── Lokatsiya: link kiritilsa "Ochish" havolasini ko'rsatish (shartnoma detail sahifasidagi kabi) ──
+    function updateJoylashuvLink(){
+        const val = document.getElementById('joylashuv').value.trim();
+        const link = document.getElementById('joylashuv_link');
+        if (val && /^https?:\/\//i.test(val)) {
+            link.href = val;
+            link.style.display = 'inline-flex';
+        } else {
+            link.style.display = 'none';
+        }
+    }
+    document.getElementById('joylashuv').addEventListener('input', updateJoylashuvLink);
 </script>
 </body>
 </html>

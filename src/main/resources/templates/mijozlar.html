@@ -387,6 +387,8 @@
                     <td>${c.manzil || '<span style="color:var(--color-hint)">—</span>'}</td>
                     <td><span class="passport-chip">${c.passport}</span></td>
                     <td style="white-space:nowrap;">
+                        <a class="action-link view" href="/admin/mijoz?id=${c.id}">Sahifa</a>
+                        &nbsp;
                         <a class="action-link view" onclick="viewCustomer(${c.id})">Batafsil</a>
                     </td>
                 </tr>`;

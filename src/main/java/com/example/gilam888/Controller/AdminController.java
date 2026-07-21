@@ -5,11 +5,7 @@ import com.example.gilam888.Configurations.TokenGenerator;
 import com.example.gilam888.Dto.*;
 import com.example.gilam888.Entity.*;
 import com.example.gilam888.Repository.*;
-import com.example.gilam888.Service.AdminService;
-import com.example.gilam888.Service.AmalService;
-import com.example.gilam888.Service.KassaService;
-import com.example.gilam888.Service.QongiroqService;
-import com.example.gilam888.Service.UserService;
+import com.example.gilam888.Service.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
@@ -25,10 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -44,8 +39,9 @@ public class AdminController {
     private final QongiroqService qongiroqService;
     private final AmalService amalService;
     private final TokenGenerator tokenGenerator;
+    private final MijozSahifaService mijozSahifaService;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -57,6 +53,7 @@ public class AdminController {
         this.qongiroqService = qongiroqService;
         this.tokenGenerator = tokenGenerator;
         this.amalService = amalService;
+        this.mijozSahifaService = mijozSahifaService;
     }
 
     //    @PreAuthorize("hasRole('owner')")
@@ -168,6 +165,11 @@ public class AdminController {
     @GetMapping("/shartnoma-detail")
     public String shartnomaDetail(){
         return "shartnomaDetail";
+    }
+
+    @PutMapping("/update-muddat")
+    public ResponseEntity<?> updateMuddat(@RequestParam Long shartnomaId, @RequestParam long muddat) {
+        return ResponseEntity.ok(adminService.muddatOzgartirish(shartnomaId, muddat));
     }
 
     @PostMapping("/update-mahsulot")
@@ -325,6 +327,16 @@ public class AdminController {
     ){
         return ResponseEntity.ok(adminService.getFoyda(davr, from, to));
     }
+
+    @GetMapping("/statistika")
+    public String statistikaPage(){
+        return "Admin/statistika";
+    }
+
+    @GetMapping("/get-statistika")
+    public ResponseEntity<?> getStatistika(){
+        return ResponseEntity.ok(adminService.getStatistika());
+    }
     @PreAuthorize("hasRole('owner')")
     @DeleteMapping("/delete-shartnoma/{id}")
     public ResponseEntity<?> deleteShartnoma(@PathVariable Long id) {
@@ -447,6 +459,36 @@ public class AdminController {
                                                  @RequestParam String sabab) {
         ApiResponse response = adminService.shartnomaniUndiruvgaOtkazish(shartnomaId, sabab);
         return ResponseEntity.status(response.isHolat() ? 200 : 400).body(response);
+    }
+
+    /** Mijoz sahifasi (Thymeleaf). Ochilishi: /admin/mijoz?id=123 */
+    @GetMapping("/mijoz")
+    public String mijozSahifa() {
+        return "mijoz";
+    }
+
+    /** Sahifa uchun JSON ma'lumot */
+    @GetMapping("/mijoz-sahifa/{id}")
+    public ResponseEntity<?> mijozSahifaInfo(@PathVariable long id) {
+        return ResponseEntity.ok(mijozSahifaService.getMijozSahifa(id));
+    }
+
+    /** Statusni qo'lda o'zgartirish. status: yaxshi | qisman | yomon | avto */
+    @PostMapping("/mijoz-status")
+    public ResponseEntity<ApiResponse> mijozStatus(@RequestParam long mijozId,
+                                                   @RequestParam String status) {
+        try {
+            mijozSahifaService.setStatus(mijozId, status);
+            return ResponseEntity.ok(new ApiResponse("Status saqlandi", true));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new ApiResponse("Xatolik: " + e.getMessage(), false));
+        }
+    }
+    @PreAuthorize("hasRole('owner')")
+    @PostMapping("/undiruvdan-chiqarish")
+    @ResponseBody
+    public ApiResponse undiruvdanChiqarish(@RequestParam Long shartnomaId) {
+        return adminService.undiruvdanChiqarish(shartnomaId);
     }
 
 }

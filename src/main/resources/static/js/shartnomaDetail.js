@@ -32,6 +32,7 @@ let _currentShartnomaId = null;
 let _nsFiles        = {};
 
 // Shartnomaning umumiy summasi / to'langan / qolgan qiymatlari (umumiy to'lov modali uchun)
+let _currentMuddat       = 0;
 let _currentTotalSumma   = 0;
 let _currentTotalTulandi = 0;
 let _currentTotalQolgan  = 0;
@@ -459,13 +460,15 @@ function renderShartnoma(c) {
     const totalQolgan=Math.max(0,totalSumma-totalTulandi);
 
     // Umumiy to'lov modali uchun saqlab qo'yamiz
+    _currentMuddat       = Number(c.muddat) || 0;
     _currentTotalSumma   = totalSumma;
     _currentTotalTulandi = totalTulandi;
     _currentTotalQolgan  = totalQolgan;
 
     document.getElementById('summaryBar').innerHTML=
         '<div class="summary-item"><span>Umumiy summa</span><span>'+fmtSummaShort(totalSumma)+'</span></div>'+
-        '<div class="summary-item"><span>Muddat</span><span>'+(c.muddat?c.muddat+' oy':'—')+'</span></div>'+
+        '<div class="summary-item"><span>Muddat</span><span>'+(c.muddat?c.muddat+' oy':'—')+
+        ' <button type="button" class="muddat-edit-btn" title="Muddatni o\'zgartirish" onclick="openMuddatModal()">&#9998;</button></span></div>'+
         '<div class="summary-item"><span>To\'langan</span><span style="color:#1a7a50">'+fmtSummaShort(totalTulandi)+'</span></div>'+
         '<div class="summary-item"><span>Qolgan</span><span style="color:'+(totalQolgan>0?'#c0392b':'#1a7a50')+'">'+fmtSummaShort(totalQolgan)+'</span></div>';
 
@@ -508,10 +511,12 @@ function renderShartnoma(c) {
 // ══════ YANGI SHARTNOMA MODAL ══════
 function openNewShartnoma() {
     // Reset
-    ['ns_sana','ns_tulov_sana','ns_about','ns_summa','ns_foiz','ns_muddat'].forEach(function(id){
+    ['ns_sana','ns_tulov_sana','ns_about','ns_izoh','ns_tannarx','ns_joylashuv','ns_summa','ns_foiz','ns_muddat'].forEach(function(id){
         const el=document.getElementById(id);
         if(el) el.value='';
     });
+    const nsLokLink=document.getElementById('ns_joylashuv_link');
+    if(nsLokLink) nsLokLink.style.display='none';
     document.getElementById('ns_sana').value       = nowLocalISO();
     document.getElementById('ns_tulov_sana').value = localISOwithMonthOffset(1);
     document.getElementById('ns_sana').addEventListener('change', function(){
@@ -571,6 +576,19 @@ function nsUpdateCalc() {
 }
 document.getElementById('ns_tulov_sana').addEventListener('change', nsUpdateCalc);
 
+// Yangi shartnoma modalida lokatsiya link kiritilsa "Ochish" havolasini ko'rsatish
+function nsUpdateJoylashuvLink() {
+    const val = document.getElementById('ns_joylashuv').value.trim();
+    const link = document.getElementById('ns_joylashuv_link');
+    if (val && /^https?:\/\//i.test(val)) {
+        link.href = val;
+        link.style.display = 'inline-flex';
+    } else {
+        link.style.display = 'none';
+    }
+}
+document.getElementById('ns_joylashuv').addEventListener('input', nsUpdateJoylashuvLink);
+
 // File upload for new shartnoma
 function nsPreviewFile(event, id) {
     const file=event.target.files[0];
@@ -628,6 +646,8 @@ function saveNewShartnoma() {
         muddat:        muddat,
         izoh:          document.getElementById('ns_izoh').value.trim(),
         about:         about,
+        tannarx:       document.getElementById('ns_tannarx').value.trim(),
+        joylashuv:     document.getElementById('ns_joylashuv').value.trim(),
         shartnomaSana: sana,
         tulovSana:     tulovSana
     };
@@ -775,6 +795,61 @@ function submitPayment() {
             btn.disabled = false; btn.textContent = '💾 Saqlash';
         });
 }
+// ══════ MUDDAT O'ZGARTIRISH MODAL ══════
+function openMuddatModal() {
+    if (!_currentShartnomaId) return;
+    const msg = document.getElementById('muddatMsg');
+    msg.className = 'form-msg'; msg.textContent = '';
+    document.getElementById('md_summa').textContent   = fmtSumma(_currentTotalSumma);
+    document.getElementById('md_eski').textContent    = _currentMuddat ? _currentMuddat + ' oy' : '—';
+    document.getElementById('md_tulangan').textContent= fmtSumma(_currentTotalTulandi);
+    const inp = document.getElementById('md_yangi');
+    inp.value = _currentMuddat || '';
+    muddatUpdatePreview();
+    const btn = document.getElementById('muddatSaveBtn');
+    btn.disabled = false; btn.innerHTML = '&#128190; Saqlash';
+    document.getElementById('muddatModal').classList.add('show');
+}
+function closeMuddatModal() {
+    document.getElementById('muddatModal').classList.remove('show');
+}
+document.getElementById('muddatModal').addEventListener('click', function(e){ if(e.target===this) closeMuddatModal(); });
+function muddatUpdatePreview() {
+    const m   = parseInt(document.getElementById('md_yangi').value) || 0;
+    const box = document.getElementById('md_preview');
+    if (m < 1 || !_currentTotalSumma) { box.style.display = 'none'; return; }
+    const oylik = Math.floor(_currentTotalSumma / m);
+    const farq  = _currentTotalSumma - oylik * m;
+    let text = 'Yangi oylik to\'lov: ' + fmtSumma(oylik) + ' so\'m × ' + m + ' oy';
+    if (farq > 0) text += ' (oxirgi oy: ' + fmtSumma(oylik + farq) + ' so\'m)';
+    box.textContent = text;
+    box.style.display = 'block';
+}
+function submitMuddat() {
+    const m   = parseInt(document.getElementById('md_yangi').value) || 0;
+    const msg = document.getElementById('muddatMsg');
+    const btn = document.getElementById('muddatSaveBtn');
+    msg.className = 'form-msg'; msg.textContent = '';
+
+    if (m < 1)  { msg.className = 'form-msg error show'; msg.textContent = 'Yangi muddatni kiriting.'; return; }
+    if (m === _currentMuddat) { msg.className = 'form-msg error show'; msg.textContent = 'Muddat hozirgisi bilan bir xil.'; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Saqlanmoqda...';
+
+    fetch('/admin/update-muddat?shartnomaId=' + _currentShartnomaId + '&muddat=' + m, { method: 'PUT' })
+        .then(function(r) { return r.json().then(function(b) { if (!r.ok || b.holat === false) throw b; return b; }); })
+        .then(function(data) {
+            msg.className = 'form-msg success show';
+            msg.textContent = '✅ ' + (data.message || 'Muddat o\'zgartirildi');
+            setTimeout(function() { closeMuddatModal(); loadData(); }, 1100);
+        })
+        .catch(function(err) {
+            msg.className = 'form-msg error show';
+            msg.textContent = 'Xatolik: ' + (err && err.message ? err.message : err);
+            btn.disabled = false; btn.innerHTML = '&#128190; Saqlash';
+        });
+}
+
 // ── Load page ──
 function loadData() {
     if (!shartnomaId||isNaN(shartnomaId)){showError("Shartnoma ID topilmadi");document.getElementById('loadingState').style.display='none';return;}
