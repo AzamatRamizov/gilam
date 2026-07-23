@@ -384,6 +384,31 @@
     </div>
 </div>
 
+<!-- ====== JADVAL SANASINI O'ZGARTIRISH MODAL ====== -->
+<div class="modal-overlay" id="jadvalSanaModal">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <p class="modal-title">&#128197; To'lov sanasini o'zgartirish</p>
+        <div class="form-msg" id="jsanaMsg"></div>
+        <div class="pay-info-box">
+            <div class="pay-info-row"><span>Qator</span><span id="js_oy">&#8212;</span></div>
+            <div class="pay-info-row"><span>Hozirgi sana</span><span id="js_eski">&#8212;</span></div>
+            <div class="pay-info-row"><span>Summasi</span><span id="js_summa">&#8212;</span></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Yangi to'lov sanasi <span class="required-star">*</span></label>
+            <input type="date" id="js_yangi" class="form-control">
+            <div style="font-size:12px;color:var(--color-sub);margin-top:6px;">
+                Faqat shu qatorning sanasi o'zgaradi. Summa, to'langan miqdor va holat o'zgarmaydi.
+                Keyingi oylar avtomatik surilmaydi &#8212; kerak bo'lsa ularni ham alohida tahrirlang.
+            </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <button class="btn-cancel-form" onclick="closeJadvalSanaModal()">Bekor qilish</button>
+            <button class="btn-save-form" id="jsanaSaveBtn" onclick="submitJadvalSana()">&#128190; Saqlash</button>
+        </div>
+    </div>
+</div>
+
 <!-- ══════ MUDDAT O'ZGARTIRISH MODAL ══════ -->
 <div class="modal-overlay" id="muddatModal">
     <div class="modal-box" onclick="event.stopPropagation()">

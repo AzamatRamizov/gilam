@@ -218,3 +218,11 @@ body{background-color:var(--bg-body);font-family:'Segoe UI',sans-serif;color:var
 [data-theme="dark"] #tabPanel-xavfli p.sub-subtitle{color:#c88a8a;}
 [data-theme="dark"] .danger-box p:first-child{color:#e07070!important;}
 [data-theme="dark"] .danger-box p:last-child{color:#c88a8a!important;}
+
+
+/* ── Jadval qatoridagi sana tahrirlash tugmasi ── */
+.jadval-sana-text{margin-right:6px;}
+.jadval-sana-edit-btn{border:none;background:transparent;color:var(--color-sub);cursor:pointer;padding:0 4px;font-size:13px;line-height:1;border-radius:4px;opacity:.4;transition:opacity .15s,color .15s,background .15s;}
+.schedule-table tbody tr:hover .jadval-sana-edit-btn{opacity:1;}
+.jadval-sana-edit-btn:hover{color:#1a7a50;background:rgba(26,122,80,.10);}
+[data-theme="dark"] .jadval-sana-edit-btn:hover{color:#4dc886;background:rgba(77,200,134,.14);}

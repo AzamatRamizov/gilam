@@ -484,9 +484,12 @@ function renderShartnoma(c) {
             const summa=Number(g.summa)||0;
             const tulangan=Number(g.tulangan)||0;
             const qolgan=Math.max(0,summa-tulangan);
+            // to'liq to'langan qatorda sanani tahrirlash tugmasi ko'rsatilmaydi
+            const tolandi = (qolgan<=0) || (g.holat==='tulangan');
             rows+='<tr>'+
                 '<td style="color:var(--color-sub);font-weight:600;">'+(i+1)+'</td>'+
-                '<td>'+fmtDate(g.sana)+'</td>'+
+                '<td><span class="jadval-sana-text">'+fmtDate(g.sana)+'</span>'+
+                (tolandi ? '' : '<button type="button" class="jadval-sana-edit-btn" title="Sanani o\'zgartirish" onclick="openJadvalSanaModal('+g.id+')">&#9998;</button>')+'</td>'+
                 '<td>'+fmtSumma(summa)+'</td>'+
                 '<td class="tulangan-col">'+fmtSumma(tulangan)+'</td>'+
                 '<td style="font-weight:600;color:'+(qolgan>0?'#c0392b':'var(--color-text)')+'">'+fmtSumma(qolgan)+'</td>'+
@@ -844,6 +847,66 @@ function submitMuddat() {
             setTimeout(function() { closeMuddatModal(); loadData(); }, 1100);
         })
         .catch(function(err) {
+            msg.className = 'form-msg error show';
+            msg.textContent = 'Xatolik: ' + (err && err.message ? err.message : err);
+            btn.disabled = false; btn.innerHTML = '&#128190; Saqlash';
+        });
+}
+
+// -- JADVAL SANASINI O'ZGARTIRISH --
+var _jadvalSanaId = null;
+
+function openJadvalSanaModal(jadvalId) {
+    var g = (_currentGrafik || []).filter(function(x){ return x.id === jadvalId; })[0];
+    if (!g) return;
+    _jadvalSanaId = jadvalId;
+
+    var msg = document.getElementById('jsanaMsg');
+    msg.className = 'form-msg'; msg.textContent = '';
+
+    var idx = (_currentGrafik || []).indexOf(g) + 1;
+    document.getElementById('js_oy').textContent    = idx + '-oy';
+    document.getElementById('js_eski').textContent  = fmtDate(g.sana);
+    document.getElementById('js_summa').textContent = fmtSumma(Number(g.summa) || 0);
+
+    document.getElementById('js_yangi').value = g.sana ? String(g.sana).slice(0, 10) : '';
+
+    var btn = document.getElementById('jsanaSaveBtn');
+    btn.disabled = false; btn.innerHTML = '&#128190; Saqlash';
+    document.getElementById('jadvalSanaModal').classList.add('show');
+}
+
+function closeJadvalSanaModal() {
+    document.getElementById('jadvalSanaModal').classList.remove('show');
+    _jadvalSanaId = null;
+}
+document.getElementById('jadvalSanaModal').addEventListener('click', function(e){
+    if (e.target === this) closeJadvalSanaModal();
+});
+
+function submitJadvalSana() {
+    var sana = document.getElementById('js_yangi').value;
+    var msg  = document.getElementById('jsanaMsg');
+    var btn  = document.getElementById('jsanaSaveBtn');
+    msg.className = 'form-msg'; msg.textContent = '';
+
+    if (!_jadvalSanaId) { closeJadvalSanaModal(); return; }
+    if (!sana) {
+        msg.className = 'form-msg error show';
+        msg.textContent = "Yangi sanani tanlang.";
+        return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Saqlanmoqda...';
+
+    fetch('/admin/update-jadval-sana?jadvalId=' + _jadvalSanaId + '&sana=' + encodeURIComponent(sana), { method: 'PUT' })
+        .then(function(r){ return r.json().then(function(b){ if (!r.ok || b.holat === false) throw b; return b; }); })
+        .then(function(data){
+            msg.className = 'form-msg success show';
+            msg.textContent = '\u2705 ' + (data.message || "Sana o'zgartirildi");
+            setTimeout(function(){ closeJadvalSanaModal(); loadData(); }, 900);
+        })
+        .catch(function(err){
             msg.className = 'form-msg error show';
             msg.textContent = 'Xatolik: ' + (err && err.message ? err.message : err);
             btn.disabled = false; btn.innerHTML = '&#128190; Saqlash';

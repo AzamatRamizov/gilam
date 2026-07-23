@@ -69,4 +69,10 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     // Statistika uchun yengil projection — butun entity yuklanmaydi (heap tejash)
     @Query("SELECT s.sotibOlinganSana, s.createdTime, s.summa FROM Shartnoma s")
     List<Object[]> findAllForStatistika();
+
+    // Kalendar statistikasi uchun — mijoz ma'lumoti bilan, lekin entity yuklamasdan
+    @Query("SELECT s.id, s.sotibOlinganSana, s.createdTime, s.summa, s.muddat, s.status, "
+            + "m.ism, m.familiya, m.sharif, m.tel1 "
+            + "FROM Shartnoma s LEFT JOIN s.mijoz m")
+    List<Object[]> findAllForKalendar();
 }

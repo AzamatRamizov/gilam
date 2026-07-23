@@ -140,10 +140,16 @@ public class AdminService {
         shartnoma.setMahsulot(mijoz.getAbout());
         shartnoma.setIzoh(mijoz.getIzoh());
         shartnoma.setMuddat(mijoz.getMuddat());
-        shartnoma.setSotibOlinganSana(String.valueOf(mijoz.getShartnomaSana()));
+        // Shartnoma sanasi doim yyyy-MM-dd ko'rinishida saqlanadi.
+        // (String.valueOf(null) "null" degan matn hosil qilardi — statistikada oy topilmasdi)
+        shartnoma.setSotibOlinganSana(mijoz.getShartnomaSana() != null
+                ? mijoz.getShartnomaSana().toLocalDate().toString()
+                : null);
         shartnoma.setTannarx(mijoz.getTannarx());
         shartnoma.setJoylashuv(mijoz.getJoylashuv());
-        shartnoma.setCreatedTime(mijoz.getShartnomaSana());
+        // DIQQAT: createdTime'ga @CreationTimestamp qo'yilgan — Hibernate uni yozuv
+        // bazaga tushgan payt bilan avtomatik to'ldiradi. Bu yerda qo'lda qo'yilgan qiymat
+        // e'tiborga olinmaydi, shuning uchun shartnoma sanasi faqat sotibOlinganSana'da turadi.
         long tulov=mijoz.getSumma()/mijoz.getMuddat();
         List<Jadval> jadvalList = new ArrayList<>();
         for (long i = 0; i < mijoz.getMuddat(); i++) {
@@ -281,7 +287,10 @@ public class AdminService {
 
         s.setMahsulot(dto.getNomi());
         s.setTannarx(dto.getNarx());              // String → String, parse shart emas
-        s.setSotibOlinganSana(dto.getSana());     // String → String, parse shart emas
+        // Bo'sh yuborilsa eski sana saqlanib qoladi (statistikadagi oy yo'qolmasligi uchun)
+        if (dto.getSana() != null && !dto.getSana().isBlank()) {
+            s.setSotibOlinganSana(dto.getSana().trim());
+        }
         s.setJoylashuv(dto.getLokatsiya());
         shartnomaRepository.save(s);
 
@@ -392,6 +401,48 @@ public class AdminService {
     }
 
     /**
+     * Bitta jadval qatorining to'lov sanasini o'zgartiradi.
+     * Faqat SANA o'zgaradi — summa, to'langan va holat tegilmaydi.
+     * Kunning vaqti (soat/daqiqa) eski sanadan saqlanib qoladi.
+     */
+    @Transactional
+    public ApiResponse jadvalSanaOzgartirish(Long jadvalId, LocalDate yangiSana) {
+        if (jadvalId == null) return new ApiResponse("Jadval ID berilmadi", false);
+        if (yangiSana == null) return new ApiResponse("Yangi sanani kiriting", false);
+
+        Jadval j = jadvalRepository.findById(jadvalId).orElse(null);
+        if (j == null) return new ApiResponse("Jadval topilmadi: " + jadvalId, false);
+
+        // To'liq to'langan qatorning sanasini o'zgartirishga ruxsat yo'q
+        // (frontendda ruchka yashirilgan, lekin so'rov to'g'ridan-to'g'ri ham kelishi mumkin)
+        if (j.getTulangan() >= j.getSumma() || "tulangan".equalsIgnoreCase(j.getHolat())) {
+            return new ApiResponse("Bu oy to'langan — sanasini o'zgartirib bo'lmaydi", false);
+        }
+
+        LocalDateTime eski = j.getSana();
+        if (eski != null && eski.toLocalDate().equals(yangiSana)) {
+            return new ApiResponse("Sana hozirgisi bilan bir xil", false);
+        }
+
+        // eski vaqtni saqlaymiz, bo'lmasa 09:00
+        LocalDateTime yangi = (eski != null)
+                ? yangiSana.atTime(eski.toLocalTime())
+                : yangiSana.atTime(9, 0);
+
+        j.setSana(yangi);
+        jadvalRepository.save(j);
+
+        Shartnoma s = shartnomaRepository.findByJadvalListContaining(j).orElse(null);
+        amalService.log("SHARTNOMA_TAHRIR",
+                "Shartnoma #" + (s != null ? s.getId() : "?") + " to'lov sanasi o'zgartirildi: "
+                        + (eski != null ? eski.toLocalDate() : "—") + " → " + yangiSana,
+                (s != null && s.getMijoz() != null) ? s.getMijoz().getId() : null,
+                s != null ? s.getId() : null, null);
+
+        return new ApiResponse("To'lov sanasi " + yangiSana + " ga o'zgartirildi", true);
+    }
+
+    /**
      * Oylar bo'yicha statistika: har oyda qo'shilgan shartnomalar soni va umumiy summasi.
      * Oy sifatida shartnoma tuzilgan sana (sotibOlinganSana) olinadi,
      * u bo'sh bo'lsa createdTime'ga qaraladi. Oraliqda bo'sh oylar 0 bilan to'ldiriladi.
@@ -402,13 +453,19 @@ public class AdminService {
         // TreeMap — oylar avtomatik o'sish tartibida saqlanadi ("2026-01" < "2026-02" ...)
         TreeMap<String, long[]> oylar = new TreeMap<>(); // key: "yyyy-MM", value: [soni, summa]
         long totalCount = 0, totalSumma = 0;
+        int zaxiraSanaBilan = 0;   // shartnoma sanasi o'qilmagani uchun createdTime ishlatilganlar
 
         for (Object[] q : qatorlar) {
             String sotibOlinganSana = (String) q[0];
             LocalDateTime createdTime = (LocalDateTime) q[1];
             long summa = q[2] != null ? ((Number) q[2]).longValue() : 0;
 
-            String oy = oyKey(sotibOlinganSana, createdTime);
+            // Avval shartnoma sanasini o'qiymiz, faqat u yaroqsiz bo'lsa createdTime'ga qaytamiz
+            String oy = oyKeyMatndan(sotibOlinganSana);
+            if (oy == null && createdTime != null) {
+                oy = String.format("%04d-%02d", createdTime.getYear(), createdTime.getMonthValue());
+                zaxiraSanaBilan++;
+            }
             if (oy == null) continue;
 
             long[] v = oylar.computeIfAbsent(oy, k -> new long[2]);
@@ -430,19 +487,159 @@ public class AdminService {
             }
         }
 
+        if (zaxiraSanaBilan > 0) {
+            // Bu son katta bo'lsa — bazadagi sotibOlinganSana bo'sh yoki formati buzuq degani
+            System.out.println("[STATISTIKA] " + zaxiraSanaBilan + " ta shartnomaning sanasi o'qilmadi; "
+                    + "ular bazaga kiritilgan oy bo'yicha hisoblandi.");
+        }
+
         return new StatistikaResponseDto(items, totalCount, totalSumma);
     }
 
-    private String oyKey(String sotibOlinganSana, LocalDateTime createdTime) {
-        if (sotibOlinganSana != null && sotibOlinganSana.length() >= 7) {
-            String k = sotibOlinganSana.substring(0, 7);
-            if (k.matches("\\d{4}-\\d{2}")) return k;
+    /**
+     * Kalendar statistikasi — tanlangan oy uchun kunlar kesimida shartnomalar.
+     * Yil/oy berilmasa joriy oy olinadi.
+     *
+     * Sana sifatida shartnoma sanasi (sotibOlinganSana) ishlatiladi;
+     * u o'qilmasa createdTime'ga qaytiladi.
+     */
+    public KalendarStatDto getKalendarStatistika(Integer yilParam, Integer oyParam) {
+        LocalDate bugun = LocalDate.now();
+        int yil = (yilParam != null) ? yilParam : bugun.getYear();
+        int oy  = (oyParam  != null) ? oyParam  : bugun.getMonthValue();
+        if (oy < 1 || oy > 12) oy = bugun.getMonthValue();
+
+        List<Object[]> qatorlar = shartnomaRepository.findAllForKalendar();
+
+        TreeSet<Integer> yillar = new TreeSet<>();
+        Map<Integer, long[]> kunlarMap = new TreeMap<>();   // kun -> [soni, summa]
+        List<KunShartnomaDto> oyShartnomalari = new ArrayList<>();
+        long oySoni = 0, oySumma = 0, yilSoni = 0, yilSumma = 0;
+
+        for (Object[] q : qatorlar) {
+            long id            = ((Number) q[0]).longValue();
+            String sanaMatn    = (String) q[1];
+            LocalDateTime crt  = (LocalDateTime) q[2];
+            long summa         = q[3] != null ? ((Number) q[3]).longValue() : 0;
+            long muddat        = q[4] != null ? ((Number) q[4]).longValue() : 0;
+            String status      = (String) q[5];
+
+            LocalDate sana = sanaMatndan(sanaMatn);
+            if (sana == null && crt != null) sana = crt.toLocalDate();
+            if (sana == null) continue;
+
+            yillar.add(sana.getYear());
+
+            if (sana.getYear() != yil) continue;
+            yilSoni++;
+            yilSumma += summa;
+
+            if (sana.getMonthValue() != oy) continue;
+            oySoni++;
+            oySumma += summa;
+
+            long[] v = kunlarMap.computeIfAbsent(sana.getDayOfMonth(), k -> new long[2]);
+            v[0]++;
+            v[1] += summa;
+
+            String fish = fishYig(q[6], q[7], q[8]);
+            oyShartnomalari.add(new KunShartnomaDto(
+                    id, sana.toString(), fish, (String) q[9], summa, muddat, status));
         }
+
+        // Jadval kun bo'yicha, keyin id bo'yicha tartiblanadi
+        oyShartnomalari.sort(Comparator
+                .comparing(KunShartnomaDto::getSana)
+                .thenComparing(KunShartnomaDto::getId));
+
+        List<KunlikStatDto> kunlar = new ArrayList<>();
+        for (Map.Entry<Integer, long[]> e : kunlarMap.entrySet()) {
+            kunlar.add(new KunlikStatDto(e.getKey(), e.getValue()[0], e.getValue()[1]));
+        }
+
+        yillar.add(bugun.getYear());   // joriy yil doim ro'yxatda bo'lsin
+        yillar.add(yil);
+
+        return new KalendarStatDto(new ArrayList<>(yillar), yil, oy,
+                oySoni, oySumma, yilSoni, yilSumma, kunlar, oyShartnomalari);
+    }
+
+    private String fishYig(Object ism, Object familiya, Object sharif) {
+        StringBuilder sb = new StringBuilder();
+        for (Object p : new Object[]{ism, familiya, sharif}) {
+            if (p != null && !String.valueOf(p).isBlank()) {
+                if (sb.length() > 0) sb.append(' ');
+                sb.append(String.valueOf(p).trim());
+            }
+        }
+        return sb.length() == 0 ? "—" : sb.toString();
+    }
+
+    private String oyKey(String sotibOlinganSana, LocalDateTime createdTime) {
+        String oy = oyKeyMatndan(sotibOlinganSana);
+        if (oy != null) return oy;
         if (createdTime != null) {
             return String.format("%04d-%02d", createdTime.getYear(), createdTime.getMonthValue());
         }
         return null;
     }
+
+    // 2026-07-23 | 2026/07/23 | 2026-07-23T10:30:00 | 2026-07
+    private static final java.util.regex.Pattern OY_ISO =
+            java.util.regex.Pattern.compile("^(\\d{4})[-/.](\\d{1,2})");
+    // 23.07.2026 | 23/07/2026 | 23-07-2026
+    private static final java.util.regex.Pattern OY_KUN_OY_YIL =
+            java.util.regex.Pattern.compile("^(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{4})");
+
+    /**
+     * Matn ko'rinishidagi sanadan "yyyy-MM" kalitini ajratadi.
+     * sotibOlinganSana bazada oddiy String bo'lgani uchun formatlar aralash bo'lishi mumkin.
+     * O'qib bo'lmasa null qaytaradi — chaqiruvchi createdTime'ga qaytadi.
+     */
+    private String oyKeyMatndan(String matn) {
+        LocalDate d = sanaMatndan(matn);
+        return d == null ? null : String.format("%04d-%02d", d.getYear(), d.getMonthValue());
+    }
+
+    // To'liq sana: 2026-07-23 | 2026/07/23 | 2026-07-23T10:30:00
+    private static final java.util.regex.Pattern SANA_ISO =
+            java.util.regex.Pattern.compile("^(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
+
+    /**
+     * Matn ko'rinishidagi sanani LocalDate'ga o'giradi.
+     * sotibOlinganSana bazada oddiy String bo'lgani uchun formatlar aralash bo'lishi mumkin.
+     * Faqat oy berilgan bo'lsa (masalan "2026-07") — oyning 1-kuni deb olinadi.
+     * O'qib bo'lmasa null qaytaradi.
+     */
+    private LocalDate sanaMatndan(String matn) {
+        if (matn == null) return null;
+        String t = matn.trim();
+        if (t.isEmpty() || "null".equalsIgnoreCase(t)) return null;
+
+        java.util.regex.Matcher m = SANA_ISO.matcher(t);
+        if (m.find()) return sanaYasa(m.group(1), m.group(2), m.group(3));
+
+        m = OY_KUN_OY_YIL.matcher(t);
+        if (m.find()) return sanaYasa(m.group(3), m.group(2), m.group(1));
+
+        m = OY_ISO.matcher(t);
+        if (m.find()) return sanaYasa(m.group(1), m.group(2), "1");
+
+        return null;
+    }
+
+    private LocalDate sanaYasa(String yil, String oy, String kun) {
+        try {
+            int y = Integer.parseInt(yil);
+            int o = Integer.parseInt(oy);
+            int k = Integer.parseInt(kun);
+            if (y < 1900 || y > 2200) return null;
+            return LocalDate.of(y, o, k);   // noto'g'ri oy/kun bo'lsa istisno tashlaydi
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     private String resolveDokonNomi(Long dokonId) {
         if (dokonId == null) return null;
@@ -771,7 +968,13 @@ public class AdminService {
         shartnoma.setJoylashuv(mijoz.getJoylashuv());
 
         shartnoma.setMuddat(mijoz.getMuddat());
-        shartnoma.setCreatedTime(mijoz.getShartnomaSana());
+        // ASOSIY TUZATISH: bu yo'lda shartnoma sanasi umuman saqlanmasdi.
+        // createdTime @CreationTimestamp bilan avtomatik yozilgani uchun bu yerdagi
+        // setCreatedTime(...) hech qanday ta'sir qilmasdi va sana yo'qolib ketardi —
+        // natijada statistika shartnomani BAZAGA KIRITILGAN oyga qo'shardi.
+        shartnoma.setSotibOlinganSana(mijoz.getShartnomaSana() != null
+                ? mijoz.getShartnomaSana().toLocalDate().toString()
+                : null);
         long tulov=mijoz.getSumma()/mijoz.getMuddat();
         List<Jadval> jadvalList = new ArrayList<>();
         for (long i = 0; i < mijoz.getMuddat(); i++) {

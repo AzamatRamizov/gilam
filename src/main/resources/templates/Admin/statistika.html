@@ -89,6 +89,39 @@
     .error-banner{background:#fde8e8;color:#b03030;border-radius:8px;padding:10px 16px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
     [data-theme="dark"] .error-banner{background:#3a1a1a;color:#e07070;}
     .table-loading-row td{text-align:center;padding:2rem;color:var(--color-hint);}
+
+    /* ── Kalendar ── */
+    .kal-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-bottom:1.2rem;}
+    .kal-nav{background:var(--bg-input);border:1px solid var(--color-border);border-radius:8px;color:var(--color-text);width:38px;height:38px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .kal-nav:hover{border-color:#1a6fa8;color:#1a6fa8;}
+    .kal-today{background:#1a6fa8;border:none;border-radius:8px;color:#fff;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;height:38px;}
+    .kal-today:hover{filter:brightness(1.08);}
+
+    .kal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+    .kal-head{font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-sub);text-align:center;padding-bottom:4px;}
+    .kal-cell{position:relative;aspect-ratio:1/1;min-height:58px;border:1px solid var(--color-divider);border-radius:10px;background:var(--bg-input);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
+    .kal-cell:hover{border-color:#1a6fa8;}
+    .kal-cell .k-kun{font-size:15px;font-weight:600;color:var(--color-text);line-height:1;}
+    .kal-cell .k-soni{font-size:11px;font-weight:700;color:#1a6fa8;background:rgba(26,111,168,0.12);border-radius:20px;padding:1px 8px;line-height:1.5;}
+    [data-theme="dark"] .kal-cell .k-soni{color:#7cc7ee;background:rgba(124,199,238,0.16);}
+    .kal-cell .k-bosh{height:18px;}
+    .kal-cell.tashqi{opacity:.35;cursor:default;}
+    .kal-cell.tashqi:hover{border-color:var(--color-divider);}
+    .kal-cell.bugun{border-color:#1a6fa8;border-width:2px;}
+    .kal-cell.tanlangan{background:#1a6fa8;border-color:#1a6fa8;}
+    .kal-cell.tanlangan .k-kun{color:#fff;}
+    .kal-cell.tanlangan .k-soni{color:#1a6fa8;background:#fff;}
+    .kal-cell:focus-visible{outline:2px solid #1a6fa8;outline-offset:2px;}
+
+    .kal-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:11.5px;color:var(--color-hint);}
+    .kal-legend span{display:flex;align-items:center;gap:5px;}
+    .kal-dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+    @media (max-width:576px){
+      .kal-cell{min-height:46px;}
+      .kal-cell .k-kun{font-size:13px;}
+      .kal-cell .k-soni{font-size:10px;padding:0 6px;}
+    }
   </style>
 </head>
 <body>
@@ -100,6 +133,88 @@
   <div class="mb-4">
     <p class="page-title">&#128202; Statistika</p>
     <p class="page-subtitle">Oylar bo'yicha qo'shilgan shartnomalar soni va summalari</p>
+  </div>
+
+  <!-- KUNLIK NAZORAT (kalendar) -->
+  <div class="main-card mb-4">
+    <div class="part-header">
+      <div class="part-number">&#128197;</div>
+      <div>
+        <p class="part-title">Kunlik nazorat</p>
+        <p class="part-subtitle" id="kalSubtitle">Yil, oy va kunni tanlang</p>
+      </div>
+    </div>
+
+    <div class="kal-controls">
+      <div>
+        <label class="form-label-c" for="kalYil">Yil</label>
+        <select id="kalYil" class="form-select" onchange="kalYuklash()"></select>
+      </div>
+      <div>
+        <label class="form-label-c" for="kalOy">Oy</label>
+        <select id="kalOy" class="form-select" onchange="kalYuklash()"></select>
+      </div>
+      <button class="kal-nav" type="button" title="Oldingi oy" onclick="kalOyOzgartir(-1)">&#8249;</button>
+      <button class="kal-nav" type="button" title="Keyingi oy" onclick="kalOyOzgartir(1)">&#8250;</button>
+      <button class="kal-today" type="button" onclick="kalBugun()">Bugun</button>
+    </div>
+
+    <div class="summary-bar mb-4">
+      <div class="summary-item">
+        <div class="s-label">Shu oyda</div>
+        <div class="s-value" id="kal_oy_soni">0 ta</div>
+        <div class="s-hint" id="kal_oy_summa">0 so'm</div>
+      </div>
+      <div class="summary-item">
+        <div class="s-label">Shu yilda</div>
+        <div class="s-value" id="kal_yil_soni">0 ta</div>
+        <div class="s-hint" id="kal_yil_summa">0 so'm</div>
+      </div>
+      <div class="summary-item green">
+        <div class="s-label" id="kal_kun_label">Tanlangan kun</div>
+        <div class="s-value" id="kal_kun_soni">0 ta</div>
+        <div class="s-hint" id="kal_kun_summa">0 so'm</div>
+      </div>
+    </div>
+
+    <div class="kal-grid" id="kalHead"></div>
+    <div class="kal-grid mt-1" id="kalGrid">
+      <div style="grid-column:1/-1;" class="table-empty">Yuklanmoqda...</div>
+    </div>
+
+    <div class="kal-legend">
+      <span><i class="kal-dot" style="background:#1a6fa8;"></i> Tanlangan kun</span>
+      <span><i class="kal-dot" style="border:2px solid #1a6fa8;background:transparent;"></i> Bugun</span>
+      <span>Kun ustidagi raqam &#8212; o'sha kuni kiritilgan shartnomalar soni</span>
+    </div>
+  </div>
+
+  <!-- TANLANGAN KUN SHARTNOMALARI -->
+  <div class="main-card mb-4">
+    <div class="part-header">
+      <div class="part-number">&#128203;</div>
+      <div>
+        <p class="part-title">Kun shartnomalari</p>
+        <p class="part-subtitle" id="kunTableSubtitle">Kun tanlang</p>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="stat-table">
+        <thead>
+        <tr>
+          <th>Shartnoma &#8470;</th>
+          <th>F.I.Sh</th>
+          <th>Tel</th>
+          <th>Summa</th>
+          <th>Muddat</th>
+          <th>Holat</th>
+        </tr>
+        </thead>
+        <tbody id="kunTableBody">
+        <tr class="table-loading-row"><td colspan="6">Yuklanmoqda...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- 1-QISM: YIL FILTRI -->
@@ -388,6 +503,203 @@
   }
 
   loadStatistika();
+</script>
+
+<!-- ══════ KUNLIK NAZORAT (kalendar) ══════ -->
+<script>
+  (function () {
+    'use strict';
+    // Bu blok IIFE ichida — sahifadagi boshqa <script> bilan global nomlar to'qnashmaydi.
+    // HTML'dagi onclick="..." lar uchun kerakli funksiyalar oxirida window'ga biriktiriladi.
+
+    var KAL_OYLAR = ['Yanvar','Fevral','Mart','Aprel','May','Iyun',
+      'Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+    var KAL_HAFTA = ['Du','Se','Ch','Pa','Ju','Sh','Ya'];
+
+    var _kalData = null;     // serverdan kelgan oy ma'lumoti
+    var _kalKun  = null;     // tanlangan kun (1..31)
+
+    function kalFmtSumma(n){
+      n = Number(n) || 0;
+      return n.toLocaleString('ru-RU').replace(/\u00A0/g,' ') + " so'm";
+    }
+
+    // Dushanba = 0 bo'ladigan hafta indeksi
+    function haftaIndeks(d){ return (d.getDay() + 6) % 7; }
+
+    function kalSelectlarniTayyorla(yillar, yil, oy){
+      var ys = document.getElementById('kalYil');
+      if (ys.options.length !== yillar.length || String(ys.value) !== String(yil)) {
+        ys.innerHTML = yillar.map(function(y){
+          return '<option value="'+y+'"'+(y===yil?' selected':'')+'>'+y+'</option>';
+        }).join('');
+      }
+      var os = document.getElementById('kalOy');
+      if (!os.options.length) {
+        os.innerHTML = KAL_OYLAR.map(function(nom,i){
+          return '<option value="'+(i+1)+'">'+nom+'</option>';
+        }).join('');
+      }
+      os.value = String(oy);
+    }
+
+    function kalHeadChiz(){
+      document.getElementById('kalHead').innerHTML =
+              KAL_HAFTA.map(function(h){ return '<div class="kal-head">'+h+'</div>'; }).join('');
+    }
+
+    function kalChiz(){
+      if (!_kalData) return;
+      var yil = _kalData.yil, oy = _kalData.oy;
+      var grid = document.getElementById('kalGrid');
+
+      // kun -> {soni, summa}
+      var soniMap = {};
+      (_kalData.kunlar||[]).forEach(function(k){ soniMap[k.kun] = k; });
+
+      var birinchi   = new Date(yil, oy-1, 1);
+      var kunlarSoni = new Date(yil, oy, 0).getDate();
+      var oldin      = haftaIndeks(birinchi);          // oldingi oydan nechta katak
+      var otganOyKun = new Date(yil, oy-1, 0).getDate();
+
+      var bugun = new Date();
+      var bugunMi = (bugun.getFullYear()===yil && (bugun.getMonth()+1)===oy);
+      var bugunKun = bugun.getDate();
+
+      var html = '';
+
+      for (var i = oldin; i > 0; i--) {
+        html += '<div class="kal-cell tashqi"><span class="k-kun">'+(otganOyKun-i+1)+'</span></div>';
+      }
+
+      for (var k = 1; k <= kunlarSoni; k++) {
+        var st  = soniMap[k];
+        var cls = 'kal-cell';
+        if (bugunMi && k === bugunKun) cls += ' bugun';
+        if (k === _kalKun)             cls += ' tanlangan';
+        html += '<button type="button" class="'+cls+'" onclick="kalKunTanla('+k+')">'+
+                '<span class="k-kun">'+k+'</span>'+
+                (st ? '<span class="k-soni">'+st.soni+'</span>' : '<span class="k-bosh"></span>')+
+                '</button>';
+      }
+
+      var qolgan = (7 - ((oldin + kunlarSoni) % 7)) % 7;
+      for (var j = 1; j <= qolgan; j++) {
+        html += '<div class="kal-cell tashqi"><span class="k-kun">'+j+'</span></div>';
+      }
+
+      grid.innerHTML = html;
+
+      document.getElementById('kalSubtitle').textContent =
+              KAL_OYLAR[oy-1] + ' ' + yil + " \u2014 kun tanlab, pastdagi jadvalda shartnomalarni ko'ring";
+    }
+
+    function kalKunTanla(kun){
+      _kalKun = kun;
+      kalChiz();
+      kunJadvalChiz();
+    }
+
+    function kunJadvalChiz(){
+      var tbody = document.getElementById('kunTableBody');
+      var sub   = document.getElementById('kunTableSubtitle');
+      if (!_kalData) return;
+
+      var kunStr = _kalData.yil + '-' +
+              String(_kalData.oy).padStart(2,'0') + '-' +
+              String(_kalKun).padStart(2,'0');
+
+      var qatorlar = (_kalData.shartnomalar||[]).filter(function(sh){ return sh.sana === kunStr; });
+      var summa = qatorlar.reduce(function(a,sh){ return a + (Number(sh.summa)||0); }, 0);
+
+      document.getElementById('kal_kun_label').textContent = _kalKun + '-' + KAL_OYLAR[_kalData.oy-1].toLowerCase();
+      document.getElementById('kal_kun_soni').textContent  = qatorlar.length + ' ta';
+      document.getElementById('kal_kun_summa').textContent = kalFmtSumma(summa);
+
+      sub.textContent = _kalKun + '-' + KAL_OYLAR[_kalData.oy-1].toLowerCase() + ', ' +
+              _kalData.yil + " \u2014 " + qatorlar.length + ' ta shartnoma';
+
+      if (!qatorlar.length) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="table-empty">Bu kuni shartnoma kiritilmagan</div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = qatorlar.map(function(sh){
+        return '<tr>'+
+                '<td style="font-weight:600;"><a href="/admin/shartnoma-detail?id='+sh.id+'" style="color:#1a6fa8;text-decoration:none;">\u2116'+sh.id+'</a></td>'+
+                '<td>'+(sh.fish||'\u2014')+'</td>'+
+                '<td>'+(sh.tel||'\u2014')+'</td>'+
+                '<td class="sum-col">'+kalFmtSumma(sh.summa)+'</td>'+
+                '<td>'+(sh.muddat||0)+' oy</td>'+
+                '<td>'+(sh.status||'\u2014')+'</td>'+
+                '</tr>';
+      }).join('');
+    }
+
+    function kalOyOzgartir(delta){
+      var yil = parseInt(document.getElementById('kalYil').value);
+      var oy  = parseInt(document.getElementById('kalOy').value) + delta;
+      if (oy < 1)  { oy = 12; yil--; }
+      if (oy > 12) { oy = 1;  yil++; }
+      kalYuklash(yil, oy, 1);
+    }
+
+    function kalBugun(){
+      var d = new Date();
+      kalYuklash(d.getFullYear(), d.getMonth()+1, d.getDate());
+    }
+
+    // yil/oy berilmasa select'lardan olinadi; kunTanla berilmasa 1-kun tanlanadi
+    function kalYuklash(yil, oy, kunTanla){
+      var ys = document.getElementById('kalYil');
+      var os = document.getElementById('kalOy');
+      var q  = '';
+      if (yil == null && ys.value) yil = parseInt(ys.value);
+      if (oy  == null && os.value) oy  = parseInt(os.value);
+      if (yil != null && oy != null) q = '?yil='+yil+'&oy='+oy;
+
+      document.getElementById('kalGrid').innerHTML =
+              '<div style="grid-column:1/-1;" class="table-empty">Yuklanmoqda...</div>';
+
+      fetch('/admin/get-statistika-kalendar'+q)
+              .then(function(r){ return r.ok ? r.json() : Promise.reject('Server xatosi: '+r.status); })
+              .then(function(data){
+                _kalData = data || {};
+                kalSelectlarniTayyorla(_kalData.yillar||[_kalData.yil], _kalData.yil, _kalData.oy);
+
+                var oyKunlari = new Date(_kalData.yil, _kalData.oy, 0).getDate();
+                var d = new Date();
+                if (kunTanla != null)      _kalKun = kunTanla;
+                else if (d.getFullYear()===_kalData.yil && (d.getMonth()+1)===_kalData.oy) _kalKun = d.getDate();
+                else                       _kalKun = 1;
+                if (_kalKun > oyKunlari) _kalKun = oyKunlari;
+
+                document.getElementById('kal_oy_soni').textContent   = (_kalData.oySoni||0)+' ta';
+                document.getElementById('kal_oy_summa').textContent  = kalFmtSumma(_kalData.oySumma);
+                document.getElementById('kal_yil_soni').textContent  = (_kalData.yilSoni||0)+' ta';
+                document.getElementById('kal_yil_summa').textContent = kalFmtSumma(_kalData.yilSumma);
+
+                kalChiz();
+                kunJadvalChiz();
+              })
+              .catch(function(err){
+                document.getElementById('kalGrid').innerHTML =
+                        '<div style="grid-column:1/-1;" class="table-empty">Kalendarni yuklab bo\'lmadi. '+err+'</div>';
+                document.getElementById('kunTableBody').innerHTML =
+                        '<tr><td colspan="6"><div class="table-empty">Xatolik yuz berdi</div></td></tr>';
+              });
+    }
+    // parametrsiz \u2192 server joriy yil/oyni qaytaradi, kun = bugun
+
+    // Inline onclick handler'lari uchun
+    window.kalYuklash    = kalYuklash;
+    window.kalOyOzgartir = kalOyOzgartir;
+    window.kalBugun      = kalBugun;
+    window.kalKunTanla   = kalKunTanla;
+
+    kalHeadChiz();
+    kalYuklash();   // parametrsiz \u2192 server joriy yil/oyni qaytaradi, kun = bugun
+  })();
 </script>
 </body>
 </html>

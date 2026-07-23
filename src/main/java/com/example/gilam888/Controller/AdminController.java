@@ -172,6 +172,14 @@ public class AdminController {
         return ResponseEntity.ok(adminService.muddatOzgartirish(shartnomaId, muddat));
     }
 
+    /** Bitta jadval qatorining to'lov sanasini o'zgartirish. sana formati: yyyy-MM-dd */
+    @PutMapping("/update-jadval-sana")
+    public ResponseEntity<?> updateJadvalSana(
+            @RequestParam Long jadvalId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sana) {
+        return ResponseEntity.ok(adminService.jadvalSanaOzgartirish(jadvalId, sana));
+    }
+
     @PostMapping("/update-mahsulot")
     public ResponseEntity<?> updateMahsulot(@RequestBody MahsulotDto dto){
         return ResponseEntity.ok(adminService.updateMahsulot(dto));
@@ -227,7 +235,7 @@ public class AdminController {
     public ResponseEntity<?> magazinlar(){
         return ResponseEntity.ok(adminService.getMagazinlar());
     }
-//    @PutMapping("/tulov/{id}")
+    //    @PutMapping("/tulov/{id}")
 //    public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi, @RequestParam("sana") LocalDateTime sana, @RequestParam("dokon") Long dokonId){
 //        ApiResponse apiResponse=adminService.tulov(id,summa,turi,sana,dokonId);
 //        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
@@ -336,6 +344,14 @@ public class AdminController {
     @GetMapping("/get-statistika")
     public ResponseEntity<?> getStatistika(){
         return ResponseEntity.ok(adminService.getStatistika());
+    }
+
+    /** Kalendar statistikasi: tanlangan oyning kunlari bo'yicha shartnomalar. */
+    @GetMapping("/get-statistika-kalendar")
+    public ResponseEntity<?> getStatistikaKalendar(
+            @RequestParam(required = false) Integer yil,
+            @RequestParam(required = false) Integer oy) {
+        return ResponseEntity.ok(adminService.getKalendarStatistika(yil, oy));
     }
     @PreAuthorize("hasRole('owner')")
     @DeleteMapping("/delete-shartnoma/{id}")
