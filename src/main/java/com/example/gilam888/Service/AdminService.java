@@ -32,9 +32,10 @@ public class AdminService {
     private final JadvalRepository jadvalRepository;
     private final PaymentRepository paymentRepository;
     private final TelegramXabarService telegramXabarService;
+    private final SmsXabarService smsXabarService;
     private final AmalService amalService;
 
-    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository, TelegramXabarService telegramXabarService, AmalService amalService) {
+    public AdminService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, MijozRepository mijozRepository, FaylBaytRepository faylBaytRepository, ShartnomaRepository shartnomaRepository, MagazinRepository magazinRepository, TokenGenerator tokenGenerator, JadvalRepository jadvalRepository, PaymentRepository paymentRepository, TelegramXabarService telegramXabarService, SmsXabarService smsXabarService, AmalService amalService) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.mijozRepository = mijozRepository;
@@ -45,6 +46,7 @@ public class AdminService {
         this.jadvalRepository = jadvalRepository;
         this.paymentRepository = paymentRepository;
         this.telegramXabarService = telegramXabarService;
+        this.smsXabarService = smsXabarService;
         this.amalService = amalService;
     }
 
@@ -176,6 +178,7 @@ public class AdminService {
 
         shartnomaRepository.save(shartnoma);
         telegramXabarService.yangiShartnomaXabarYuborish(shartnoma);
+        smsXabarService.yangiShartnomaXabarYuborish(shartnoma);
 
         amalService.log("MIJOZ_QOSHISH",
                 "Yangi mijoz va shartnoma qo'shildi: " + mijozIsmi(mijozSave)
@@ -526,7 +529,7 @@ public class AdminService {
         return nomlars;
     }
 
-    public ApiResponse tulov(Long id, long summa, String turi, LocalDateTime sana, Long dokonId) {
+    public ApiResponse  tulov(Long id, long summa, String turi, LocalDateTime sana, Long dokonId) {
         Optional<Jadval> byId = jadvalRepository.findById(id);
         if(byId.isEmpty()){
             return new ApiResponse("Jadval topilmadi",false);
@@ -654,6 +657,7 @@ public class AdminService {
                 .mapToLong(j -> Math.max(0, j.getSumma() - j.getTulangan()))
                 .sum();
         telegramXabarService.tulovXabarYuborish(shartnoma.getMijoz(), qabulQilingan, shartnoma.getMahsulot(), shartnoma.getId(), umumiyQolgan);
+        smsXabarService.tulovXabarYuborish(shartnoma.getMijoz(), qabulQilingan, shartnoma.getMahsulot(), shartnoma.getId(), umumiyQolgan);
 
         if (qoldiq > 0) {
             return new ApiResponse(
@@ -802,6 +806,7 @@ public class AdminService {
 
         shartnomaRepository.save(shartnoma);
         telegramXabarService.yangiShartnomaXabarYuborish(shartnoma);
+        smsXabarService.yangiShartnomaXabarYuborish(shartnoma);
         amalService.log("SHARTNOMA_QOSHISH",
                 "Yangi shartnoma yaratildi: " + mijozIsmi(shartnoma.getMijoz())
                         + (shartnoma.getMahsulot() != null ? ", mahsulot: " + shartnoma.getMahsulot() : ""),

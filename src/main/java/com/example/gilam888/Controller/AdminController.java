@@ -227,11 +227,11 @@ public class AdminController {
     public ResponseEntity<?> magazinlar(){
         return ResponseEntity.ok(adminService.getMagazinlar());
     }
-    @PutMapping("/tulov/{id}")
-    public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi, @RequestParam("sana") LocalDateTime sana, @RequestParam("dokon") Long dokonId){
-        ApiResponse apiResponse=adminService.tulov(id,summa,turi,sana,dokonId);
-        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
-    }
+//    @PutMapping("/tulov/{id}")
+//    public ResponseEntity<?> tulov(@PathVariable Long id, @RequestParam("summa") long summa, @RequestParam("turi") String turi, @RequestParam("sana") LocalDateTime sana, @RequestParam("dokon") Long dokonId){
+//        ApiResponse apiResponse=adminService.tulov(id,summa,turi,sana,dokonId);
+//        return ResponseEntity.status(apiResponse.isHolat()?200:208).body(apiResponse.getMessage());
+//    }
     @GetMapping("/get-last-muddat")
     public ResponseEntity<?> getLastMuddat(){
         LocalDate bugun   = LocalDate.now();
