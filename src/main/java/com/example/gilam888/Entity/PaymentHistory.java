@@ -19,4 +19,9 @@ public class PaymentHistory extends AbstractLongEntity {
     private LocalDateTime sana;
     private String turi;
     private Long dokonId;
+
+    // Owner tomonidan qabul qilinganligi (kassa sahifasidagi "Qabul qildim" tugmasi)
+    private Boolean qabulQilindi;
+    private LocalDateTime qabulVaqti;
+    private String qabulQilganFish;
 }

@@ -25,6 +25,11 @@ public class Shartnoma extends AbstractLongEntity {
     private String sotibOlinganSana;
     private String joylashuv;
 
+    // Shartnoma qaysi do'konda (Magazin.id) sotilgani.
+    // Ilgari forma yuborsa ham bazaga saqlanmay qolardi (faqat PaymentHistory.dokonId ga yozilardi).
+    // Eski yozuvlarda NULL bo'lishi mumkin — ular dashboard "Kamchiliklar" kartasida ko'rsatiladi.
+    private Long dokonId;
+
     @ManyToOne
     private Mijoz mijoz;
 

@@ -147,6 +147,9 @@ public class AdminService {
                 : null);
         shartnoma.setTannarx(mijoz.getTannarx());
         shartnoma.setJoylashuv(mijoz.getJoylashuv());
+        // Sotilgan do'kon: formadan kelgan dokonId endi shartnomaning o'zida saqlanadi
+        // (ilgari yo'qolib ketardi). 0 — tanlanmagan degani, NULL sifatida saqlaymiz.
+        shartnoma.setDokonId(mijoz.getDokonId() > 0 ? Long.valueOf(mijoz.getDokonId()) : null);
         // DIQQAT: createdTime'ga @CreationTimestamp qo'yilgan — Hibernate uni yozuv
         // bazaga tushgan payt bilan avtomatik to'ldiradi. Bu yerda qo'lda qo'yilgan qiymat
         // e'tiborga olinmaydi, shuning uchun shartnoma sanasi faqat sotibOlinganSana'da turadi.
@@ -269,7 +272,9 @@ public class AdminService {
                 s.getMahsulot(),
                 s.getSotibOlinganSana(),
                 s.getTannarx(),
-                s.getJoylashuv()
+                s.getJoylashuv(),
+                s.getDokonId(),
+                resolveDokonNomi(s.getDokonId())
         );
 
         return new ShartnomaDetailDto(
@@ -292,6 +297,8 @@ public class AdminService {
             s.setSotibOlinganSana(dto.getSana().trim());
         }
         s.setJoylashuv(dto.getLokatsiya());
+        // Sotilgan do'kon tahrirlanadi; 0/undefined kelsa NULL bo'ladi (belgilanmagan)
+        s.setDokonId(dto.getDokonId() != null && dto.getDokonId() > 0 ? dto.getDokonId() : null);
         shartnomaRepository.save(s);
 
         amalService.log("SHARTNOMA_TAHRIR",
@@ -562,6 +569,84 @@ public class AdminService {
 
         return new KalendarStatDto(new ArrayList<>(yillar), yil, oy,
                 oySoni, oySumma, yilSoni, yilSumma, kunlar, oyShartnomalari);
+    }
+
+    /**
+     * Do'konlar bo'yicha statistika: har bir sotgan do'kon kesimida shartnomalar
+     * soni, umumiy summasi, tannarxi, foydasi va umumiy summadagi ulushi.
+     *
+     * yil = null bo'lsa barcha davr olinadi. Sana sifatida sotibOlinganSana,
+     * u o'qilmasa createdTime ishlatiladi (boshqa statistikalar bilan bir xil qoida).
+     * dokonId NULL bo'lgan shartnomalar "Do'kon belgilanmagan" qatoriga yig'iladi.
+     */
+    public DokonStatResponseDto getDokonStatistika(Integer yil) {
+        List<Object[]> qatorlar = shartnomaRepository.findAllForDokonStat();
+
+        // Do'kon nomlari bir marta o'qiladi (har qator uchun findById qilinmaydi)
+        Map<Long, String> dokonNomlari = new HashMap<>();
+        for (Magazin m : magazinRepository.findAll()) {
+            dokonNomlari.put(m.getId(), m.getNomi());
+        }
+
+        TreeSet<Integer> yillar = new TreeSet<>();
+        // key: dokonId (null bo'lsa -1L bilan belgilaymiz), value: [soni, summa, tannarx]
+        Map<Long, long[]> yigma = new HashMap<>();
+        long jamiSoni = 0, jamiSumma = 0, jamiTannarx = 0;
+
+        for (Object[] q : qatorlar) {
+            Long dokonId       = q[0] != null ? ((Number) q[0]).longValue() : null;
+            String sanaMatn    = (String) q[1];
+            LocalDateTime crt  = (LocalDateTime) q[2];
+            long summa         = q[3] != null ? ((Number) q[3]).longValue() : 0;
+            long tannarx       = tannarxSon((String) q[4]);
+
+            LocalDate sana = sanaMatndan(sanaMatn);
+            if (sana == null && crt != null) sana = crt.toLocalDate();
+            if (sana != null) yillar.add(sana.getYear());
+
+            // Yil filtri: sanasi umuman o'qilmaganlar faqat "Hammasi" rejimida ko'rinadi
+            if (yil != null && (sana == null || sana.getYear() != yil)) continue;
+
+            long key = dokonId != null ? dokonId : -1L;
+            long[] v = yigma.computeIfAbsent(key, k -> new long[3]);
+            v[0]++;
+            v[1] += summa;
+            v[2] += tannarx;
+            jamiSoni++;
+            jamiSumma += summa;
+            jamiTannarx += tannarx;
+        }
+
+        List<DokonStatDto> dokonlar = new ArrayList<>();
+        for (Map.Entry<Long, long[]> e : yigma.entrySet()) {
+            Long dokonId = e.getKey() == -1L ? null : e.getKey();
+            String nomi = dokonId == null
+                    ? "Do'kon belgilanmagan"
+                    : dokonNomlari.getOrDefault(dokonId, "Do'kon #" + dokonId);
+            long[] v = e.getValue();
+            double ulush = jamiSumma > 0 ? (v[1] * 100.0 / jamiSumma) : 0;
+            dokonlar.add(new DokonStatDto(dokonId, nomi, v[0], v[1], v[2], v[1] - v[2], ulush));
+        }
+        // Summasi kattasi tepada; "belgilanmagan" qatori doim oxirida
+        dokonlar.sort(Comparator
+                .comparing((DokonStatDto d) -> d.getDokonId() == null ? 1 : 0)
+                .thenComparing(DokonStatDto::getSumma, Comparator.reverseOrder()));
+
+        yillar.add(LocalDate.now().getYear());
+        return new DokonStatResponseDto(new ArrayList<>(yillar), yil,
+                jamiSoni, jamiSumma, jamiSumma - jamiTannarx, dokonlar);
+    }
+
+    /** Tannarx String saqlanadi — faqat raqamlarini olib songa o'giramiz ("2 500 000 so'm" ham o'qiladi). */
+    private long tannarxSon(String matn) {
+        if (matn == null) return 0;
+        String raqamlar = matn.replaceAll("[^0-9]", "");
+        if (raqamlar.isEmpty()) return 0;
+        try {
+            return Long.parseLong(raqamlar);
+        } catch (NumberFormatException e) {
+            return 0; // haddan tashqari uzun/buzuq qiymat
+        }
     }
 
     private String fishYig(Object ism, Object familiya, Object sharif) {
@@ -966,6 +1051,8 @@ public class AdminService {
         shartnoma.setMahsulot(mijoz.getAbout());
         shartnoma.setTannarx(mijoz.getTannarx());
         shartnoma.setJoylashuv(mijoz.getJoylashuv());
+        // Sotilgan do'kon (ilgari bu yo'lda ham saqlanmasdi)
+        shartnoma.setDokonId(mijoz.getDokonId() > 0 ? Long.valueOf(mijoz.getDokonId()) : null);
 
         shartnoma.setMuddat(mijoz.getMuddat());
         // ASOSIY TUZATISH: bu yo'lda shartnoma sanasi umuman saqlanmasdi.
@@ -1358,10 +1445,41 @@ public class AdminService {
         for (Shartnoma shartnoma : shartnomaRepository.findAll()) checkShartnomaStatus(shartnoma.getId());
         return "tekshirildi";
     }
+    // Shu sanadan oldingi shartnomalarda sana'dan boshqa kamchiliklar ko'rsatilmaydi
+    private static final LocalDate KAMCHILIK_TEKSHIRUV_BOSHI = LocalDate.of(2026, 7, 1);
+
     public List<ShartnomaRoyxat> getShartnomaWithMissingInfo() {
         List<Shartnoma> list = shartnomaRepository.findShartnomaWithMissingInfo();
 
-        return list.stream().map(s -> {
+        List<ShartnomaRoyxat> natija = new ArrayList<>();
+        for (Shartnoma s : list) {
+            boolean mahsulotYoq  = s.getMahsulot()  == null || s.getMahsulot().trim().isEmpty();
+            boolean tannarxYoq   = s.getTannarx()   == null || s.getTannarx().trim().isEmpty();
+            boolean joylashuvYoq = s.getJoylashuv() == null || s.getJoylashuv().trim().isEmpty();
+
+            String sanaMatn = s.getSotibOlinganSana();
+            boolean sanaBosh = sanaMatn == null || sanaMatn.trim().isEmpty();
+            LocalDate sana = sanaMatndan(sanaMatn);   // bo'sh yoki formati buzuq bo'lsa null
+
+            // Sana ma'lum va 1-iyuldan oldin bo'lsa — bu shartnoma kamchiliklar ro'yxatiga kirmaydi
+            if (sana != null && sana.isBefore(KAMCHILIK_TEKSHIRUV_BOSHI)) {
+                continue;
+            }
+
+            List<String> yetishmagan = new ArrayList<>();
+            if (sanaBosh) {
+                yetishmagan.add("shartnoma sanasi");
+            } else if (sana == null) {
+                // Sana yozilgan, lekin o'qib bo'lmaydigan formatda
+                yetishmagan.add("shartnoma sanasi (formati noto'g'ri: " + sanaMatn.trim() + ")");
+            }
+            if (mahsulotYoq)  yetishmagan.add("mahsulot nomi");
+            if (tannarxYoq)   yetishmagan.add("tannarx");
+            if (joylashuvYoq) yetishmagan.add("joylashuv");
+            if (s.getDokonId() == null) yetishmagan.add("sotilgan do'kon");
+
+            if (yetishmagan.isEmpty()) continue;
+
             ShartnomaRoyxat dto = new ShartnomaRoyxat();
             dto.setId(s.getId());
             dto.setSumma(s.getSumma());
@@ -1374,22 +1492,10 @@ public class AdminService {
             dto.setFish(fish.trim());
             dto.setTel(s.getMijoz() != null ? s.getMijoz().getTel1() : null);
 
-            boolean mahsulotYoq  = s.getMahsulot()  == null || s.getMahsulot().trim().isEmpty();
-            boolean tannarxYoq   = s.getTannarx()   == null || s.getTannarx().trim().isEmpty();
-            boolean joylashuvYoq = s.getJoylashuv() == null || s.getJoylashuv().trim().isEmpty();
-
-            List<String> yetishmagan = new ArrayList<>();
-            if (mahsulotYoq)  yetishmagan.add("mahsulot nomi");
-            if (tannarxYoq)   yetishmagan.add("tannarx");
-            if (joylashuvYoq) yetishmagan.add("joylashuv");
-
-            String sabab = yetishmagan.isEmpty()
-                    ? "—"
-                    : (yetishmagan.size() == 1 ? " " : " ") + String.join(", ", yetishmagan);
-            dto.setSabab(sabab);
-
-            return dto;
-        }).toList();
+            dto.setSabab(" " + String.join(", ", yetishmagan));
+            natija.add(dto);
+        }
+        return natija;
     }
 
     public ApiResponse shartnomaniUndiruvgaOtkazish(Long shartnomaId, String sabab) {

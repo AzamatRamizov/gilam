@@ -7,12 +7,17 @@ import com.example.gilam888.Entity.Jadval;
 import com.example.gilam888.Entity.Magazin;
 import com.example.gilam888.Entity.PaymentHistory;
 import com.example.gilam888.Entity.Shartnoma;
+import com.example.gilam888.Configurations.ApiResponse;
 import com.example.gilam888.Repository.JadvalRepository;
 import com.example.gilam888.Repository.MagazinRepository;
 import com.example.gilam888.Repository.PaymentRepository;
 import com.example.gilam888.Repository.ShartnomaRepository;
+import com.example.gilam888.Repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -40,6 +45,66 @@ public class KassaService {
     private final MagazinRepository magazinRepository;
     private final ShartnomaRepository shartnomaRepository;
     private final JadvalRepository jadvalRepository;
+    private final UsersRepository usersRepository;
+    private final AmalService amalService;
+
+    // ================= To'lovni qabul qilish (owner) =================
+
+    // Davrdan qat'i nazar barcha qabul qilinmagan to'lovlar ro'yxati —
+    // owner bir necha kunlikni yig'ib birdan qabul qilishi uchun
+    public List<PaymentDto> getQabulQilinmaganlar() {
+        return toPaymentDtos(paymentRepository.findQabulQilinmagan());
+    }
+
+    // Owner "Qabul qildim" tugmasini bosganda: to'lov(lar) qabul qilingan deb belgilanadi,
+    // kim va qachon qabul qilgani saqlanadi. Allaqachon qabul qilinganlari o'tkazib yuboriladi.
+    @Transactional
+    public ApiResponse tulovQabulQilish(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ApiResponse("To'lov tanlanmagan", false);
+        }
+
+        String fish = hozirgiUserFish();
+        LocalDateTime vaqt = LocalDateTime.now();
+
+        List<PaymentHistory> payments = paymentRepository.findAllById(ids);
+        int qabulSoni = 0;
+
+        for (PaymentHistory p : payments) {
+            if (Boolean.TRUE.equals(p.getQabulQilindi())) continue; // ikki marta qabul qilinmaydi
+            p.setQabulQilindi(true);
+            p.setQabulVaqti(vaqt);
+            p.setQabulQilganFish(fish);
+            qabulSoni++;
+
+            amalService.log(
+                    "To'lov qabul qilindi",
+                    "Kassadagi to'lov qabul qilindi (№" + p.getId() + ", " + (p.getTuri() == null ? "—" : p.getTuri()) + ")",
+                    null,
+                    p.getShartnomaId(),
+                    p.getSumma()
+            );
+        }
+        paymentRepository.saveAll(payments);
+
+        if (qabulSoni == 0) {
+            return new ApiResponse("To'lov(lar) allaqachon qabul qilingan", false);
+        }
+        return new ApiResponse(qabulSoni + " ta to'lov qabul qilindi", true);
+    }
+
+    // Hozirgi login qilgan userning F.I.Sh (bo'lmasa username) — SecurityContext orqali
+    private String hozirgiUserFish() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || auth.getName() == null) return "Noma'lum";
+            return usersRepository.findByUsername(auth.getName())
+                    .map(u -> u.getFish() != null && !u.getFish().isBlank() ? u.getFish() : u.getUsername())
+                    .orElse(auth.getName());
+        } catch (Exception e) {
+            return "Noma'lum";
+        }
+    }
 
     public KassaStatDto getKassaStat(String period, LocalDateTime customFrom, LocalDateTime customTo) {
         LocalDateTime now = LocalDateTime.now();
@@ -254,7 +319,11 @@ public class KassaService {
                 .sorted(Comparator.comparing(PaymentHistory::getSana).reversed())
                 .map(p -> {
                     PaymentDto dto = new PaymentDto();
+                    dto.setId(p.getId());
                     dto.setSana(p.getSana() != null ? p.getSana().toString() : null);
+                    dto.setQabulQilindi(Boolean.TRUE.equals(p.getQabulQilindi()));
+                    dto.setQabulVaqti(p.getQabulVaqti() != null ? p.getQabulVaqti().toString() : null);
+                    dto.setQabulQilganFish(p.getQabulQilganFish());
                     dto.setSumma(p.getSumma());
                     dto.setTuri(p.getTuri());
 

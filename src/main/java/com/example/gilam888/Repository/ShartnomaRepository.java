@@ -58,6 +58,8 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     WHERE (s.mahsulot   IS NULL OR TRIM(s.mahsulot)   = '')
        OR (s.tannarx    IS NULL OR TRIM(s.tannarx)    = '')
        OR (s.joylashuv  IS NULL OR TRIM(s.joylashuv)  = '')
+       OR (s.sotibOlinganSana IS NULL OR TRIM(s.sotibOlinganSana) = '')
+       OR (s.dokonId IS NULL)
     ORDER BY s.id DESC
 """)
     List<Shartnoma> findShartnomaWithMissingInfo();
@@ -69,6 +71,10 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     // Statistika uchun yengil projection — butun entity yuklanmaydi (heap tejash)
     @Query("SELECT s.sotibOlinganSana, s.createdTime, s.summa FROM Shartnoma s")
     List<Object[]> findAllForStatistika();
+
+    // Do'konlar bo'yicha statistika uchun yengil projection (entity yuklanmaydi)
+    @Query("SELECT s.dokonId, s.sotibOlinganSana, s.createdTime, s.summa, s.tannarx FROM Shartnoma s")
+    List<Object[]> findAllForDokonStat();
 
     // Kalendar statistikasi uchun — mijoz ma'lumoti bilan, lekin entity yuklamasdan
     @Query("SELECT s.id, s.sotibOlinganSana, s.createdTime, s.summa, s.muddat, s.status, "

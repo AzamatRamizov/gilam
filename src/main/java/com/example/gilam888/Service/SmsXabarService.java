@@ -26,9 +26,11 @@ public class SmsXabarService {
     private static final String BOT_LINK = "https://t.me/gilam888_bot";
 
     private final EskizSmsService eskiz;
+    private final SmsHisobService smsHisobService;
 
-    public SmsXabarService(EskizSmsService eskiz) {
+    public SmsXabarService(EskizSmsService eskiz, SmsHisobService smsHisobService) {
         this.eskiz = eskiz;
+        this.smsHisobService = smsHisobService;
     }
 
     /**
@@ -51,7 +53,10 @@ public class SmsXabarService {
                 + "Muddat: " + shartnoma.getMuddat() + " oy\n"
                 + "Batafsil malumot: " + BOT_LINK;
 
-        eskiz.sendSms(tel, matn);
+        boolean yuborildi = eskiz.sendSms(tel, matn);
+        // SMS nazorati: tarixga yozish + narxini balansdan ayirish
+        smsHisobService.smsYozish(tel, matn, "YANGI_SHARTNOMA", yuborildi,
+                shartnoma.getMijoz().getId(), shartnoma.getId(), mijozFish(shartnoma.getMijoz()));
     }
 
     /**
@@ -76,7 +81,10 @@ public class SmsXabarService {
                 + "Qolgan qarz: " + umumiyQolgan + " so'm.\n"
                 + "Batafsil malumot: " + BOT_LINK;
 
-        eskiz.sendSms(tel, matn);
+        boolean yuborildi = eskiz.sendSms(tel, matn);
+        // SMS nazorati: tarixga yozish + narxini balansdan ayirish
+        smsHisobService.smsYozish(tel, matn, "TOLOV", yuborildi,
+                mijoz.getId(), shartnomaId, mijozFish(mijoz));
     }
 
     /**
@@ -103,7 +111,20 @@ public class SmsXabarService {
                 + "To'lov summasi: " + tulovSumma + " so'm\n"
                 + "Batafsil malumot: " + BOT_LINK;
 
-        return eskiz.sendSms(tel, matn);
+        boolean yuborildi = eskiz.sendSms(tel, matn);
+        // SMS nazorati: tarixga yozish + narxini balansdan ayirish
+        smsHisobService.smsYozish(tel, matn, "ESLATMA", yuborildi,
+                mijoz.getId(), shartnomaId, mijozFish(mijoz));
+        return yuborildi;
+    }
+
+    /** SMS tarixida ko'rsatish uchun mijoz ismi (snapshot). */
+    private String mijozFish(Mijoz mijoz) {
+        StringBuilder sb = new StringBuilder();
+        if (mijoz.getFamiliya() != null) sb.append(mijoz.getFamiliya()).append(' ');
+        if (mijoz.getIsm() != null) sb.append(mijoz.getIsm());
+        String fish = sb.toString().trim();
+        return fish.isBlank() ? null : fish;
     }
 
     /** Mijozning birinchi bo'sh bo'lmagan raqamini qaytaradi (tel1 -> tel2 -> tel3). */

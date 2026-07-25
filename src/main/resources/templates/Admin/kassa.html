@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/kassa.css">
     <link rel="icon" type="image/png" href="/images/888.png">
 </head>
-<body>
+<body th:attr="data-owner=${isOwner}">
 
 <!-- Navbar (Thymeleaf) -->
 <nav th:replace="~{fragment :: navbar}"></nav>
@@ -60,6 +60,19 @@
         </div>
         <button class="period-tab active" style="height:38px;" onclick="applyDateRange()">&#9989; Qo'llash</button>
         <span id="drError" style="display:none; color:#c0392b; font-size:12.5px; font-weight:600;"></span>
+    </div>
+
+    <!-- ── QABUL QILINMAGAN TO'LOVLAR (davrga bog'liq emas, doim ko'rinadi) ── -->
+    <div class="main-card mb-4 qabul-panel" id="qabulPanel" style="display:none;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+            <p class="section-title" style="margin:0;">&#9203; Qabul qilinmagan to'lovlar</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <div class="sum-pill"><span>Jami</span><span id="qp_soni">0 ta</span></div>
+                <div class="sum-pill"><span>Summa</span><span id="qp_summa">0 so'm</span></div>
+                <span id="qp_hammasi_btn"></span>
+            </div>
+        </div>
+        <div id="qabulPanelBody" style="overflow-x:auto;"></div>
     </div>
 
     <!-- ── UMUMIY STATISTIKA (davrga bog'liq emas) ── -->
@@ -343,6 +356,11 @@
     }
 
     // ══════════════════════════════════════════
+    // OWNER TEKSHIRUVI
+    // ══════════════════════════════════════════
+    const IS_OWNER = document.body.getAttribute('data-owner') === 'true';
+
+    // ══════════════════════════════════════════
     // HOLAT (STATE)
     // ══════════════════════════════════════════
     let currentPeriod = 'bugun';
@@ -490,6 +508,156 @@
         renderDokonGroups(d.payments);
         renderDokonBreakdown(d.dokonlar);
     }    // ══════════════════════════════════════════
+    // QABUL QILISH (owner)
+    // ══════════════════════════════════════════
+    // Qator katakchasi: qabul qilingan bo'lsa — badge (kim/qachon), owner bo'lsa — tugma, aks holda — "Kutilmoqda"
+    function qabulCell(p) {
+        if (p.qabulQilindi) {
+            const info = (p.qabulQilganFish ? p.qabulQilganFish : '') +
+                (p.qabulVaqti ? ' • ' + fmtDateTime(p.qabulVaqti) : '');
+            return '<span class="qabul-badge" title="' + info.replace(/"/g, '&quot;') + '">&#9989; Qabul qilindi</span>';
+        }
+        if (IS_OWNER && p.id) {
+            return '<button class="qabul-btn" onclick="qabulQilish([' + p.id + '], this)">Qabul qildim</button>';
+        }
+        return '<span class="qabul-wait">Kutilmoqda</span>';
+    }
+
+    // Guruh sarlavhasidagi "Barchasini qabul qilish" tugmasi (faqat owner, qabul qilinmaganlari bo'lsa)
+    function qabulHammasiBtn(list) {
+        if (!IS_OWNER) return '';
+        const ids = list.filter(function(p) { return !p.qabulQilindi && p.id; })
+            .map(function(p) { return p.id; });
+        if (ids.length === 0) return '';
+        return '<button class="qabul-btn qabul-btn-all" ' +
+            'onclick="event.stopPropagation(); qabulQilish([' + ids.join(',') + '], this)">' +
+            '&#9989; Barchasini qabul qilish (' + ids.length + ')</button>';
+    }
+
+    function qabulQilish(ids, btn) {
+        if (!ids || ids.length === 0) return;
+        if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+        fetch('/admin/tulov-qabul?ids=' + ids.join(','), {
+            method: 'PUT',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                if (!data.holat) alert(data.message || "Qabul qilib bo'lmadi");
+                refreshCurrent(); // jadval qayta chiziladi — badge paydo bo'ladi
+            })
+            .catch(function(err) {
+                console.error('tulov-qabul xatolik:', err);
+                alert("Qabul qilishda xatolik yuz berdi");
+                if (btn) { btn.disabled = false; btn.textContent = 'Qabul qildim'; }
+            });
+    }
+
+    // Joriy tanlangan davr bo'yicha ma'lumotlarni qayta yuklaydi
+    function refreshCurrent() {
+        loadQabulQilinmagan(); // panel ham yangilanadi
+        if (currentPeriod === 'oy') {
+            fetchMonthStat(currentYear, currentMonth);
+        } else if (currentPeriod === 'maxsus') {
+            applyDateRange();
+        } else {
+            fetchKassaStat(currentPeriod);
+        }
+    }
+
+    // ══════════════════════════════════════════
+    // QABUL QILINMAGAN TO'LOVLAR PANELI
+    // (davrdan qat'i nazar — 3-4 kunlikni yig'ib qabul qilish mumkin)
+    // ══════════════════════════════════════════
+    function loadQabulQilinmagan() {
+        fetch('/admin/get-qabul-qilinmagan', { headers: { 'Accept': 'application/json' } })
+            .then(function(res) {
+                if (!res.ok) return Promise.reject(res.status);
+                return res.json();
+            })
+            .then(renderQabulPanel)
+            .catch(function(err) {
+                console.error('qabul-qilinmagan xatolik:', err);
+            });
+    }
+
+    function renderQabulPanel(list) {
+        const panel = document.getElementById('qabulPanel');
+        const body  = document.getElementById('qabulPanelBody');
+        const btnEl = document.getElementById('qp_hammasi_btn');
+
+        if (!list || list.length === 0) {
+            panel.style.display = 'none';
+            return;
+        }
+        panel.style.display = 'block';
+
+        const jami = list.reduce(function(s, p) { return s + p.summa; }, 0);
+        document.getElementById('qp_soni').textContent  = list.length + ' ta';
+        document.getElementById('qp_summa').textContent = fmtMln(jami);
+
+        // Owner uchun "Barchasini qabul qilish" tugmasi
+        if (IS_OWNER) {
+            const ids = list.map(function(p) { return p.id; });
+            btnEl.innerHTML = '<button class="qabul-btn" onclick="qabulQilish([' + ids.join(',') + '], this)">' +
+                '&#9989; Barchasini qabul qilish (' + ids.length + ')</button>';
+        } else {
+            btnEl.innerHTML = '';
+        }
+
+        // Kun bo'yicha guruhlash — nechchi kunlik yig'ilib qolgani ko'rinib turadi
+        const kunlar = {};
+        list.forEach(function(p) {
+            const kun = p.sana ? p.sana.slice(0, 10) : 'Noaniq';
+            if (!kunlar[kun]) kunlar[kun] = [];
+            kunlar[kun].push(p);
+        });
+
+        let html = '';
+        Object.keys(kunlar).sort().reverse().forEach(function(kun) {
+            const kList = kunlar[kun];
+            const kJami = kList.reduce(function(s, p) { return s + p.summa; }, 0);
+            const kIds  = kList.map(function(p) { return p.id; });
+
+            const kunBtn = IS_OWNER
+                ? '<button class="qabul-btn qabul-btn-all" onclick="qabulQilish([' + kIds.join(',') + '], this)">Shu kunni qabul qilish (' + kList.length + ')</button>'
+                : '';
+
+            const rows = kList.map(function(p, i) {
+                return '<tr class="row-unaccepted">' +
+                    '<td style="color:var(--color-sub);font-weight:600;">' + (i + 1) + '</td>' +
+                    '<td style="white-space:nowrap;">' + fmtDateTime(p.sana) + '</td>' +
+                    '<td>' + (p.dokon || '—') + '</td>' +
+                    '<td style="font-weight:500;">' + (p.mijoz || '—') + '</td>' +
+                    '<td style="font-weight:600;">' + fmtSumma(p.summa) + '</td>' +
+                    '<td>' + turiBadge(p.turi) + '</td>' +
+                    '<td>' + (p.shartnomaId
+                        ? '<a href="/admin/shartnoma-detail?id=' + p.shartnomaId + '" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">№' + p.shartnomaId + '</a>'
+                        : '—') +
+                    '</td>' +
+                    '<td>' + qabulCell(p) + '</td>' +
+                    '</tr>';
+            }).join('');
+
+            html += '<div class="qabul-kun-header">' +
+                '<span>&#128197; ' + fmtDate(kun) + '</span>' +
+                '<span class="qabul-kun-summa">' + kList.length + " ta • " + fmtMln(kJami) + '</span>' +
+                kunBtn +
+                '</div>' +
+                '<table class="pay-table" style="margin-bottom:10px;">' +
+                '<thead><tr><th>#</th><th>Vaqt</th><th>Do\'kon</th><th>Mijoz</th><th>Summa</th><th>Turi</th><th>Shartnoma</th><th>Qabul</th></tr></thead>' +
+                '<tbody>' + rows + '</tbody>' +
+                '</table>';
+        });
+
+        body.innerHTML = html;
+    }
+
+    // ══════════════════════════════════════════
     // DO'KON GURUHLARI (to'lovlar jadvali)
     // ══════════════════════════════════════════
     function toggleDokonGroup(el) {
@@ -534,7 +702,7 @@
             const jamiPill     = '<span class="dokon-pill dokon-pill-jami">Jami: ' + fmtMln(jami) + '</span>';
 
             const rows = list.map(function(p, i) {
-                return '<tr>' +
+                return '<tr' + (!p.qabulQilindi ? ' class="row-unaccepted"' : '') + '>' +
                     '<td style="color:var(--color-sub);font-weight:600;">' + (i + 1) + '</td>' +
                     '<td style="white-space:nowrap;">' + fmtDateTime(p.sana) + '</td>' +
                     '<td style="font-weight:500;">' + (p.mijoz || '—') + '</td>' +
@@ -544,13 +712,14 @@
                         ? '<a href="/admin/shartnoma-detail?id=' + p.shartnomaId + '" style="color:var(--accent);font-weight:600;font-size:12px;text-decoration:none;">№' + p.shartnomaId + '</a>'
                         : '—') +
                     '</td>' +
+                    '<td>' + qabulCell(p) + '</td>' +
                     '</tr>';
             }).join('');
 
             const footerCells =
                 '<td colspan="2" style="color:var(--color-sub);font-size:11.5px;">' + list.length + ' ta to\'lov</td>' +
                 '<td class="naqd-col">' + (naqd ? fmtMln(naqd) : '—') + '</td>' +
-                '<td></td><td></td><td></td>';
+                '<td></td><td></td><td></td><td></td>';
 
             html += '<div class="dokon-group">' +
                 '<div class="dokon-group-header" onclick="toggleDokonGroup(this)">' +
@@ -560,12 +729,13 @@
                 '<span style="font-size:12px;font-weight:500;color:var(--color-sub);">(' + list.length + ' ta)</span>' +
                 '</div>' +
                 '<div class="dokon-pills">' + naqdPill + terminalPill + otkazmaPill + jamiPill + '</div>' +
+                qabulHammasiBtn(list) +
                 '<span class="dokon-chevron">▼</span>' +
                 '</div>' +
                 '<div class="dokon-group-body">' +
                 '<div style="overflow-x:auto;">' +
                 '<table class="pay-table">' +
-                '<thead><tr><th>#</th><th>Sana</th><th>Mijoz</th><th>Summa</th><th>Turi</th><th>Shartnoma</th></tr></thead>' +
+                '<thead><tr><th>#</th><th>Sana</th><th>Mijoz</th><th>Summa</th><th>Turi</th><th>Shartnoma</th><th>Qabul</th></tr></thead>' +
                 '<tbody>' + rows + '</tbody>' +
                 '<tfoot><tr class="dokon-footer">' + footerCells + '</tr></tfoot>' +
                 '</table>' +
@@ -698,6 +868,7 @@
     // BOSHLANG'ICH YUKLASH
     // ══════════════════════════════════════════
     loadAllSummaStat();
+    loadQabulQilinmagan();
     fetchKassaStat('bugun');
 </script>
 </body>

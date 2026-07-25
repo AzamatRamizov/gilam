@@ -91,21 +91,30 @@
     .table-loading-row td{text-align:center;padding:2rem;color:var(--color-hint);}
 
     /* ── Kalendar ── */
-    .kal-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-bottom:1.2rem;}
-    .kal-nav{background:var(--bg-input);border:1px solid var(--color-border);border-radius:8px;color:var(--color-text);width:38px;height:38px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .kal-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;margin-bottom:1rem;}
+    .kal-controls .form-select{font-size:13px;padding:6px 10px;}
+    .kal-nav{background:var(--bg-input);border:1px solid var(--color-border);border-radius:7px;color:var(--color-text);width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
     .kal-nav:hover{border-color:#1a6fa8;color:#1a6fa8;}
-    .kal-today{background:#1a6fa8;border:none;border-radius:8px;color:#fff;padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;height:38px;}
+    .kal-today{background:#1a6fa8;border:none;border-radius:7px;color:#fff;padding:0 14px;font-size:12.5px;font-weight:600;cursor:pointer;height:32px;}
     .kal-today:hover{filter:brightness(1.08);}
 
-    .kal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-    .kal-head{font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-sub);text-align:center;padding-bottom:4px;}
-    .kal-cell{position:relative;aspect-ratio:1/1;min-height:58px;border:1px solid var(--color-divider);border-radius:10px;background:var(--bg-input);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
+    /* Chapda kalendar, o'ngda kun jadvali */
+    .kal-layout{display:flex;gap:26px;align-items:flex-start;}
+    .kal-left{flex:0 0 322px;max-width:322px;}
+    .kal-right{flex:1 1 auto;min-width:0;}
+    .kal-right-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+    .kal-right-title{font-size:13.5px;font-weight:700;color:var(--color-text);margin:0;}
+    .kal-right-sub{font-size:12px;color:var(--color-sub);margin:0;}
+
+    .kal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+    .kal-head{font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-sub);text-align:center;padding-bottom:2px;}
+    .kal-cell{position:relative;height:40px;border:1px solid var(--color-divider);border-radius:8px;background:var(--bg-input);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:2px;}
     .kal-cell:hover{border-color:#1a6fa8;}
-    .kal-cell .k-kun{font-size:15px;font-weight:600;color:var(--color-text);line-height:1;}
-    .kal-cell .k-soni{font-size:11px;font-weight:700;color:#1a6fa8;background:rgba(26,111,168,0.12);border-radius:20px;padding:1px 8px;line-height:1.5;}
+    .kal-cell .k-kun{font-size:12.5px;font-weight:600;color:var(--color-text);line-height:1.1;}
+    .kal-cell .k-soni{font-size:9.5px;font-weight:700;color:#1a6fa8;background:rgba(26,111,168,0.12);border-radius:20px;padding:0 6px;line-height:1.5;}
     [data-theme="dark"] .kal-cell .k-soni{color:#7cc7ee;background:rgba(124,199,238,0.16);}
-    .kal-cell .k-bosh{height:18px;}
-    .kal-cell.tashqi{opacity:.35;cursor:default;}
+    .kal-cell .k-bosh{height:12px;}
+    .kal-cell.tashqi{opacity:.3;cursor:default;}
     .kal-cell.tashqi:hover{border-color:var(--color-divider);}
     .kal-cell.bugun{border-color:#1a6fa8;border-width:2px;}
     .kal-cell.tanlangan{background:#1a6fa8;border-color:#1a6fa8;}
@@ -113,14 +122,17 @@
     .kal-cell.tanlangan .k-soni{color:#1a6fa8;background:#fff;}
     .kal-cell:focus-visible{outline:2px solid #1a6fa8;outline-offset:2px;}
 
-    .kal-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:11.5px;color:var(--color-hint);}
+    .kal-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:11px;color:var(--color-hint);}
     .kal-legend span{display:flex;align-items:center;gap:5px;}
-    .kal-dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+    .kal-dot{width:9px;height:9px;border-radius:3px;display:inline-block;}
 
-    @media (max-width:576px){
-      .kal-cell{min-height:46px;}
-      .kal-cell .k-kun{font-size:13px;}
-      .kal-cell .k-soni{font-size:10px;padding:0 6px;}
+    .kal-divider{height:1px;background:var(--color-divider);margin:1.3rem 0;}
+
+    @media (max-width:900px){
+      .kal-layout{flex-direction:column;gap:0;}
+      .kal-left{flex:1 1 auto;max-width:100%;width:100%;}
+      .kal-right{width:100%;}
+      .kal-right::before{content:"";display:block;height:1px;background:var(--color-divider);margin:1.3rem 0;}
     }
   </style>
 </head>
@@ -135,7 +147,7 @@
     <p class="page-subtitle">Oylar bo'yicha qo'shilgan shartnomalar soni va summalari</p>
   </div>
 
-  <!-- KUNLIK NAZORAT (kalendar) -->
+  <!-- KUNLIK NAZORAT: kalendar + tanlangan kun shartnomalari -->
   <div class="main-card mb-4">
     <div class="part-header">
       <div class="part-number">&#128197;</div>
@@ -177,40 +189,80 @@
       </div>
     </div>
 
-    <div class="kal-grid" id="kalHead"></div>
-    <div class="kal-grid mt-1" id="kalGrid">
-      <div style="grid-column:1/-1;" class="table-empty">Yuklanmoqda...</div>
-    </div>
+    <div class="kal-layout">
+      <div class="kal-left">
+        <div class="kal-grid" id="kalHead"></div>
+        <div class="kal-grid mt-1" id="kalGrid">
+          <div style="grid-column:1/-1;" class="table-empty">Yuklanmoqda...</div>
+        </div>
+        <div class="kal-legend">
+          <span><i class="kal-dot" style="background:#1a6fa8;"></i> Tanlangan</span>
+          <span><i class="kal-dot" style="border:2px solid #1a6fa8;background:transparent;"></i> Bugun</span>
+          <span>Raqam &#8212; o'sha kuni kiritilgan shartnomalar</span>
+        </div>
+      </div>
 
-    <div class="kal-legend">
-      <span><i class="kal-dot" style="background:#1a6fa8;"></i> Tanlangan kun</span>
-      <span><i class="kal-dot" style="border:2px solid #1a6fa8;background:transparent;"></i> Bugun</span>
-      <span>Kun ustidagi raqam &#8212; o'sha kuni kiritilgan shartnomalar soni</span>
+      <div class="kal-right">
+        <div class="kal-right-head">
+          <p class="kal-right-title">Kun shartnomalari</p>
+          <p class="kal-right-sub" id="kunTableSubtitle">Kun tanlang</p>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="stat-table">
+            <thead>
+            <tr>
+              <th>&#8470;</th>
+              <th>F.I.Sh</th>
+              <th>Tel</th>
+              <th>Summa</th>
+              <th>Muddat</th>
+              <th>Holat</th>
+            </tr>
+            </thead>
+            <tbody id="kunTableBody">
+            <tr class="table-loading-row"><td colspan="6">Yuklanmoqda...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- TANLANGAN KUN SHARTNOMALARI -->
+  <!-- DO'KONLAR BO'YICHA: sotgan do'kon kesimida shartnomalar -->
   <div class="main-card mb-4">
-    <div class="part-header">
-      <div class="part-number">&#128203;</div>
-      <div>
-        <p class="part-title">Kun shartnomalari</p>
-        <p class="part-subtitle" id="kunTableSubtitle">Kun tanlang</p>
+    <div class="d-flex align-items-center justify-content-between mb-2" style="flex-wrap:wrap;gap:8px;">
+      <div class="part-header" style="margin:0;">
+        <div class="part-number">&#127978;</div>
+        <div>
+          <p class="part-title">Do'konlar bo'yicha</p>
+          <p class="part-subtitle" id="dokSubtitle">Sotgan do'kon kesimida shartnomalar</p>
+        </div>
+      </div>
+      <div class="period-tabs" style="padding:4px;" id="dokYearTabs">
+        <button class="period-tab active" data-dok-yil="all">&#128200; Hammasi</button>
       </div>
     </div>
+
+    <div class="summary-bar mb-3">
+      <div class="summary-item"><div class="s-label">Shartnomalar soni</div><div class="s-value" id="dok_jami_soni">&#8212;</div></div>
+      <div class="summary-item green"><div class="s-label">Umumiy summa</div><div class="s-value" id="dok_jami_summa">&#8212;</div></div>
+      <div class="summary-item"><div class="s-label">Umumiy foyda</div><div class="s-value" id="dok_jami_foyda">&#8212;</div></div>
+      <div class="summary-item"><div class="s-label">Eng ko'p sotgan do'kon</div><div class="s-value" id="dok_top">&#8212;</div><div class="s-hint" id="dok_top_hint"></div></div>
+    </div>
+
     <div style="overflow-x:auto;">
       <table class="stat-table">
         <thead>
         <tr>
-          <th>Shartnoma &#8470;</th>
-          <th>F.I.Sh</th>
-          <th>Tel</th>
-          <th>Summa</th>
-          <th>Muddat</th>
-          <th>Holat</th>
+          <th>Do'kon</th>
+          <th>Soni</th>
+          <th>Umumiy summa</th>
+          <th>Tannarx</th>
+          <th>Foyda</th>
+          <th style="width:24%;">Ulush</th>
         </tr>
         </thead>
-        <tbody id="kunTableBody">
+        <tbody id="dokTableBody">
         <tr class="table-loading-row"><td colspan="6">Yuklanmoqda...</td></tr>
         </tbody>
       </table>
@@ -699,6 +751,93 @@
 
     kalHeadChiz();
     kalYuklash();   // parametrsiz \u2192 server joriy yil/oyni qaytaradi, kun = bugun
+  })();
+</script>
+
+<!-- ══════ DO'KONLAR BO'YICHA ══════ -->
+<script>
+  (function () {
+    'use strict';
+    // IIFE — sahifadagi boshqa <script>lar bilan global nomlar to'qnashmasligi uchun.
+
+    var _dokYil = null;   // null = barcha davr
+
+    function dokFmtSumma(n) {
+      return (Number(n)||0).toLocaleString('uz-UZ') + " so'm";
+    }
+
+    function dokYuklash() {
+      document.getElementById('dokTableBody').innerHTML =
+              '<tr class="table-loading-row"><td colspan="6">Yuklanmoqda...</td></tr>';
+      var url = '/admin/get-statistika-dokon' + (_dokYil ? ('?yil=' + _dokYil) : '');
+      fetch(url)
+              .then(function(r){ return r.ok ? r.json() : r.text().then(function(t){ throw t||('Server xatosi: '+r.status); }); })
+              .then(function(data){ dokChiz(data || {}); })
+              .catch(function(){
+                document.getElementById('dokTableBody').innerHTML =
+                        '<tr><td colspan="6"><div class="table-empty">Xatolik yuz berdi</div></td></tr>';
+              });
+    }
+
+    function dokYilTablari(yillar) {
+      var wrap = document.getElementById('dokYearTabs');
+      var h = '<button class="period-tab'+(_dokYil===null?' active':'')+'" data-dok-yil="all">&#128200; Hammasi</button>';
+      (yillar||[]).forEach(function(y){
+        h += '<button class="period-tab'+(_dokYil===y?' active':'')+'" data-dok-yil="'+y+'">'+y+'</button>';
+      });
+      wrap.innerHTML = h;
+      wrap.querySelectorAll('.period-tab').forEach(function(b){
+        b.addEventListener('click', function(){
+          var v = b.getAttribute('data-dok-yil');
+          _dokYil = (v==='all') ? null : parseInt(v,10);
+          dokYuklash();
+        });
+      });
+    }
+
+    function dokChiz(data) {
+      dokYilTablari(data.yillar);
+      document.getElementById('dokSubtitle').textContent =
+              (_dokYil ? _dokYil+'-yil' : 'Barcha davr') + " bo'yicha sotgan do'kon kesimida";
+
+      var dokonlar = Array.isArray(data.dokonlar) ? data.dokonlar : [];
+
+      document.getElementById('dok_jami_soni').textContent  = (data.jamiSoni||0)+' ta';
+      document.getElementById('dok_jami_summa').textContent = dokFmtSumma(data.jamiSumma);
+      document.getElementById('dok_jami_foyda').textContent = dokFmtSumma(data.jamiFoyda);
+
+      // Eng ko'p sotgan (summa bo'yicha) — "belgilanmagan" qatorini hisobga olmaymiz
+      var top = null;
+      dokonlar.forEach(function(d){
+        if (d.dokonId === null || d.dokonId === undefined) return;
+        if (!top || Number(d.summa) > Number(top.summa)) top = d;
+      });
+      document.getElementById('dok_top').textContent = top ? top.dokonNomi : '\u2014';
+      document.getElementById('dok_top_hint').textContent = top ? (top.soni+' ta \u00b7 '+dokFmtSumma(top.summa)) : '';
+
+      var tbody = document.getElementById('dokTableBody');
+      if (!dokonlar.length) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="table-empty">Ma\'lumot yo\'q</div></td></tr>';
+        return;
+      }
+      var maxSumma = Math.max.apply(null, dokonlar.map(function(d){ return Number(d.summa)||0; })) || 1;
+      tbody.innerHTML = dokonlar.map(function(d){
+        var belgilanmagan = (d.dokonId === null || d.dokonId === undefined);
+        var barW = Math.max(2, Math.round((Number(d.summa)||0)/maxSumma*100));
+        var foyda = Number(d.foyda)||0;
+        return '<tr'+(belgilanmagan ? ' style="opacity:.65;"' : '')+'>'+
+                '<td style="font-weight:600;">'+(belgilanmagan ? '&#9888;&#65039; ' : '')+d.dokonNomi+'</td>'+
+                '<td>'+(d.soni||0)+' ta</td>'+
+                '<td class="sum-col">'+dokFmtSumma(d.summa)+'</td>'+
+                '<td>'+dokFmtSumma(d.tannarx)+'</td>'+
+                '<td style="font-weight:600;color:'+(foyda>=0?'#1a9a50':'#c0392b')+';">'+dokFmtSumma(foyda)+'</td>'+
+                '<td><span style="font-size:12px;color:var(--color-sub);">'+(Number(d.ulush)||0).toFixed(1)+'%</span>'+
+                '<span class="mini-bar" style="width:'+barW+'px;"></span></td>'+
+                '</tr>';
+      }).join('');
+    }
+
+    dokYuklash();
   })();
 </script>
 </body>

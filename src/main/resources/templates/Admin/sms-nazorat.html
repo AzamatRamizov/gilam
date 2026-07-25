@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SMS nazorati</title>
+  <link rel="icon" type="image/png" href="/images/888.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <style>
+    :root {
+      --bg-body:#dceef8; --bg-card:#ffffff; --color-text:#1a3a52; --color-sub:#5a8fa8;
+      --color-border:#b3d6ee; --color-divider:#d0e9f5; --color-card-bdr:#c5dff0;
+      --color-hint:#90b8cc; --bg-input:#f5fafd; --bg-input-grp:#daeef9; --transition:0.25s ease;
+    }
+    [data-theme="dark"] {
+      --bg-body:#0f1e2b; --bg-card:#162534; --color-text:#d0e8f5; --color-sub:#5a8fa8;
+      --color-border:#2a4f6a; --color-divider:#1e3d55; --color-card-bdr:#1e3d55;
+      --color-hint:#4a7a94; --bg-input:#1c2f40; --bg-input-grp:#1a3048;
+    }
+    *{box-sizing:border-box;transition:background-color var(--transition),color var(--transition),border-color var(--transition);}
+    body{background-color:var(--bg-body);font-family:'Segoe UI',sans-serif;color:var(--color-text);min-height:100vh;}
+
+    .navbar{background:#1a6fa8!important;box-shadow:0 2px 10px rgba(26,111,168,0.3);padding:0;}
+    [data-theme="dark"] .navbar{background:#0e3f60!important;}
+    .navbar-brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:#fff!important;}
+    .navbar-brand .logo-icon{width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+    .navbar-brand span{color:#a8dcf5;}
+    .navbar-nav .nav-link{color:rgba(255,255,255,0.88)!important;font-size:14px;font-weight:500;padding:20px 14px!important;border-bottom:2px solid transparent;}
+    .navbar-nav .nav-link:hover,.navbar-nav .nav-link.active{color:#fff!important;border-bottom-color:rgba(255,255,255,0.6);}
+    .theme-toggle{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;color:#fff;padding:5px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;margin-left:10px;}
+    .theme-toggle:hover{background:rgba(255,255,255,0.25);}
+
+    .main-card{background:var(--bg-card);border:1px solid var(--color-card-bdr);border-radius:12px;padding:1.5rem;box-shadow:0 2px 12px rgba(26,111,168,0.07);}
+    [data-theme="dark"] .main-card{box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1a6fa8;margin-bottom:12px;}
+    [data-theme="dark"] .section-title{color:#5ab4dc;}
+
+    /* ── Stat kartalar ── */
+    .stat-card{background:var(--bg-card);border:1px solid var(--color-card-bdr);border-radius:12px;padding:16px 18px;height:100%;box-shadow:0 2px 12px rgba(26,111,168,0.07);}
+    [data-theme="dark"] .stat-card{box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+    .stat-label{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-sub);}
+    .stat-value{font-size:22px;font-weight:800;margin-top:4px;white-space:nowrap;}
+    .stat-extra{font-size:12px;color:var(--color-hint);margin-top:2px;}
+    .stat-balans{border-left:4px solid #2e7d32;}
+    .stat-balans .stat-value{color:#2e7d32;} [data-theme="dark"] .stat-balans .stat-value{color:#7fd28c;}
+    .stat-balans.kam{border-left-color:#c62828;}
+    .stat-balans.kam .stat-value{color:#c62828;} [data-theme="dark"] .stat-balans.kam .stat-value{color:#f19d99;}
+    .stat-sarf .stat-value{color:#1a6fa8;} [data-theme="dark"] .stat-sarf .stat-value{color:#5ab4dc;}
+
+    .kam-ogohlantirish{display:none;background:#fdecea;color:#c62828;border:1px solid #f3c1bd;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;margin-bottom:14px;}
+    [data-theme="dark"] .kam-ogohlantirish{background:#4a1614;color:#f19d99;border-color:#6b2a26;}
+
+    .form-select,.form-control{background:var(--bg-input);border:1px solid var(--color-border);color:var(--color-text);font-size:13px;}
+    .form-select:focus,.form-control:focus{background:var(--bg-input);color:var(--color-text);border-color:#1a6fa8;box-shadow:0 0 0 0.15rem rgba(26,111,168,0.15);}
+    .form-label{font-size:12px;font-weight:600;color:var(--color-sub);margin-bottom:4px;}
+
+    .table{color:var(--color-text);font-size:13px;margin-bottom:0;}
+    .table thead th{background:var(--bg-input-grp);color:var(--color-text);font-size:12px;text-transform:uppercase;letter-spacing:0.03em;border-color:var(--color-divider);white-space:nowrap;cursor:pointer;user-select:none;}
+    .table thead th.no-sort{cursor:default;}
+    .table td{border-color:var(--color-divider);vertical-align:middle;background:transparent;color:var(--color-text);}
+    .table tbody tr:hover td{background:var(--bg-input);}
+    .sort-arrow{font-size:10px;margin-left:3px;opacity:0.7;}
+
+    .sms-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .b-YANGI_SHARTNOMA{background:#e0f2f1;color:#00695c;} [data-theme="dark"] .b-YANGI_SHARTNOMA{background:#0d3330;color:#7ad0c6;}
+    .b-TOLOV{background:#e8f5e9;color:#2e7d32;} [data-theme="dark"] .b-TOLOV{background:#12391c;color:#7fd28c;}
+    .b-ESLATMA{background:#fff8e1;color:#b28704;} [data-theme="dark"] .b-ESLATMA{background:#3d3410;color:#e8cc6a;}
+    .h-YUBORILDI{background:#e8f5e9;color:#2e7d32;} [data-theme="dark"] .h-YUBORILDI{background:#12391c;color:#7fd28c;}
+    .h-XATO{background:#fdecea;color:#c62828;} [data-theme="dark"] .h-XATO{background:#4a1614;color:#f19d99;}
+
+    .narx-txt{color:#c62828;font-weight:700;} [data-theme="dark"] .narx-txt{color:#f19d99;}
+    .mijoz-link{color:#1a6fa8;text-decoration:none;font-weight:600;}
+    .mijoz-link:hover{text-decoration:underline;}
+    [data-theme="dark"] .mijoz-link{color:#5ab4dc;}
+    .hint-text{font-size:12px;color:var(--color-hint);}
+
+    /* SMS matni — qisqartirilgan, bosilganda to'liq ochiladi */
+    .sms-matn{max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+    .sms-matn.ochiq{white-space:pre-wrap;overflow:visible;}
+
+    .pagination .page-link{background:var(--bg-input);border-color:var(--color-border);color:var(--color-text);font-size:13px;}
+    .pagination .page-item.active .page-link{background:#1a6fa8;border-color:#1a6fa8;color:#fff;}
+    .pagination .page-item.disabled .page-link{background:var(--bg-input-grp);color:var(--color-hint);}
+    .btn-tozalash{font-size:13px;}
+
+    .modal-content{background:var(--bg-card);color:var(--color-text);border:1px solid var(--color-card-bdr);}
+    .modal-header,.modal-footer{border-color:var(--color-divider);}
+    .btn-check:checked + .btn-outline-primary{background:#1a6fa8;border-color:#1a6fa8;}
+
+    .toast-box{position:fixed;bottom:20px;right:20px;z-index:2000;background:#1a6fa8;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:none;}
+    .toast-box.xato{background:#c62828;}
+  </style>
+</head>
+<body>
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<div class="container-fluid py-4 px-4">
+
+  <!-- ── Sarlavha ── -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+      <h5 class="mb-0" style="font-weight:700;">📩 SMS nazorati</h5>
+      <div class="hint-text">Eskiz balansi, SMS xarajatlari va yuborilgan xabarlar tarixi</div>
+    </div>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#balansModal">
+      💰 Balansni to'ldirish
+    </button>
+  </div>
+
+  <!-- ── Kam qoldi ogohlantirishi ── -->
+  <div class="kam-ogohlantirish" id="kamOgoh">
+    ⚠️ Eskiz balansi tugab bormoqda! SMSlar to'xtab qolmasligi uchun hisobni to'ldiring.
+  </div>
+
+  <!-- ── Stat kartalar ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card stat-balans" id="balansCard">
+        <div class="stat-label">💰 Hozirgi balans</div>
+        <div class="stat-value" id="stBalans">—</div>
+        <div class="stat-extra" id="stToldirilgan"></div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card stat-sarf">
+        <div class="stat-label">📅 Bugun</div>
+        <div class="stat-value" id="stBugunSarf">—</div>
+        <div class="stat-extra" id="stBugunSoni"></div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card stat-sarf">
+        <div class="stat-label">🗓 Shu oy</div>
+        <div class="stat-value" id="stOySarf">—</div>
+        <div class="stat-extra" id="stOySoni"></div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+      <div class="stat-card stat-sarf">
+        <div class="stat-label">Σ Jami sarflangan</div>
+        <div class="stat-value" id="stJamiSarf">—</div>
+        <div class="stat-extra" id="stJamiSoni"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Jadval kartasi ── -->
+  <div class="main-card">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div class="section-title mb-0">Yuborilgan SMSlar</div>
+      <div class="hint-text" id="jamiInfo"></div>
+    </div>
+
+    <!-- ── Filtrlar ── -->
+    <div class="row g-2 mb-3 align-items-end">
+      <div class="col-md-2 col-6">
+        <label class="form-label">SMS turi</label>
+        <select id="fTuri" class="form-select form-select-sm">
+          <option value="">Barchasi</option>
+          <option value="YANGI_SHARTNOMA">📄 Yangi shartnoma</option>
+          <option value="TOLOV">💵 To'lov qabul qilindi</option>
+          <option value="ESLATMA">⏰ To'lov eslatmasi</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Holat</label>
+        <select id="fHolat" class="form-select form-select-sm">
+          <option value="">Barchasi</option>
+          <option value="YUBORILDI">✅ Yuborildi</option>
+          <option value="XATO">❌ Xato</option>
+        </select>
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Aniq kun</label>
+        <input type="date" id="fSana" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Dan (oraliq)</label>
+        <input type="date" id="fBoshi" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2 col-6">
+        <label class="form-label">Gacha (oraliq)</label>
+        <input type="date" id="fOxiri" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-2 col-6 d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary btn-tozalash w-100" onclick="filtrTozalash()">✖ Tozalash</button>
+      </div>
+    </div>
+
+    <!-- ── Jadval ── -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+        <tr>
+          <th data-sort="vaqt">Vaqti<span class="sort-arrow" id="ar-vaqt"></span></th>
+          <th class="no-sort">Mijoz</th>
+          <th class="no-sort">Telefon</th>
+          <th data-sort="operator">Operator<span class="sort-arrow" id="ar-operator"></span></th>
+          <th data-sort="turi">Turi<span class="sort-arrow" id="ar-turi"></span></th>
+          <th class="no-sort">Matn</th>
+          <th class="no-sort text-center">Qism</th>
+          <th data-sort="narx" class="text-end">Narx<span class="sort-arrow" id="ar-narx"></span></th>
+          <th data-sort="holat">Holat<span class="sort-arrow" id="ar-holat"></span></th>
+        </tr>
+        </thead>
+        <tbody id="smsBody">
+        <tr><td colspan="9" class="text-center py-4 hint-text">Yuklanmoqda...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Pagination ── -->
+    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="hint-text">Sahifada:</span>
+        <select id="fSize" class="form-select form-select-sm" style="width:auto;">
+          <option>25</option><option>50</option><option>100</option>
+        </select>
+      </div>
+      <nav><ul class="pagination pagination-sm mb-0" id="pagination"></ul></nav>
+    </div>
+  </div>
+</div>
+
+<!-- ── Balans to'ldirish modali ── -->
+<div class="modal fade" id="balansModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" style="font-weight:700;">💰 Eskiz balansini yangilash</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <div class="btn-group w-100" role="group">
+            <input type="radio" class="btn-check" name="rejim" id="rQoshish" value="qoshish" checked>
+            <label class="btn btn-outline-primary btn-sm" for="rQoshish">➕ Hisob to'ldirildi</label>
+            <input type="radio" class="btn-check" name="rejim" id="rBelgilash" value="belgilash">
+            <label class="btn btn-outline-primary btn-sm" for="rBelgilash">✏️ Aniq qiymat belgilash</label>
+          </div>
+          <div class="hint-text mt-2" id="rejimIzoh">
+            Eskiz hisobiga tashlangan summani kiriting — mavjud balansga qo'shiladi.
+          </div>
+        </div>
+        <label class="form-label">Summa (so'm)</label>
+        <input type="number" id="balansSumma" class="form-control" min="0" step="1000" placeholder="Masalan: 100000">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Bekor</button>
+        <button class="btn btn-sm btn-primary" onclick="balansSaqlash()">Saqlash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-box" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ── Mavzu (dark/light) — boshqa sahifalardagi bilan bir xil kalit ──
+  function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
+  applyTheme(localStorage.getItem('mb-theme') || 'light');
+  document.addEventListener('click', function(e){
+    if (e.target.closest('.theme-toggle')) {
+      const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(t); localStorage.setItem('mb-theme', t);
+    }
+  });
+
+  // ── Holat ──
+  let page = 0, sort = 'vaqt', dir = 'desc', totalPages = 0;
+
+  const TURI_NOMLARI = {
+    YANGI_SHARTNOMA: "📄 Yangi shartnoma", TOLOV: "💵 To'lov", ESLATMA: "⏰ Eslatma"
+  };
+
+  const fmt = n => Number(n || 0).toLocaleString('uz-UZ');
+
+  // ── Stat kartalar ──
+  function statYuklash() {
+    fetch('/admin/get-sms-stat')
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('stBalans').textContent = fmt(d.balans) + " so'm";
+        document.getElementById('stToldirilgan').textContent = "Jami to'ldirilgan: " + fmt(d.jamiToldirilgan) + " so'm";
+        document.getElementById('stBugunSarf').textContent = fmt(d.bugunSarf) + " so'm";
+        document.getElementById('stBugunSoni').textContent = fmt(d.bugunSoni) + ' ta SMS';
+        document.getElementById('stOySarf').textContent = fmt(d.oySarf) + " so'm";
+        document.getElementById('stOySoni').textContent = fmt(d.oySoni) + ' ta SMS';
+        document.getElementById('stJamiSarf').textContent = fmt(d.jamiSarf) + " so'm";
+        document.getElementById('stJamiSoni').textContent = fmt(d.jamiSoni) + ' ta SMS' +
+          (d.xatoSoni ? ' · ' + fmt(d.xatoSoni) + ' ta xato' : '');
+        document.getElementById('kamOgoh').style.display = d.kamQoldi ? 'block' : 'none';
+        document.getElementById('balansCard').classList.toggle('kam', !!d.kamQoldi);
+      })
+      .catch(() => {});
+  }
+
+  // ── SMS ro'yxati ──
+  function yuklash() {
+    const p = new URLSearchParams();
+    const turi = document.getElementById('fTuri').value;
+    const holat = document.getElementById('fHolat').value;
+    const sana = document.getElementById('fSana').value;
+    const boshi = document.getElementById('fBoshi').value;
+    const oxiri = document.getElementById('fOxiri').value;
+    if (turi) p.set('turi', turi);
+    if (holat) p.set('holat', holat);
+    if (sana) p.set('sana', sana);
+    else { if (boshi) p.set('boshi', boshi); if (oxiri) p.set('oxiri', oxiri); }
+    p.set('page', page);
+    p.set('size', document.getElementById('fSize').value);
+    p.set('sort', sort); p.set('dir', dir);
+
+    fetch('/admin/get-sms-tarix?' + p.toString())
+      .then(r => r.json())
+      .then(data => {
+        totalPages = data.totalPages || 0;
+        document.getElementById('jamiInfo').textContent = 'Jami: ' + (data.totalElements || 0) + ' ta SMS';
+        chizish(data.content || []);
+        paginationChizish();
+        strelkalarYangilash();
+      })
+      .catch(() => {
+        document.getElementById('smsBody').innerHTML =
+          '<tr><td colspan="9" class="text-center py-4 hint-text">Ma\'lumot yuklashda xatolik</td></tr>';
+      });
+  }
+
+  function chizish(smslar) {
+    const tbody = document.getElementById('smsBody');
+    if (!smslar.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 hint-text">SMSlar topilmadi</td></tr>';
+      return;
+    }
+    tbody.innerHTML = smslar.map(s => {
+      const vaqt = s.vaqt ? s.vaqt.replace('T', ' ').substring(0, 16) : '';
+      const turiBadge = '<span class="sms-badge b-' + (s.turi || '') + '">' + (TURI_NOMLARI[s.turi] || s.turi || '-') + '</span>';
+      const holatBadge = '<span class="sms-badge h-' + (s.holat || '') + '">' + (s.holat === 'YUBORILDI' ? '✅ Yuborildi' : '❌ Xato') + '</span>';
+      const mijoz = s.mijozId
+        ? '<a class="mijoz-link" href="/admin/mijoz?id=' + s.mijozId + '">' + (s.mijozFish || 'Mijoz #' + s.mijozId).replace(/</g, '&lt;') + '</a>'
+        : (s.mijozFish || '-');
+      const narx = s.holat === 'YUBORILDI'
+        ? '<span class="narx-txt">-' + fmt(s.narx) + '</span>'
+        : '<span class="hint-text">0</span>';
+      const matn = (s.matn || '').replace(/</g, '&lt;');
+      return '<tr>' +
+        '<td style="white-space:nowrap;">' + vaqt + '</td>' +
+        '<td style="white-space:nowrap;">' + mijoz + '</td>' +
+        '<td style="white-space:nowrap;">' + (s.telefon || '-') + '</td>' +
+        '<td>' + (s.operator || '-') + '</td>' +
+        '<td>' + turiBadge + '</td>' +
+        '<td><div class="sms-matn" onclick="this.classList.toggle(\'ochiq\')" title="To\'liq ko\'rish uchun bosing">' + matn + '</div></td>' +
+        '<td class="text-center">' + (s.qismlar || 1) + '</td>' +
+        '<td class="text-end" style="white-space:nowrap;">' + narx + '</td>' +
+        '<td>' + holatBadge + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ── Universal tartiblash ──
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const maydon = th.getAttribute('data-sort');
+      if (sort === maydon) { dir = dir === 'desc' ? 'asc' : 'desc'; }
+      else { sort = maydon; dir = 'desc'; }
+      page = 0;
+      yuklash();
+    });
+  });
+
+  function strelkalarYangilash() {
+    document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+    const el = document.getElementById('ar-' + sort);
+    if (el) el.textContent = dir === 'desc' ? '▼' : '▲';
+  }
+
+  // ── Pagination ──
+  function paginationChizish() {
+    const ul = document.getElementById('pagination');
+    ul.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    const li = (label, target, disabled, active) =>
+      '<li class="page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '') + '">' +
+      '<a class="page-link" href="#" data-page="' + target + '">' + label + '</a></li>';
+
+    let html = li('«', page - 1, page === 0, false);
+    const dan = Math.max(0, page - 2), gacha = Math.min(totalPages - 1, page + 2);
+    if (dan > 0) html += li('1', 0, false, false) + (dan > 1 ? '<li class="page-item disabled"><span class="page-link">…</span></li>' : '');
+    for (let i = dan; i <= gacha; i++) html += li(i + 1, i, false, i === page);
+    if (gacha < totalPages - 1) html += (gacha < totalPages - 2 ? '<li class="page-item disabled"><span class="page-link">…</span></li>' : '') + li(totalPages, totalPages - 1, false, false);
+    html += li('»', page + 1, page >= totalPages - 1, false);
+    ul.innerHTML = html;
+
+    ul.querySelectorAll('a[data-page]').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = parseInt(a.getAttribute('data-page'));
+      if (!isNaN(t) && t >= 0 && t < totalPages) { page = t; yuklash(); }
+    }));
+  }
+
+  // ── Filtr o'zgarishlari ──
+  ['fTuri', 'fHolat', 'fSize'].forEach(id =>
+    document.getElementById(id).addEventListener('change', () => { page = 0; yuklash(); }));
+
+  document.getElementById('fSana').addEventListener('change', () => {
+    if (document.getElementById('fSana').value) {
+      document.getElementById('fBoshi').value = '';
+      document.getElementById('fOxiri').value = '';
+    }
+    page = 0; yuklash();
+  });
+  ['fBoshi', 'fOxiri'].forEach(id =>
+    document.getElementById(id).addEventListener('change', () => {
+      if (document.getElementById(id).value) document.getElementById('fSana').value = '';
+      page = 0; yuklash();
+    }));
+
+  function filtrTozalash() {
+    ['fTuri', 'fHolat', 'fSana', 'fBoshi', 'fOxiri'].forEach(id => document.getElementById(id).value = '');
+    page = 0; sort = 'vaqt'; dir = 'desc';
+    yuklash();
+  }
+
+  // ── Balans to'ldirish ──
+  document.querySelectorAll('input[name="rejim"]').forEach(r =>
+    r.addEventListener('change', () => {
+      document.getElementById('rejimIzoh').textContent =
+        document.getElementById('rBelgilash').checked
+          ? "Eskiz kabinetidagi hozirgi aniq balansni kiriting — tizim balansi shu qiymatga tenglashtiriladi."
+          : "Eskiz hisobiga tashlangan summani kiriting — mavjud balansga qo'shiladi.";
+    }));
+
+  function balansSaqlash() {
+    const summa = parseInt(document.getElementById('balansSumma').value);
+    if (isNaN(summa) || summa < 0) { toast("Summani to'g'ri kiriting", true); return; }
+    const rejim = document.getElementById('rBelgilash').checked ? 'belgilash' : 'qoshish';
+
+    fetch('/admin/sms-balans?summa=' + summa + '&rejim=' + rejim, { method: 'POST' })
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(() => {
+        bootstrap.Modal.getInstance(document.getElementById('balansModal')).hide();
+        document.getElementById('balansSumma').value = '';
+        toast('Balans yangilandi ✅');
+        statYuklash();
+      })
+      .catch(() => toast('Balansni yangilashda xatolik', true));
+  }
+
+  function toast(msg, xato) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('xato', !!xato);
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+  }
+
+  // ── Boshlanish ──
+  statYuklash();
+  yuklash();
+</script>
+</body>
+</html>

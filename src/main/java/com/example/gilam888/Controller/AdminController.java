@@ -40,8 +40,9 @@ public class AdminController {
     private final AmalService amalService;
     private final TokenGenerator tokenGenerator;
     private final MijozSahifaService mijozSahifaService;
+    private final SmsHisobService smsHisobService;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService, SmsHisobService smsHisobService) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -54,6 +55,7 @@ public class AdminController {
         this.tokenGenerator = tokenGenerator;
         this.amalService = amalService;
         this.mijozSahifaService = mijozSahifaService;
+        this.smsHisobService = smsHisobService;
     }
 
     //    @PreAuthorize("hasRole('owner')")
@@ -294,7 +296,12 @@ public class AdminController {
 
     //    @PreAuthorize("hasRole('owner')")
     @GetMapping("/kassa")
-    public String kassa(){
+    public String kassa(org.springframework.ui.Model model){
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isOwner = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_owner".equals(a.getAuthority()));
+        model.addAttribute("isOwner", isOwner);
         return "Admin/kassa";
     }
 
@@ -353,6 +360,13 @@ public class AdminController {
             @RequestParam(required = false) Integer oy) {
         return ResponseEntity.ok(adminService.getKalendarStatistika(yil, oy));
     }
+
+    /** Do'konlar bo'yicha statistika: sotgan do'kon kesimida soni/summa/tannarx/foyda. yil=null — barcha davr. */
+    @GetMapping("/get-statistika-dokon")
+    public ResponseEntity<?> getStatistikaDokon(
+            @RequestParam(required = false) Integer yil) {
+        return ResponseEntity.ok(adminService.getDokonStatistika(yil));
+    }
     @PreAuthorize("hasRole('owner')")
     @DeleteMapping("/delete-shartnoma/{id}")
     public ResponseEntity<?> deleteShartnoma(@PathVariable Long id) {
@@ -390,6 +404,44 @@ public class AdminController {
         return ResponseEntity.ok(amalService.getAmalUserlar());
     }
 
+    // ─────────── SMS NAZORATI (Eskiz balans va tarix) ───────────
+
+    @GetMapping("/sms-nazorat")
+    public String smsNazoratPage() {
+        return "Admin/sms-nazorat";
+    }
+
+    // Stat kartalar: balans, bugun/oy/jami sarf va SMS soni
+    @GetMapping("/get-sms-stat")
+    public ResponseEntity<?> getSmsStat() {
+        return ResponseEntity.ok(smsHisobService.getSmsStat());
+    }
+
+    // Yuborilgan SMSlar ro'yxati (filtr + sort + pagination)
+    @GetMapping("/get-sms-tarix")
+    public ResponseEntity<?> getSmsTarix(
+            @RequestParam(required = false) String turi,
+            @RequestParam(required = false) String holat,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sana,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate boshi,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate oxiri,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(defaultValue = "vaqt") String sort,
+            @RequestParam(defaultValue = "desc") String dir) {
+        return ResponseEntity.ok(smsHisobService.getSmsTarix(turi, holat, sana, boshi, oxiri, page, size, sort, dir));
+    }
+
+    // Balansni yangilash: rejim="qoshish" (hisob to'ldirildi) yoki "belgilash" (aniq qiymat)
+    @PostMapping("/sms-balans")
+    public ResponseEntity<?> smsBalansYangilash(@RequestParam long summa,
+                                                @RequestParam(defaultValue = "qoshish") String rejim) {
+        if (summa < 0) {
+            return ResponseEntity.badRequest().body("Summa manfiy bo'lishi mumkin emas");
+        }
+        return ResponseEntity.ok(smsHisobService.balansYangilash(summa, rejim));
+    }
+
     @GetMapping("/undirish")
     public String undirish(){
         return "undirish";
@@ -409,6 +461,19 @@ public class AdminController {
     public ResponseEntity<?> getKassaStat(@RequestParam(defaultValue = "bugun") String period, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime boshi,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime oxiri) {
         return ResponseEntity.ok(kassaService.getKassaStat(period, boshi, oxiri));
+    }
+
+    // Owner kassadagi to'lov(lar)ni qabul qilganini belgilaydi ("Qabul qildim" tugmasi)
+    @PreAuthorize("hasRole('owner')")
+    @PutMapping("/tulov-qabul")
+    public ResponseEntity<?> tulovQabul(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(kassaService.tulovQabulQilish(ids));
+    }
+
+    // Barcha qabul qilinmagan to'lovlar (davrdan qat'i nazar) — kassa sahifasidagi panel uchun
+    @GetMapping("/get-qabul-qilinmagan")
+    public ResponseEntity<?> getQabulQilinmagan() {
+        return ResponseEntity.ok(kassaService.getQabulQilinmaganlar());
     }
     @PreAuthorize("hasRole('owner')")
     @GetMapping("/check-status")

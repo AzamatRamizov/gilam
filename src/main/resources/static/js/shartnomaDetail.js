@@ -372,7 +372,26 @@ function fillMahsulot(c) {
     document.getElementById('pr_sana').value = m.sana ? String(m.sana).slice(0,10) : '';
     document.getElementById('pr_narx').value = (m.narx !== undefined && m.narx !== null) ? m.narx : '';
     document.getElementById('pr_lokatsiya').value = m.lokatsiya || '';
+    prFillDokon(m.dokonId);
     prUpdateLokatsiyaLink();
+}
+// "Sotilgan do'kon" select'ini to'ldiradi va joriy qiymatni tanlaydi.
+// Magazinlar ro'yxati loadMagazinlar keshidan olinadi (qayta so'rov ketmaydi).
+function prFillDokon(selectedId) {
+    function build() {
+        const sel = document.getElementById('pr_dokon');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">Belgilanmagan</option>';
+        _magazinlar.forEach(function(mg){
+            const opt = document.createElement('option');
+            opt.value = mg.id; opt.textContent = mg.nomi;
+            sel.appendChild(opt);
+        });
+        sel.value = (selectedId !== null && selectedId !== undefined) ? String(selectedId) : '';
+        if (sel.selectedIndex < 0) sel.value = ''; // do'kon o'chirib yuborilgan bo'lsa
+    }
+    if (_magazinLoaded) { build(); return; }
+    loadMagazinlar('pr_dokon').then(build);
 }
 function prUpdateLokatsiyaLink() {
     const val = document.getElementById('pr_lokatsiya').value.trim();
@@ -395,7 +414,10 @@ function saveMahsulot() {
         nomi: document.getElementById('pr_nomi').value.trim(),
         sana: document.getElementById('pr_sana').value,
         narx: String(document.getElementById('pr_narx').value||'0'),
-        lokatsiya: document.getElementById('pr_lokatsiya').value.trim()
+        lokatsiya: document.getElementById('pr_lokatsiya').value.trim(),
+        dokonId: document.getElementById('pr_dokon').value
+            ? Number(document.getElementById('pr_dokon').value)
+            : null
     };
     if (!payload.nomi) { errEl.textContent='⚠️ Mahsulot nomini kiriting'; errEl.style.display='block'; return; }
     btn.disabled=true; btn.textContent='⏳ Saqlanmoqda...';

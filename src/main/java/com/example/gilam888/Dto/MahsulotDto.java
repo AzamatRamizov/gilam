@@ -13,4 +13,6 @@ public class MahsulotDto {
     private String sana;   // "yyyy-MM-dd"
     private String narx;
     private String lokatsiya; // Telegramdan olingan lokatsiya (link yoki matn), string sifatida saqlanadi
+    private Long dokonId;     // sotilgan do'kon (Magazin.id), NULL = belgilanmagan
+    private String dokonNomi; // faqat ko'rsatish uchun (frontend select'ni to'ldirishda ishlatiladi)
 }

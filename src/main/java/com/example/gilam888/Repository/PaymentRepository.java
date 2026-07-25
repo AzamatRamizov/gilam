@@ -39,6 +39,11 @@ public interface PaymentRepository extends JpaRepository<PaymentHistory, Long> {
 
     @Query("SELECT MIN(p.sana) FROM PaymentHistory p")
     LocalDateTime findEarliestSana();
+
+    // Owner hali qabul qilmagan to'lovlar (eski yozuvlarda NULL bo'lishi mumkin)
+    @Query("SELECT p FROM PaymentHistory p WHERE p.qabulQilindi IS NULL OR p.qabulQilindi = false ORDER BY p.sana DESC")
+    List<PaymentHistory> findQabulQilinmagan();
+
     @Query("""
         SELECT p FROM PaymentHistory p
         WHERE p.shartnomaId = :shartnomaId

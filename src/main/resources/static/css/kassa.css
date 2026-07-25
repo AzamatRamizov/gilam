@@ -221,3 +221,81 @@ body { background: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: v
     padding: 7px 10px;
     font-size: 13px;
 }
+/* ── Qabul qilish (owner) ── */
+.qabul-btn {
+    background: #1a9a50;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s, transform .1s;
+}
+.qabul-btn:hover  { background: #157f42; }
+.qabul-btn:active { transform: scale(.96); }
+.qabul-btn:disabled { opacity: .6; cursor: default; }
+
+.qabul-btn-all {
+    background: transparent;
+    color: #1a9a50;
+    border: 1.5px solid #1a9a50;
+    margin-left: 8px;
+}
+.qabul-btn-all:hover { background: #1a9a50; color: #fff; }
+
+.qabul-badge {
+    display: inline-block;
+    background: rgba(26,154,80,.12);
+    color: #1a9a50;
+    border: 1px solid rgba(26,154,80,.35);
+    border-radius: 7px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: help;
+}
+[data-theme="dark"] .qabul-badge { background: rgba(26,154,80,.18); }
+
+.qabul-wait {
+    color: var(--color-hint);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* ── Qabul qilinmagan to'lovlar paneli ── */
+.qabul-panel {
+    border-left: 4px solid #e6a817;
+}
+.qabul-kun-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: rgba(230,168,23,.08);
+    border: 1px solid rgba(230,168,23,.25);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+[data-theme="dark"] .qabul-kun-header { background: rgba(230,168,23,.12); }
+.qabul-kun-summa {
+    font-weight: 600;
+    font-size: 12.5px;
+    color: var(--color-sub);
+    margin-right: auto;
+}
+
+/* Qabul qilinmagan qator — asosiy jadvalda ham, panelda ham */
+.row-unaccepted td {
+    background: rgba(230,168,23,.07);
+}
+[data-theme="dark"] .row-unaccepted td {
+    background: rgba(230,168,23,.10);
+}
