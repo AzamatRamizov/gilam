@@ -372,6 +372,8 @@ function fillMahsulot(c) {
     document.getElementById('pr_sana').value = m.sana ? String(m.sana).slice(0,10) : '';
     document.getElementById('pr_narx').value = (m.narx !== undefined && m.narx !== null) ? m.narx : '';
     document.getElementById('pr_lokatsiya').value = m.lokatsiya || '';
+    document.getElementById('pr_izoh').value = (m.izoh !== undefined && m.izoh !== null) ? m.izoh : (c.izoh || '');
+    document.getElementById('pr_oldindan').value = (m.oldindanTulov !== undefined && m.oldindanTulov !== null) ? m.oldindanTulov : '';
     prFillDokon(m.dokonId);
     prUpdateLokatsiyaLink();
 }
@@ -415,6 +417,10 @@ function saveMahsulot() {
         sana: document.getElementById('pr_sana').value,
         narx: String(document.getElementById('pr_narx').value||'0'),
         lokatsiya: document.getElementById('pr_lokatsiya').value.trim(),
+        izoh: document.getElementById('pr_izoh').value.trim(),
+        oldindanTulov: document.getElementById('pr_oldindan').value
+            ? Number(document.getElementById('pr_oldindan').value)
+            : null,
         dokonId: document.getElementById('pr_dokon').value
             ? Number(document.getElementById('pr_dokon').value)
             : null
@@ -536,7 +542,7 @@ function renderShartnoma(c) {
 // ══════ YANGI SHARTNOMA MODAL ══════
 function openNewShartnoma() {
     // Reset
-    ['ns_sana','ns_tulov_sana','ns_about','ns_izoh','ns_tannarx','ns_joylashuv','ns_summa','ns_foiz','ns_muddat'].forEach(function(id){
+    ['ns_sana','ns_tulov_sana','ns_about','ns_izoh','ns_tannarx','ns_oldindan','ns_joylashuv','ns_summa','ns_foiz','ns_muddat'].forEach(function(id){
         const el=document.getElementById(id);
         if(el) el.value='';
     });
@@ -672,6 +678,7 @@ function saveNewShartnoma() {
         izoh:          document.getElementById('ns_izoh').value.trim(),
         about:         about,
         tannarx:       document.getElementById('ns_tannarx').value.trim(),
+        oldindanTulov: parseFloat(document.getElementById('ns_oldindan').value)||0,
         joylashuv:     document.getElementById('ns_joylashuv').value.trim(),
         shartnomaSana: sana,
         tulovSana:     tulovSana

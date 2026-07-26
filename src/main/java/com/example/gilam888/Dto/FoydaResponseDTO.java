@@ -13,6 +13,7 @@ public class FoydaResponseDTO {
     private List<FoydaItemDto> items;
     private int totalCount;
     private long totalSumma;
+    private Long oldindanTulov;
     private long totalTannarx;
     private long totalFoyda;
 }

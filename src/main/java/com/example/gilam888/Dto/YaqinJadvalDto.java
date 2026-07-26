@@ -22,4 +22,6 @@ public class YaqinJadvalDto {
     private Long    shartnomaSumma;
     private String  shartnomaMuddat;
     private Long    shartnomaId;
+    private Integer oyRaqami; // shu jadval shartnoma grafigida nechanchi to'lov (1-dan boshlab)
+    private Long    jamiOy;   // shartnoma muddati (jami oylar soni)
 }

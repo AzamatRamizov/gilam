@@ -23,6 +23,7 @@ public class MijozDataDto {
     private String joylashuv; // Telegramdan olingan lokatsiya (link yoki matn)
     private long dokonId;
     private long summa;
+    private long oldindanTulov; // boshlang'ich naqd to'lov (jadvalga kirmaydi)
     private long foiz;
     private long muddat;
     private String izoh;

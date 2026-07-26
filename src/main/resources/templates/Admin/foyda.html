@@ -146,6 +146,7 @@
     <div class="summary-bar" id="foydaSummaryBar">
       <div class="summary-item"><div class="s-label">Shartnomalar soni</div><div class="s-value" id="s_count">—</div></div>
       <div class="summary-item"><div class="s-label">Umumiy summa</div><div class="s-value" id="s_summa">—</div></div>
+      <div class="summary-item"><div class="s-label">Oldindan to'lovlar</div><div class="s-value" id="s_oldindan">—</div></div>
       <div class="summary-item"><div class="s-label">Umumiy tannarx</div><div class="s-value" id="s_tannarx">—</div></div>
       <div class="summary-item profit"><div class="s-label">Umumiy foyda</div><div class="s-value" id="s_foyda">—</div></div>
     </div>
@@ -177,12 +178,13 @@
           <th>Mijoz</th>
           <th>Telefon</th>
           <th>Shartnoma summasi</th>
+          <th>Oldindan to'lov</th>
           <th>Tannarx</th>
           <th>Foyda</th>
         </tr>
         </thead>
         <tbody id="foydaTableBody">
-        <tr class="table-loading-row"><td colspan="7">Yuklanmoqda...</td></tr>
+        <tr class="table-loading-row"><td colspan="8">Yuklanmoqda...</td></tr>
         </tbody>
       </table>
     </div>
@@ -297,7 +299,7 @@
   function renderTable(items) {
     const tbody = document.getElementById('foydaTableBody');
     if (!items || !items.length) {
-      tbody.innerHTML = '<tr><td colspan="7"><div class="table-empty">Bu davrda shartnoma topilmadi</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8"><div class="table-empty">Bu davrda shartnoma topilmadi</div></td></tr>';
       return;
     }
     let rows='';
@@ -310,6 +312,7 @@
               '<td>'+(it.mijozFish||'—')+'</td>'+
               '<td>'+(it.tel||'—')+'</td>'+
               '<td>'+fmtSumma(it.summa)+'</td>'+
+              '<td>'+fmtSumma(it.oldindanTulov)+'</td>'+
               '<td>'+fmtSumma(it.tannarx)+'</td>'+
               '<td class="'+cls+'">'+fmtSumma(foyda)+'</td>'+
               '</tr>';
@@ -321,6 +324,7 @@
   function renderSummary(data) {
     document.getElementById('s_count').textContent   = data.totalCount ?? 0;
     document.getElementById('s_summa').textContent   = fmtSumma(data.totalSumma);
+    document.getElementById('s_oldindan').textContent = fmtSumma(data.totalOldindan);
     document.getElementById('s_tannarx').textContent = fmtSumma(data.totalTannarx);
     document.getElementById('s_foyda').textContent   = fmtSumma(data.totalFoyda);
     document.getElementById('tableSubtitle').textContent = 'Jami '+(data.totalCount??0)+' ta shartnoma';
@@ -342,7 +346,7 @@
   // Sahifalash (10/20/50) backendda emas, shu yerda client tomonda amalga oshiriladi.
   function loadFoyda() {
     hideError();
-    document.getElementById('foydaTableBody').innerHTML = '<tr class="table-loading-row"><td colspan="7">Yuklanmoqda...</td></tr>';
+    document.getElementById('foydaTableBody').innerHTML = '<tr class="table-loading-row"><td colspan="8">Yuklanmoqda...</td></tr>';
 
     let url = '/admin/get-foyda/'+encodeURIComponent(_davr);
     if (_davr==='tanlangan') {
@@ -361,7 +365,7 @@
             .catch(function(err){
               showError("Ma'lumotlarni yuklab bo'lmadi. Server xatosi: "+err);
               _allItems = [];
-              document.getElementById('foydaTableBody').innerHTML = '<tr><td colspan="7"><div class="table-empty">Xatolik yuz berdi</div></td></tr>';
+              document.getElementById('foydaTableBody').innerHTML = '<tr><td colspan="8"><div class="table-empty">Xatolik yuz berdi</div></td></tr>';
               document.getElementById('pageInfo').textContent = '—';
               document.getElementById('pageNav').innerHTML = '';
             });

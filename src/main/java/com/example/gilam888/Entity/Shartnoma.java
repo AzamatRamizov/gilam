@@ -25,6 +25,11 @@ public class Shartnoma extends AbstractLongEntity {
     private String sotibOlinganSana;
     private String joylashuv;
 
+    // Oldindan to'lov (naqd boshlang'ich to'lov). Shartnoma summasiga KIRMAYDI —
+    // jadval faqat `summa` bo'yicha tuziladi. Foyda hisobida esa ikkalasi qo'shiladi:
+    // foyda = summa + oldindanTulov - tannarx. Eski yozuvlarda NULL (=0).
+    private Long oldindanTulov;
+
     // Shartnoma qaysi do'konda (Magazin.id) sotilgani.
     // Ilgari forma yuborsa ham bazaga saqlanmay qolardi (faqat PaymentHistory.dokonId ga yozilardi).
     // Eski yozuvlarda NULL bo'lishi mumkin — ular dashboard "Kamchiliklar" kartasida ko'rsatiladi.

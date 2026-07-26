@@ -96,6 +96,17 @@
       display:inline-flex; align-items:center; gap:3px;
     }
     [data-theme="dark"] .cc-item-kun.tugatilgan-tag { color:#4dc886; }
+
+    /* ── Bu oy nechanchi to'lov ekani (5/12-to'lov) belgisi ── */
+    .cc-item-oy {
+      display:inline-block; margin-top:3px;
+      font-size:11px; font-weight:700; color:#1a6fa8;
+      background:rgba(26,111,168,0.10); border:1px solid rgba(26,111,168,0.25);
+      border-radius:20px; padding:1px 8px; white-space:nowrap;
+    }
+    [data-theme="dark"] .cc-item-oy {
+      color:#6ab8e8; background:rgba(106,184,232,0.12); border-color:rgba(106,184,232,0.3);
+    }
   </style>
 </head>
 <body>
@@ -503,7 +514,9 @@
         qolganQarz: Math.max(0, (Number(y.summa)||0) - (Number(y.tulangan)||0)),
         keyingiTolovSana: y.sana,
         muddatiOtganKun: otganKun,
-        status: y.status || null
+        status: y.status || null,
+        oyRaqami: y.oyRaqami != null ? Number(y.oyRaqami) : null,
+        jamiOy: y.jamiOy != null ? Number(y.jamiOy) : null
       };
       const key = y.shartnomaId ?? y.mijozId;
       const mavjud = byShartnoma.get(key);
@@ -528,7 +541,9 @@
         qolganQarz: Number(d.qolganQarz) || 0,
         keyingiTolovSana: d.keyingiTolovSana || null,
         muddatiOtganKun: Number(d.muddatiOtganKun) || 0,
-        status: d.status || null
+        status: d.status || null,
+        oyRaqami: d.oyRaqami != null ? Number(d.oyRaqami) : null,
+        jamiOy: d.jamiOy != null ? Number(d.jamiOy) : null
       };
     });
   }
@@ -616,6 +631,10 @@
       }
       const markKey   = ccMarkKey(m);
       const markedCls = ccIsMarked(m) ? ' marked' : '';
+      // Bu oy to'lovi grafikda nechanchi ekani (masalan: 5/12-oy)
+      const oyHtml = (m.oyRaqami != null && m.status !== 'yopilgan')
+              ? '<div class="cc-item-oy">'+m.oyRaqami+(m.jamiOy?'/'+m.jamiOy:'')+'-to\'lov</div>'
+              : '';
       return '<div class="cc-item'+(String(m.mijozId)===String(_ccSelectedId)?' selected':'')+markedCls+'" '+
               'onclick="selectQarzdor(\''+m.mijozId+'\')" '+
               'oncontextmenu="ccOpenCtxMenu(event, \''+markKey+'\', \''+m.mijozId+'\')">'+
@@ -627,6 +646,7 @@
               '<div class="cc-item-right">'+
               '<div class="cc-item-qarz">'+fmtSumma(m.qolganQarz)+'</div>'+
               kunHtml+
+              oyHtml+
               '</div>'+
               '</div>';
     }).join('');
@@ -672,10 +692,15 @@
     const shartnomaLink = m.shartnomaId
             ? '<a href="/admin/shartnoma-detail?id='+m.shartnomaId+'" class="cc-shartnoma-link">№'+m.shartnomaId+' &#8599;</a>'
             : '—';
+    // Bu oy to'lovi grafikda nechanchi ekani (masalan: 5/12)
+    const oyText = (m.oyRaqami != null)
+            ? (m.oyRaqami + (m.jamiOy ? ' / ' + m.jamiOy : '') + '-to\'lov')
+            : '—';
     document.getElementById('ccSummaryBar').innerHTML =
             '<div class="cc-summary-item"><span>Shartnoma</span>'+shartnomaLink+'</div>'+
             '<div class="cc-summary-item"><span>Qolgan qarz</span><span style="color:#c0392b">'+fmtSumma(m.qolganQarz)+'</span></div>'+
             '<div class="cc-summary-item"><span>Keyingi to\'lov</span><span>'+(m.keyingiTolovSana?fmtDate(m.keyingiTolovSana):'—')+'</span></div>'+
+            '<div class="cc-summary-item"><span>Bu oy to\'lovi</span><span style="color:#1a6fa8;font-weight:700;">'+oyText+'</span></div>'+
             '<div class="cc-summary-item"><span>Holati</span><span style="color:'+(kunOtgan>0?'#c0392b':'#1a7a50')+'">'+(kunOtgan>0?(kunOtgan+' kun kechikdi'):'Muddatida')+'</span></div>';
 
     // ── Undiruv tugmasini shartnoma statusiga qarab boshqarish ──

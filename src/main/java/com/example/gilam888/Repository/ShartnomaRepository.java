@@ -73,7 +73,7 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     List<Object[]> findAllForStatistika();
 
     // Do'konlar bo'yicha statistika uchun yengil projection (entity yuklanmaydi)
-    @Query("SELECT s.dokonId, s.sotibOlinganSana, s.createdTime, s.summa, s.tannarx FROM Shartnoma s")
+    @Query("SELECT s.dokonId, s.sotibOlinganSana, s.createdTime, s.summa, s.tannarx, s.oldindanTulov FROM Shartnoma s")
     List<Object[]> findAllForDokonStat();
 
     // Kalendar statistikasi uchun — mijoz ma'lumoti bilan, lekin entity yuklamasdan

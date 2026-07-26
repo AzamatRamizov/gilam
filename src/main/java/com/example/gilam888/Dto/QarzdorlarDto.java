@@ -22,5 +22,7 @@ public class QarzdorlarDto {
     private String status;
     private String tuman;
     private String undiruvSababi;
+    private Integer oyRaqami; // joriy (faol) jadval nechanchi to'lov ekani (1-dan boshlab), NULL = aniqlanmadi
+    private Long jamiOy;      // shartnoma muddati (jami oylar soni)
 
 }

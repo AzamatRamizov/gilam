@@ -136,6 +136,7 @@ public class AdminService {
         Shartnoma shartnoma = new Shartnoma();
         shartnoma.setMijoz(mijozSave);
         shartnoma.setSumma(mijoz.getSumma());
+        shartnoma.setOldindanTulov(mijoz.getOldindanTulov() > 0 ? mijoz.getOldindanTulov() : null);
         shartnoma.setStatus("ochiq");
         shartnoma.setMahsulot(mijoz.getAbout());
         shartnoma.setIzoh(mijoz.getIzoh());
@@ -274,7 +275,9 @@ public class AdminService {
                 s.getTannarx(),
                 s.getJoylashuv(),
                 s.getDokonId(),
-                resolveDokonNomi(s.getDokonId())
+                resolveDokonNomi(s.getDokonId()),
+                s.getIzoh(),
+                s.getOldindanTulov()
         );
 
         return new ShartnomaDetailDto(
@@ -297,6 +300,10 @@ public class AdminService {
             s.setSotibOlinganSana(dto.getSana().trim());
         }
         s.setJoylashuv(dto.getLokatsiya());
+        // Mahsulotga izoh ham shu tabda tahrirlanadi
+        s.setIzoh(dto.getIzoh());
+        // Oldindan to'lov: 0 yoki bo'sh kelsa NULL (yo'q) deb saqlanadi
+        s.setOldindanTulov(dto.getOldindanTulov() != null && dto.getOldindanTulov() > 0 ? dto.getOldindanTulov() : null);
         // Sotilgan do'kon tahrirlanadi; 0/undefined kelsa NULL bo'ladi (belgilanmagan)
         s.setDokonId(dto.getDokonId() != null && dto.getDokonId() > 0 ? dto.getDokonId() : null);
         shartnomaRepository.save(s);
@@ -599,6 +606,9 @@ public class AdminService {
             LocalDateTime crt  = (LocalDateTime) q[2];
             long summa         = q[3] != null ? ((Number) q[3]).longValue() : 0;
             long tannarx       = tannarxSon((String) q[4]);
+            // Oldindan to'lov umumiy sotuv qiymatiga qo'shiladi — shunda foyda (summa - tannarx)
+            // hisobida oldindan to'lov ham ishtirok etadi
+            summa += q[5] != null ? ((Number) q[5]).longValue() : 0;
 
             LocalDate sana = sanaMatndan(sanaMatn);
             if (sana == null && crt != null) sana = crt.toLocalDate();
@@ -1046,6 +1056,7 @@ public class AdminService {
         Shartnoma shartnoma = new Shartnoma();
         shartnoma.setMijoz(mijoz1);
         shartnoma.setSumma(mijoz.getSumma());
+        shartnoma.setOldindanTulov(mijoz.getOldindanTulov() > 0 ? mijoz.getOldindanTulov() : null);
         shartnoma.setStatus("ochiq");
         shartnoma.setIzoh(mijoz.getIzoh());
         shartnoma.setMahsulot(mijoz.getAbout());
@@ -1191,12 +1202,14 @@ public class AdminService {
         List<Shartnoma> shartnomalar = shartnomaRepository.findBySotibOlinganSanaBetween(from, to);
 
         List<FoydaItemDto> items = new ArrayList<>();
-        long totalSumma = 0, totalTannarx = 0, totalFoyda = 0;
+        long totalSumma = 0, totalOldindan = 0, totalTannarx = 0, totalFoyda = 0;
 
         for (Shartnoma s : shartnomalar) {
-            long tannarx = parseLongSafe(s.getTannarx());
-            long summa   = s.getSumma();
-            long foyda   = summa - tannarx;
+            long tannarx  = parseLongSafe(s.getTannarx());
+            long summa    = s.getSumma();
+            long oldindan = s.getOldindanTulov() != null ? s.getOldindanTulov() : 0;
+            // Foyda = shartnoma summasi + oldindan to'lov - tannarx
+            long foyda    = summa + oldindan - tannarx;
 
             Mijoz m = s.getMijoz();
             String fish = m != null
@@ -1204,14 +1217,15 @@ public class AdminService {
                     : "—";
             String tel = m != null ? nonNull(m.getTel1()) : "—";
 
-            items.add(new FoydaItemDto(s.getId(), fish.isBlank() ? "—" : fish, tel.isBlank() ? "—" : tel, summa, tannarx, foyda));
+            items.add(new FoydaItemDto(s.getId(), fish.isBlank() ? "—" : fish, tel.isBlank() ? "—" : tel, summa, oldindan, tannarx, foyda));
 
-            totalSumma   += summa;
-            totalTannarx += tannarx;
-            totalFoyda   += foyda;
+            totalSumma    += summa;
+            totalOldindan += oldindan;
+            totalTannarx  += tannarx;
+            totalFoyda    += foyda;
         }
 
-        return new FoydaResponseDTO(items, items.size(), totalSumma, totalTannarx, totalFoyda);
+        return new FoydaResponseDTO(items, items.size(), totalSumma, totalOldindan, totalTannarx, totalFoyda);
     }
 
     private long parseLongSafe(String s) {
@@ -1413,8 +1427,27 @@ public class AdminService {
                 muddatiOtganQarz,
                 shartnoma.getStatus(),   // ← qo'shildi
                 mijoz.getTuman(),
-                shartnoma.getUndiruvSababi()
+                shartnoma.getUndiruvSababi(),
+                oyRaqami(jadvalList, activeJadval),
+                shartnoma.getMuddat()
         );
+    }
+
+    /**
+     * Faol jadval qatori shartnoma grafigida nechanchi to'lov ekanini qaytaradi (1-dan boshlab).
+     * Jadval sanaga qarab tartiblanadi — shu tartibdagi o'rni "nechanchi oy" hisoblanadi.
+     * Topilmasa yoki jadval bo'lmasa NULL.
+     */
+    public static Integer oyRaqami(List<Jadval> jadvalList, Jadval activeJadval) {
+        if (jadvalList == null || jadvalList.isEmpty() || activeJadval == null) return null;
+        List<Jadval> tartibda = new ArrayList<>(jadvalList);
+        tartibda.sort(Comparator.comparing(Jadval::getSana, Comparator.nullsLast(Comparator.naturalOrder())));
+        for (int i = 0; i < tartibda.size(); i++) {
+            if (tartibda.get(i).getId() == activeJadval.getId()) {
+                return i + 1;
+            }
+        }
+        return null;
     }
 
     public Object getAllSumma() {

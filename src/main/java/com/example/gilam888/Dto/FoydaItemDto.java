@@ -1,5 +1,6 @@
 package com.example.gilam888.Dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ public class FoydaItemDto {
     private String mijozFish;
     private String tel;
     private long summa;
+    private Long oldindanTulov;
     private long tannarx;
     private long foyda;
 }

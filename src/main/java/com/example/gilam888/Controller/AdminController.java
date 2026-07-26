@@ -283,6 +283,9 @@ public class AdminController {
             dto.setShartnomaId(shartnoma.getId());
             dto.setShartnomaSumma(shartnoma.getSumma());
             dto.setShartnomaMuddat(shartnoma.getMuddat() + " oy");
+            // Bu oy to'lovi grafikda nechanchi to'lov ekani (call markazida ko'rsatiladi)
+            dto.setOyRaqami(AdminService.oyRaqami(shartnoma.getJadvalList(), jadval));
+            dto.setJamiOy(shartnoma.getMuddat());
 
             result.add(dto);
         }

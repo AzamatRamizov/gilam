@@ -412,6 +412,14 @@
             </div>
         </div>
         <div class="mb-3">
+            <label class="form-label">Oldindan to'lov</label>
+            <div class="input-group">
+                <input type="number" id="oldindan" class="form-control" placeholder="0" min="0">
+                <span class="input-group-text" style="border-radius:0 8px 8px 0;">so'm</span>
+            </div>
+            <div class="form-hint" style="font-size:12px;opacity:.65;margin-top:4px;">Naqd olingan boshlang'ich to'lov. Shartnoma summasi va jadvalga kirmaydi, foydaga qo'shiladi.</div>
+        </div>
+        <div class="mb-3">
             <label class="form-label">Lokatsiya</label>
             <div class="input-group">
                 <input type="text" id="joylashuv" class="form-control" placeholder="Telegramdan lokatsiyani nusxalab shu yerga joylashtiring (paste)">
@@ -1008,6 +1016,7 @@
         const about = $('#about').val().trim();
         const izoh = $('#izoh').val().trim();
         const tannarx = $('#tannarx').val().trim();
+        const oldindan = parseFloat($('#oldindan').val()) || 0;
         const joylashuv = $('#joylashuv').val().trim();
         const category = $('#category').val();
         const summa = $('#summa').val().trim();
@@ -1066,6 +1075,7 @@
             tulovSana,
             dokonId: category,
             summa: Number(summa),
+            oldindanTulov: oldindan,
             foiz: Number(foiz),
             muddat: Number(muddat)
         };
