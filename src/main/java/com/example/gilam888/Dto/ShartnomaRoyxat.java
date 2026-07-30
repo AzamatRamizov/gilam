@@ -11,4 +11,6 @@ public class ShartnomaRoyxat {
     private String status;
     private long id;
     private String sabab;
+    /** Shartnoma sanasi (sotibOlinganSana) — ro'yxatda ko'rsatish va tartiblash uchun */
+    private String sana;
 }

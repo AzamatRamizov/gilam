@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,8 +42,9 @@ public class AdminController {
     private final TokenGenerator tokenGenerator;
     private final MijozSahifaService mijozSahifaService;
     private final SmsHisobService smsHisobService;
+    private final ShartnomaRoyxatService shartnomaRoyxatService;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService, SmsHisobService smsHisobService) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService, SmsHisobService smsHisobService, ShartnomaRoyxatService shartnomaRoyxatService) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -56,6 +58,7 @@ public class AdminController {
         this.amalService = amalService;
         this.mijozSahifaService = mijozSahifaService;
         this.smsHisobService = smsHisobService;
+        this.shartnomaRoyxatService = shartnomaRoyxatService;
     }
 
     //    @PreAuthorize("hasRole('owner')")
@@ -150,14 +153,31 @@ public class AdminController {
         return "my-profile-page";
     }
 
+    /**
+     * Shartnomalar sahifasi.
+     * `holat` — navbardan keladigan tab: "" (barchasi) | faol | yopilgan | undiruv.
+     */
     @GetMapping("/shartnomalar")
-    public String shartnomalar(){
+    public String shartnomalar(@RequestParam(value = "holat", required = false) String holat,
+                               Model model){
+        model.addAttribute("holat", holat == null ? "" : holat);
         return "shartnomalar";
     }
 
+    /**
+     * Shartnomalar ro'yxati — SAHIFALAB qaytariladi.
+     * Ilgari bu yerda butun jadval (findAll + EAGER rasmlar) xotiraga yuklanib
+     * "Java heap space" xatosi chiqardi. Endi faqat so'ralgan sahifa o'qiladi.
+     */
     @GetMapping("/shartnoma-all")
-    public ResponseEntity<?> shartnomaAll(){
-        return ResponseEntity.ok(adminService.getShartnomaAll());
+    public ResponseEntity<?> shartnomaAll(
+            @RequestParam(value = "holat", required = false) String holat,
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "dir", defaultValue = "desc") String dir){
+        return ResponseEntity.ok(shartnomaRoyxatService.royxat(holat, q, page, size, sort, dir));
     }
 
     @GetMapping("/shartnoma-detail/{id}")

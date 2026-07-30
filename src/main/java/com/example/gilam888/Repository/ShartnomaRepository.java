@@ -81,4 +81,10 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
             + "m.ism, m.familiya, m.sharif, m.tel1 "
             + "FROM Shartnoma s LEFT JOIN s.mijoz m")
     List<Object[]> findAllForKalendar();
+
+    // Barcha shartnoma ID'lari — entity yuklamasdan (checkAllShartnoma uchun).
+    // Ilgari findAll() ishlatilar edi: barcha Shartnoma + Mijoz + passport rasm baytlari
+    // xotiraga tushib "Java heap space" xatosini berardi.
+    @Query("SELECT s.id FROM Shartnoma s")
+    List<Long> findAllIds();
 }

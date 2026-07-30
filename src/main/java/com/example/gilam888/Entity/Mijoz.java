@@ -2,6 +2,7 @@ package com.example.gilam888.Entity;
 
 import com.example.gilam888.Configurations.AbstractLongEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,8 +29,8 @@ public class Mijoz extends AbstractLongEntity {
     // qiymat bo'lsa operator qo'lda belgilagan: "yaxshi" | "qisman" | "yomon"
     private String status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private FaylBayt passportRasm;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private FaylBayt katm;
 }

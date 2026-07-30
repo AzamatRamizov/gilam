@@ -22,4 +22,10 @@ public interface MijozRepository extends JpaRepository<Mijoz, Long> {
                OR regexp_replace(coalesce(m.tel3, ''), '[^0-9]', '', 'g') LIKE CONCAT('%', :oxirgi9)
             """, nativeQuery = true)
     List<Mijoz> findByTelefonOxiri(@Param("oxirgi9") String oxirgi9);
+
+    // Mijozlar ro'yxati uchun yengil projection — entity (va u bilan passport/KATM
+    // rasm baytlari) yuklanmaydi. Heap tejash uchun.
+    @Query("SELECT m.id, m.ism, m.familiya, m.sharif, m.tuman, m.manzil, m.tel1, m.passport "
+            + "FROM Mijoz m ORDER BY m.id DESC")
+    List<Object[]> findAllForRoyxat();
 }

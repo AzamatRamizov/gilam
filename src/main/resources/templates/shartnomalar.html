@@ -97,6 +97,17 @@
         [data-theme="dark"] .filter-select { background:#1a3048; }
         .filter-select:focus { border-color:#1a6fa8; }
 
+        /* Tablar: Barchasi / Faol / Yopilgan / Undiruvda */
+        .tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid var(--color-divider); margin-bottom:1.1rem; }
+        .tab-btn { background:transparent; border:none; border-bottom:2px solid transparent; padding:10px 15px; font-size:14px; font-weight:600; color:var(--color-sub); cursor:pointer; display:flex; align-items:center; gap:7px; white-space:nowrap; }
+        .tab-btn:hover { color:#1a6fa8; }
+        .tab-btn.active { color:#1a6fa8; border-bottom-color:#1a6fa8; }
+        [data-theme="dark"] .tab-btn.active { color:#6ab8e8; border-bottom-color:#6ab8e8; }
+        .tab-count { font-size:11px; font-weight:700; background:#e8f4fd; color:#1a6fa8; border-radius:20px; padding:1px 8px; }
+        [data-theme="dark"] .tab-count { background:#1a3a5c; color:#6ab8e8; }
+        .tab-btn.active .tab-count { background:#1a6fa8; color:#fff; }
+        [data-theme="dark"] .tab-btn.active .tab-count { background:#6ab8e8; color:#0f1e2b; }
+
         /* Table */
         .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
         .table-custom thead th { background: #f0f8ff; color: #1a6fa8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 1px solid var(--color-border); white-space: nowrap; cursor: pointer; user-select: none; }
@@ -143,7 +154,7 @@
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     </style>
 </head>
-<body>
+<body th:attr="data-holat=${holat}">
 
 <!-- Navbar -->
 <nav th:replace="~{fragment :: navbar}"></nav>
@@ -154,8 +165,8 @@
     <!-- Header -->
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <div>
-            <p class="page-title">📄 Shartnomalar</p>
-            <p class="page-subtitle">Tizimdagi barcha shartnomalar ro'yxati</p>
+            <p class="page-title" id="pageTitle">📄 Shartnomalar</p>
+            <p class="page-subtitle" id="pageSubtitle">Tizimdagi barcha shartnomalar ro'yxati</p>
         </div>
     </div>
 
@@ -165,19 +176,26 @@
     <!-- Table card -->
     <div class="main-card">
 
+        <!-- Tablar -->
+        <div class="tabs" id="tabs">
+            <button class="tab-btn" data-holat=""          onclick="setHolat('')">📋 Barchasi <span class="tab-count" id="cntAll">0</span></button>
+            <button class="tab-btn" data-holat="faol"      onclick="setHolat('faol')">✅ Faol <span class="tab-count" id="cntActive">0</span></button>
+            <button class="tab-btn" data-holat="yopilgan"  onclick="setHolat('yopilgan')">🔒 Yopilgan <span class="tab-count" id="cntClosed">0</span></button>
+            <button class="tab-btn" data-holat="undiruv"   onclick="setHolat('undiruv')">⚠️ Undiruvda <span class="tab-count" id="cntUndiruv">0</span></button>
+        </div>
+
         <!-- Toolbar -->
         <div class="toolbar">
             <div class="search-box">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.598 1.04a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>
                 </svg>
-                <input type="text" id="searchInput" placeholder="Shartnoma raqami, F.I.Sh yoki telefon bo'yicha qidirish..." oninput="renderTable()">
+                <input type="text" id="searchInput" placeholder="Shartnoma raqami, F.I.Sh yoki telefon bo'yicha qidirish...">
             </div>
-            <select class="filter-select" id="statusFilter" onchange="renderTable()">
-                <option value="">Barcha holat</option>
-                <option value="Faol">Faol</option>
-                <option value="Yopilgan">Yopilgan</option>
-                <option value="Muddati o'tgan">Muddati o'tgan</option>
+            <select class="filter-select" id="sizeSelect" onchange="setSize(this.value)">
+                <option value="20">20 tadan</option>
+                <option value="50">50 tadan</option>
+                <option value="100">100 tadan</option>
             </select>
         </div>
 
@@ -234,7 +252,13 @@
         applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
-    // ── Model: backend Shartnoma entity (id, fish, muddat, summa, status) ──
+    // ══════════════════════════════════════════════════════════════
+    //  MUHIM: bu sahifa endi butun ro'yxatni yuklamaydi.
+    //  Backend (/admin/shartnoma-all) faqat SO'RALGAN SAHIFANI qaytaradi,
+    //  qidiruv/filtr/tartiblash ham bazada bajariladi.
+    //  Shu sababli shartnomalar soni necha ming bo'lsa ham heap to'lmaydi.
+    // ══════════════════════════════════════════════════════════════
+
     const AVATAR_COLORS = [
         {bg:'#dbeeff', c:'#1a6fa8'}, {bg:'#d8f5e8', c:'#1a7a50'}, {bg:'#fff0dc', c:'#b07000'},
         {bg:'#e8ddfb', c:'#6b3fc8'}, {bg:'#ffe4ef', c:'#c8447a'}, {bg:'#dcf7f0', c:'#0f9b8e'}
@@ -248,51 +272,132 @@
     function fmtSumma(n){
         return Math.round(Number(n)||0).toLocaleString('uz-UZ') + " so'm";
     }
+    function esc(t){
+        return String(t == null ? '' : t)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
+    // Bazadagi status -> ko'rinadigan yorliq
     function badgeInfo(status){
-        if(status === 'ochiq')   return { cls:'badge-active',  label:'Faol' };
-        if(status === 'yopilgan') return { cls:'badge-closed', label:'Yopilgan' };
-        if(status === 'undiruv') return { cls:'badge-overdue', label:'Undiruvda' };
-        if(status === "Muddati o'tgan") return { cls:'badge-overdue', label:"Muddati o'tgan" };
+        if(status === 'ochiq')    return { cls:'badge-active',  label:'Faol' };
+        if(status === 'yopilgan') return { cls:'badge-closed',  label:'Yopilgan' };
+        if(status === 'undiruv')  return { cls:'badge-overdue', label:'Undiruvda' };
         return { cls:'badge-closed', label: status || '—' };
     }
 
-    let contracts = [];
-    let sortCol = 'id', sortDir = 1, page = 1;
-    const PER_PAGE = 10;
+    // ── Holat (state) ──
+    const TAB_NOMLARI = {
+        '':         { sarlavha:'Shartnomalar',            izoh:"Tizimdagi barcha shartnomalar ro'yxati" },
+        'faol':     { sarlavha:'Faol shartnomalar',       izoh:"To'lovi davom etayotgan (ochiq) shartnomalar" },
+        'yopilgan': { sarlavha:'Yopilgan shartnomalar',   izoh:"To'liq to'langan va yopilgan shartnomalar" },
+        'undiruv':  { sarlavha:'Undiruvdagi shartnomalar',izoh:"Undiruvga topshirilgan shartnomalar" }
+    };
 
-    // ── Load from backend: GET /admin/shartnoma-all ──
+    const boshlangichHolat = document.body.getAttribute('data-holat') || '';
+    const state = {
+        holat: TAB_NOMLARI[boshlangichHolat] ? boshlangichHolat : '',
+        q: '',
+        page: 1,
+        size: 20,
+        sort: 'id',
+        dir: 'desc'
+    };
+
+    let sahifa = { items: [], jami: 0, pages: 1, stat: {} };
+    let soravNavbati = 0;
+
+    // ── Backenddan yuklash ──
     function loadContracts(){
+        const navbat = ++soravNavbati;
+
         document.getElementById('loadingState').style.display = 'block';
         document.getElementById('tableWrap').style.display = 'none';
         document.getElementById('paginationRow').style.display = 'none';
 
-        fetch('/admin/shartnoma-all')
-            .then(res => res.json())
+        const params = new URLSearchParams({
+            holat: state.holat,
+            q: state.q,
+            page: state.page,
+            size: state.size,
+            sort: state.sort,
+            dir: state.dir
+        });
+
+        fetch('/admin/shartnoma-all?' + params.toString())
+            .then(res => {
+                if(!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
             .then(data => {
-                contracts = Array.isArray(data) ? data : [];
+                if(navbat !== soravNavbati) return;   // eskirgan javobni tashlab yuboramiz
+                sahifa = data || {};
+                state.page = data.page || 1;
                 renderStats();
                 renderTable();
                 document.getElementById('tableWrap').style.display = 'block';
                 document.getElementById('paginationRow').style.display = 'flex';
             })
             .catch(err => {
+                if(navbat !== soravNavbati) return;
                 console.error(err);
-                contracts = [];
+                sahifa = { items: [], jami: 0, pages: 1, stat: {} };
                 renderStats();
+                renderTable();
+                document.getElementById('tableWrap').style.display = 'block';
             })
             .finally(() => {
+                if(navbat !== soravNavbati) return;
                 document.getElementById('loadingState').style.display = 'none';
             });
     }
 
-    // ── Stats ──
+    // ── Tablar ──
+    function setHolat(h){
+        state.holat = h;
+        state.page = 1;
+        yangilaTabKorinishi();
+        // URL ni ham yangilaymiz (sahifani yangilasa yoki linkni ulashsa o'sha tab ochiladi)
+        const url = h ? ('/admin/shartnomalar?holat=' + h) : '/admin/shartnomalar';
+        history.replaceState(null, '', url);
+        loadContracts();
+    }
+
+    function yangilaTabKorinishi(){
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', (btn.getAttribute('data-holat') || '') === state.holat);
+        });
+        const t = TAB_NOMLARI[state.holat] || TAB_NOMLARI[''];
+        document.getElementById('pageTitle').textContent = '📄 ' + t.sarlavha;
+        document.getElementById('pageSubtitle').textContent = t.izoh;
+        document.title = t.sarlavha;
+    }
+
+    function setSize(v){
+        state.size = Number(v) || 20;
+        state.page = 1;
+        loadContracts();
+    }
+
+    // ── Statistika kartalari + tab hisoblagichlari ──
     function renderStats(){
-        const total = contracts.length;
-        const active = contracts.filter(c => c.status === 'Faol').length;
-        const closed = contracts.filter(c => c.status === 'Yopilgan').length;
-        const overdue = contracts.filter(c => c.status === "Muddati o'tgan").length;
-        const totalSumma = contracts.reduce((s,c) => s + (Number(c.summa)||0), 0);
+        const st = sahifa.stat || {};
+        const hammasi  = Number(st.hammasi)  || 0;
+        const faol     = Number(st.faol)     || 0;
+        const yopilgan = Number(st.yopilgan) || 0;
+        const undiruv  = Number(st.undiruv)  || 0;
+
+        document.getElementById('cntAll').textContent     = hammasi;
+        document.getElementById('cntActive').textContent  = faol;
+        document.getElementById('cntClosed').textContent  = yopilgan;
+        document.getElementById('cntUndiruv').textContent = undiruv;
+
+        // Kartalarda tanlangan tabga mos summa ko'rsatiladi
+        const summa = state.holat === 'faol'     ? (Number(st.faolSumma)||0)
+                    : state.holat === 'yopilgan' ? (Number(st.yopilganSumma)||0)
+                    : state.holat === 'undiruv'  ? (Number(st.undiruvSumma)||0)
+                    : (Number(st.hammasiSumma)||0);
+        const summaLabel = state.holat === '' ? 'Jami summa'
+                    : 'Summa (' + ((TAB_NOMLARI[state.holat]||{}).sarlavha || '').replace(' shartnomalar','') + ')';
 
         document.getElementById('statsRow').innerHTML = `
             <div class="col-sm-6 col-xl-3">
@@ -300,7 +405,7 @@
                 <div class="stat-icon blue">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5.5 1.5V5H13L9.5 1.5ZM4 7a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4Zm0 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1H4ZM4 12a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H4Z"/></svg>
                 </div>
-                <div><div class="stat-value">${total}</div><div class="stat-label">Jami shartnomalar</div></div>
+                <div><div class="stat-value">${hammasi}</div><div class="stat-label">Jami shartnomalar</div></div>
               </div>
             </div>
             <div class="col-sm-6 col-xl-3">
@@ -308,7 +413,7 @@
                 <div class="stat-icon green">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/></svg>
                 </div>
-                <div><div class="stat-value">${active}</div><div class="stat-label">Faol</div></div>
+                <div><div class="stat-value">${faol}</div><div class="stat-label">Faol</div></div>
               </div>
             </div>
             <div class="col-sm-6 col-xl-3">
@@ -316,7 +421,7 @@
                 <div class="stat-icon red">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
                 </div>
-                <div><div class="stat-value">${overdue}</div><div class="stat-label">Muddati o'tgan</div></div>
+                <div><div class="stat-value">${yopilgan}</div><div class="stat-label">Yopilgan</div></div>
               </div>
             </div>
             <div class="col-sm-6 col-xl-3">
@@ -324,57 +429,46 @@
                 <div class="stat-icon orange">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4Zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05Zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.838 1.823-2.231 1.974V8.71l.379.107Z"/></svg>
                 </div>
-                <div><div class="stat-value">${fmtSumma(totalSumma)}</div><div class="stat-label">Jami summa</div></div>
+                <div><div class="stat-value" style="font-size:19px;">${fmtSumma(summa)}</div><div class="stat-label">${summaLabel}</div></div>
               </div>
             </div>
         `;
     }
 
-    // ── Filter + sort ──
-    function getFiltered(){
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        const st = document.getElementById('statusFilter').value;
-        return contracts.filter(c => {
-            const blob = `${c.id||''} ${c.fish||''} ${c.tel||''}`.toLowerCase();   // ← tel qo'shildi
-            return (!q || blob.includes(q)) && (!st || c.status === st);
-        }).sort((a,b) => {
-            let va = a[sortCol], vb = b[sortCol];
-            if(sortCol === 'id' || sortCol === 'muddat' || sortCol === 'summa'){
-                va = Number(va)||0; vb = Number(vb)||0;
-            } else {
-                va = (va||'').toString(); vb = (vb||'').toString();
-            }
-            return va < vb ? -sortDir : va > vb ? sortDir : 0;
-        });
-    }
+    // ── Tartiblash (server tomonda) ──
     function sortBy(col){
-        if(sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
-        page = 1; renderTable();
+        if(state.sort === col){
+            state.dir = (state.dir === 'asc') ? 'desc' : 'asc';
+        } else {
+            state.sort = col;
+            state.dir = 'asc';
+        }
+        state.page = 1;
+        loadContracts();
     }
 
-    // ── Render table ──
+    // ── Jadvalni chizish ──
     function renderTable(){
-        const data = getFiltered();
-        const total = data.length;
-        const pages = Math.ceil(total / PER_PAGE) || 1;
-        if(page > pages) page = 1;
-        const slice = data.slice((page-1)*PER_PAGE, page*PER_PAGE);
+        const rows  = sahifa.items || [];
+        const total = Number(sahifa.jami) || 0;
+        const pages = Number(sahifa.pages) || 1;
+        const page  = Number(sahifa.page) || 1;
 
-        const cols = ['id','fish','tel','muddat','summa','status'];   // ← 'tel' qo'shildi
+        const cols = ['id','fish','tel','muddat','summa','status'];
         document.querySelectorAll('.table-custom thead th').forEach((th,i)=>{
             const sp = th.querySelector('.sort-icon');
             if(!sp) return;
-            sp.textContent = (cols[i] === sortCol) ? (sortDir === 1 ? '↑' : '↓') : '↕';
+            sp.textContent = (cols[i] === state.sort) ? (state.dir === 'asc' ? '↑' : '↓') : '↕';
         });
 
         const tbody = document.getElementById('tableBody');
         const empty = document.getElementById('emptyState');
 
-        if(!slice.length){
+        if(!rows.length){
             tbody.innerHTML = ''; empty.style.display = 'block';
         } else {
             empty.style.display = 'none';
-            tbody.innerHTML = slice.map(c => {
+            tbody.innerHTML = rows.map(c => {
                 const ac = rndColor(c.id);
                 const b = badgeInfo(c.status);
                 return `
@@ -382,14 +476,14 @@
                     <td><span class="contract-no">№${c.id}</span></td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="avatar-sm" style="background:${ac.bg};color:${ac.c}">${initialsOf(c.fish)}</div>
-                            <div style="font-weight:600;">${c.fish || '—'}</div>
+                            <div class="avatar-sm" style="background:${ac.bg};color:${ac.c}">${esc(initialsOf(c.fish))}</div>
+                            <div style="font-weight:600;">${esc(c.fish || '—')}</div>
                         </div>
                     </td>
-                    <td>${c.tel ? c.tel : '-'}</td>
+                    <td>${esc(c.tel || '-')}</td>
                     <td>${c.muddat ? c.muddat + ' oy' : '—'}</td>
                     <td>${fmtSumma(c.summa)}</td>
-                    <td><span class="badge-status ${b.cls}"><span class="dot"></span>${b.label}</span></td>
+                    <td><span class="badge-status ${b.cls}"><span class="dot"></span>${esc(b.label)}</span></td>
                     <td style="white-space:nowrap;">
                         <a class="action-link view" href="/admin/shartnoma-detail?id=${c.id}">Batafsil</a>
                     </td>
@@ -397,8 +491,10 @@
             }).join('');
         }
 
-        const from = (page-1)*PER_PAGE + 1, to = Math.min(page*PER_PAGE, total);
-        document.getElementById('pageInfo').textContent = total ? `${from}–${to} / jami ${total} ta` : '0 ta natija';
+        const from = total ? (page-1)*state.size + 1 : 0;
+        const to   = Math.min(page*state.size, total);
+        document.getElementById('pageInfo').textContent =
+            total ? `${from}–${to} / jami ${total} ta · ${fmtSumma(sahifa.jamiSumma)}` : '0 ta natija';
 
         const pb = document.getElementById('pageBtns');
         let btns = `<button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>‹</button>`;
@@ -413,9 +509,27 @@
         pb.innerHTML = btns;
     }
 
-    function goPage(p){ page = p; renderTable(); window.scrollTo(0,0); }
+    function goPage(p){
+        if(p < 1 || p > (sahifa.pages||1)) return;
+        state.page = p;
+        loadContracts();
+        window.scrollTo(0,0);
+    }
+
+    // ── Qidiruv (debounce: har harfda so'rov ketmasligi uchun) ──
+    let qidiruvTimer = null;
+    document.getElementById('searchInput').addEventListener('input', function(){
+        clearTimeout(qidiruvTimer);
+        const qiymat = this.value;
+        qidiruvTimer = setTimeout(() => {
+            state.q = qiymat;
+            state.page = 1;
+            loadContracts();
+        }, 350);
+    });
 
     // ── Init ──
+    yangilaTabKorinishi();
     loadContracts();
 </script>
 </body>

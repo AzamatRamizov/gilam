@@ -35,7 +35,7 @@ public class Shartnoma extends AbstractLongEntity {
     // Eski yozuvlarda NULL bo'lishi mumkin — ular dashboard "Kamchiliklar" kartasida ko'rsatiladi.
     private Long dokonId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Mijoz mijoz;
 
     private String status;

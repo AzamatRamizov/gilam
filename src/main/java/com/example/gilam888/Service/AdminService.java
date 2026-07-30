@@ -204,36 +204,38 @@ public class AdminService {
 
         List<MijozRoyxat> mijozRoyxats=new ArrayList<>();
 
-        for (Mijoz mijoz : mijozRepository.findAll()) {
+        // Entity emas, faqat kerakli ustunlar o'qiladi — passport/KATM rasm baytlari
+        // umuman yuklanmaydi (ilgari findAll() heap'ni to'ldirib yuborardi).
+        for (Object[] r : mijozRepository.findAllForRoyxat()) {
             MijozRoyxat mijozRoyxat = new MijozRoyxat();
-            mijozRoyxat.setIsm(mijoz.getIsm());
-            mijozRoyxat.setFamiliya(mijoz.getFamiliya());
-            mijozRoyxat.setSharif(mijoz.getSharif());
-            mijozRoyxat.setId(mijoz.getId());
-            mijozRoyxat.setTel(mijoz.getTel1());
-            mijozRoyxat.setTuman(mijoz.getTuman());
-            mijozRoyxat.setManzil(mijoz.getManzil());
-            mijozRoyxat.setPassport(mijoz.getPassport());
+            mijozRoyxat.setId(r[0] == null ? null : Long.valueOf(((Number) r[0]).longValue()));
+            mijozRoyxat.setIsm((String) r[1]);
+            mijozRoyxat.setFamiliya((String) r[2]);
+            mijozRoyxat.setSharif((String) r[3]);
+            mijozRoyxat.setTuman((String) r[4]);
+            mijozRoyxat.setManzil((String) r[5]);
+            mijozRoyxat.setTel((String) r[6]);
+            mijozRoyxat.setPassport((String) r[7]);
             mijozRoyxats.add(mijozRoyxat);
         }
         return mijozRoyxats;
     }
 
+    /**
+     * ESKI USUL — endi ishlatilmaydi.
+     * <p>Bu yerda `shartnomaRepository.findAll()` bor edi: barcha Shartnoma entity'lari,
+     * ular bilan birga EAGER Mijoz, Mijoz bilan birga esa passport va KATM rasmlarining
+     * byte[] baytlari xotiraga yuklanardi -> OutOfMemoryError: Java heap space.
+     * <p>Yangi usul: {@link ShartnomaRoyxatService#royxat} — projection + sahifalash.
+     * Metod eski chaqiruvlar buzilmasligi uchun qoldirildi, lekin ishlatmang.
+     *
+     * @deprecated {@code ShartnomaRoyxatService.royxat(...)} dan foydalaning
+     */
+    @Deprecated
     public Object getShartnomaAll() {
-        List<ShartnomaRoyxat> shartnomaRoyxats=new ArrayList<>();
-
-        for (Shartnoma shartnoma : shartnomaRepository.findAll()) {
-            ShartnomaRoyxat shartnomaRoyxat = new ShartnomaRoyxat();
-            String fish= shartnoma.getMijoz().getIsm()+" " + shartnoma.getMijoz().getFamiliya()+" " + shartnoma.getMijoz().getSharif();
-            shartnomaRoyxat.setFish(fish);
-            shartnomaRoyxat.setId(shartnoma.getId());
-            shartnomaRoyxat.setSumma(shartnoma.getSumma());
-            shartnomaRoyxat.setMuddat(shartnoma.getMuddat());
-            shartnomaRoyxat.setStatus(shartnoma.getStatus());
-            shartnomaRoyxat.setTel(shartnoma.getMijoz().getTel1());
-            shartnomaRoyxats.add(shartnomaRoyxat);
-        }
-        return shartnomaRoyxats;
+        throw new UnsupportedOperationException(
+                "getShartnomaAll() heap space muammosi sababli olib tashlandi. "
+                        + "ShartnomaRoyxatService.royxat(holat, q, page, size, sort, dir) dan foydalaning.");
     }
 
     public ShartnomaDetailDto shartnomaDetail(long id) {
@@ -1475,7 +1477,8 @@ public class AdminService {
     }
 
     public Object checkAllShartnoma(){
-        for (Shartnoma shartnoma : shartnomaRepository.findAll()) checkShartnomaStatus(shartnoma.getId());
+        // Faqat ID'lar o'qiladi, keyin bittalab tekshiriladi — butun jadval xotiraga yuklanmaydi
+        for (Long id : shartnomaRepository.findAllIds()) checkShartnomaStatus(id);
         return "tekshirildi";
     }
     // Shu sanadan oldingi shartnomalarda sana'dan boshqa kamchiliklar ko'rsatilmaydi
