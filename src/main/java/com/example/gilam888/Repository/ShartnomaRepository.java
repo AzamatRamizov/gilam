@@ -3,6 +3,8 @@ package com.example.gilam888.Repository;
 import com.example.gilam888.Entity.Jadval;
 import com.example.gilam888.Entity.Shartnoma;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -87,4 +89,22 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     // xotiraga tushib "Java heap space" xatosini berardi.
     @Query("SELECT s.id FROM Shartnoma s")
     List<Long> findAllIds();
+
+
+
+    // Sanasi bo'sh shartnomalar + ularning ENG BIRINCHI jadval sanasi (entity yuklanmaydi).
+    // LEFT JOIN — jadvali umuman yo'q shartnomalar ham ko'rinsin (MIN = null bo'ladi).
+    @Query("""
+        SELECT s.id, MIN(j.sana) FROM Shartnoma s
+        LEFT JOIN s.jadvalList j
+        WHERE s.sotibOlinganSana IS NULL
+           OR TRIM(s.sotibOlinganSana) = ''
+           OR LOWER(TRIM(s.sotibOlinganSana)) = 'null'
+        GROUP BY s.id
+    """)
+    List<Object[]> findSanasizShartnomalar();
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Shartnoma s SET s.sotibOlinganSana = :sana WHERE s.id = :id")
+    void updateSotibOlinganSana(@Param("id") Long id, @Param("sana") String sana);
 }

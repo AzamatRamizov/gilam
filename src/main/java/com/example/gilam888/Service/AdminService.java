@@ -1595,4 +1595,46 @@ public class AdminService {
 
         return new ApiResponse("Shartnoma undiruvdan chiqarildi", true);
     }
+    /**
+     * Shartnoma sanasi bo'sh bo'lgan yozuvlarga sana qo'yadi:
+     * eng birinchi (eng erta) jadval sanasidan 1 oy oldingi kun.
+     * preview=true bo'lsa — hech narsa saqlanmaydi, faqat ro'yxat qaytadi.
+     */
+    @Transactional
+    public Map<String, Object> checkShartnomaSana(boolean preview) {
+        List<Object[]> royxat = shartnomaRepository.findSanasizShartnomalar();
+        List<Map<String, Object>> tuzatilgan = new ArrayList<>();
+        int jadvalsiz = 0;
+
+        for (Object[] q : royxat) {
+            Long id = (Long) q[0];
+            LocalDateTime birinchiJadval = (LocalDateTime) q[1];
+
+            // Jadvali yo'q — sanani hisoblab bo'lmaydi, tegilmaydi
+            if (birinchiJadval == null) { jadvalsiz++; continue; }
+
+            String yangiSana = birinchiJadval.toLocalDate().minusMonths(1).toString(); // yyyy-MM-dd
+            if (!preview) shartnomaRepository.updateSotibOlinganSana(id, yangiSana);
+
+            Map<String, Object> qator = new LinkedHashMap<>();
+            qator.put("shartnomaId", id);
+            qator.put("birinchiJadval", birinchiJadval.toLocalDate().toString());
+            qator.put("yangiSana", yangiSana);
+            tuzatilgan.add(qator);
+        }
+
+        if (!preview && !tuzatilgan.isEmpty()) {
+            amalService.log("SHARTNOMA_TAHRIR",
+                    "Sanasi bo'sh " + tuzatilgan.size() + " ta shartnomaga sana qo'yildi "
+                            + "(birinchi jadvaldan 1 oy oldin)");
+        }
+
+        Map<String, Object> natija = new LinkedHashMap<>();
+        natija.put("preview", preview);
+        natija.put("topildi", royxat.size());
+        natija.put("tuzatildi", preview ? 0 : tuzatilgan.size());
+        natija.put("jadvalsiz", jadvalsiz);
+        natija.put("royxat", tuzatilgan);
+        return natija;
+    }
 }

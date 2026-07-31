@@ -124,7 +124,7 @@
                     <div class="col-md-4">
                         <label class="form-label-c">Tovar asl narxi</label>
                         <div class="input-group">
-                            <input type="number" class="form-control" id="pr_narx" placeholder="0" min="0">
+                            <input type="number" class="form-control" id="pr_narx" placeholder="0" min="0" data-son>
                             <span class="input-group-text">so'm</span>
                         </div>
                     </div>
@@ -137,7 +137,7 @@
                     <div class="col-md-4">
                         <label class="form-label-c">Oldindan to'lov</label>
                         <div class="input-group">
-                            <input type="number" class="form-control" id="pr_oldindan" placeholder="0" min="0">
+                            <input type="number" class="form-control" id="pr_oldindan" placeholder="0" min="0" data-son>
                             <span class="input-group-text">so'm</span>
                         </div>
                         <div class="form-hint-c" style="font-size:12px;opacity:.65;margin-top:4px;">Shartnoma tuzilganda naqd olingan boshlang'ich to'lov. Jadvalga kirmaydi, foydaga qo'shiladi.</div>
@@ -259,14 +259,14 @@
         <div class="mb-3">
             <label class="form-label">Tovar asl narxi (tan narx)</label>
             <div class="input-group">
-                <input type="number" id="ns_tannarx" class="form-control" placeholder="0" min="0">
+                <input type="number" id="ns_tannarx" class="form-control" placeholder="0" min="0" data-son>
                 <span class="input-group-text">so'm</span>
             </div>
         </div>
         <div class="mb-3">
             <label class="form-label">Oldindan to'lov</label>
             <div class="input-group">
-                <input type="number" id="ns_oldindan" class="form-control" placeholder="0" min="0">
+                <input type="number" id="ns_oldindan" class="form-control" placeholder="0" min="0" data-son>
                 <span class="input-group-text">so'm</span>
             </div>
             <div class="form-hint-c" style="font-size:12px;opacity:.65;margin-top:4px;">Naqd olingan boshlang'ich to'lov. Summa va jadvalga kirmaydi, foydaga qo'shiladi.</div>
@@ -284,7 +284,7 @@
             <div class="col-md-5">
                 <label class="form-label">Summa <span class="required-star">*</span></label>
                 <div class="input-group">
-                    <input type="number" id="ns_summa" class="form-control" placeholder="0" min="0" oninput="nsUpdateCalc()">
+                    <input type="number" id="ns_summa" class="form-control" placeholder="0" min="0" oninput="nsUpdateCalc()" data-son>
                     <span class="input-group-text">so'm</span>
                 </div>
             </div>
@@ -373,7 +373,7 @@
         <div class="mb-3">
             <label class="form-label">To'lov summasi <span class="required-star">*</span></label>
             <div class="input-group">
-                <input type="number" id="pay_summa" class="form-control" placeholder="0" step="1000">
+                <input type="number" id="pay_summa" class="form-control" placeholder="0" step="1000" data-son>
                 <span class="input-group-text">so'm</span>
             </div>
             <div style="font-size:12px;color:var(--color-sub);margin-top:4px;">

@@ -595,4 +595,10 @@ public class AdminController {
         return adminService.undiruvdanChiqarish(shartnomaId);
     }
 
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/check-date")
+    public ResponseEntity<?> checkDate(@RequestParam(defaultValue = "false") boolean preview) {
+        return ResponseEntity.ok(adminService.checkShartnomaSana(preview));
+    }
+
 }
