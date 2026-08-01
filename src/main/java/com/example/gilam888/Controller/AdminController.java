@@ -43,8 +43,10 @@ public class AdminController {
     private final MijozSahifaService mijozSahifaService;
     private final SmsHisobService smsHisobService;
     private final ShartnomaRoyxatService shartnomaRoyxatService;
+    private final SozlamaService sozlamaService;
+    private final UndiruvScheduler undiruvScheduler;
 
-    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService, SmsHisobService smsHisobService, ShartnomaRoyxatService shartnomaRoyxatService) {
+    public AdminController(AdminService adminService, UsersRepository usersRepository, MijozRepository mijozRepository, UserService userService, FaylBaytRepository faylBaytRepository, JadvalRepository jadvalRepository, ShartnomaRepository shartnomaRepository, KassaService kassaService, QongiroqService qongiroqService, TokenGenerator tokenGenerator, AmalService amalService, MijozSahifaService mijozSahifaService, SmsHisobService smsHisobService, ShartnomaRoyxatService shartnomaRoyxatService, SozlamaService sozlamaService, UndiruvScheduler undiruvScheduler) {
         this.adminService = adminService;
         this.usersRepository = usersRepository;
         this.mijozRepository = mijozRepository;
@@ -59,6 +61,8 @@ public class AdminController {
         this.mijozSahifaService = mijozSahifaService;
         this.smsHisobService = smsHisobService;
         this.shartnomaRoyxatService = shartnomaRoyxatService;
+        this.sozlamaService = sozlamaService;
+        this.undiruvScheduler = undiruvScheduler;
     }
 
     //    @PreAuthorize("hasRole('owner')")
@@ -599,6 +603,53 @@ public class AdminController {
     @GetMapping("/check-date")
     public ResponseEntity<?> checkDate(@RequestParam(defaultValue = "false") boolean preview) {
         return ResponseEntity.ok(adminService.checkShartnomaSana(preview));
+    }
+
+    // ═══════════════ SOZLAMALAR ═══════════════
+
+    /** Sozlamalar sahifasi */
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/sozlama")
+    public String sozlamaSahifa() {
+        return "sozlama";
+    }
+
+    /** Barcha sozlamalar (JSON) */
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/sozlamalar")
+    @ResponseBody
+    public ResponseEntity<?> sozlamalarOl() {
+        return ResponseEntity.ok(sozlamaService.hammasi());
+    }
+
+    /** Sozlamalarni saqlash. Body: {"undiruv.kun":"30","undiruv.avto":"true"} */
+    @PreAuthorize("hasRole('owner')")
+    @PostMapping("/sozlamalar")
+    @ResponseBody
+    public ResponseEntity<ApiResponse> sozlamalarSaqla(@RequestBody Map<String, String> body) {
+        String xato = sozlamaService.saqla(body);
+        if (xato != null) {
+            return ResponseEntity.status(400).body(new ApiResponse(xato, false));
+        }
+        return ResponseEntity.ok(new ApiResponse("Sozlamalar saqlandi", true));
+    }
+
+    // ═══════════════ AVTOMATIK UNDIRUV ═══════════════
+
+    /** Kimlar undiruvga tushishini KO'RISH (bazaga tegmaydi) */
+    @PreAuthorize("hasRole('owner')")
+    @GetMapping("/undiruv-tekshir")
+    @ResponseBody
+    public ResponseEntity<?> undiruvTekshir() {
+        return ResponseEntity.ok(undiruvScheduler.otkaz(true));
+    }
+
+    /** Kunlik tekshiruvni QO'LDA ishga tushirish (haqiqiy o'tkazish) */
+    @PreAuthorize("hasRole('owner')")
+    @PostMapping("/undiruv-tekshir")
+    @ResponseBody
+    public ResponseEntity<?> undiruvHoziroq() {
+        return ResponseEntity.ok(undiruvScheduler.otkaz(false));
     }
 
 }

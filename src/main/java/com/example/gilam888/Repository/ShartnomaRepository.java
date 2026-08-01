@@ -107,4 +107,13 @@ public interface ShartnomaRepository extends JpaRepository<Shartnoma, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Shartnoma s SET s.sotibOlinganSana = :sana WHERE s.id = :id")
     void updateSotibOlinganSana(@Param("id") Long id, @Param("sana") String sana);
+
+    @Query("""
+        SELECT DISTINCT s.id FROM Shartnoma s
+        JOIN s.jadvalList j
+        WHERE s.status = 'ochiq'
+          AND j.holat = 'tulanmagan'
+          AND j.sana < :chegara
+    """)
+    List<Long> findAvtoUndiruvNomzodlari(@Param("chegara") LocalDateTime chegara);
 }
