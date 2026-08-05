@@ -608,11 +608,114 @@
             (data || []).forEach(function(m){
                 select.append(`<option value="${m.id}">${m.nomi}</option>`);
             });
+            magazinlarTayyor = true;
+            if(katmSorov) katmDokonniQoy(katmSorov);   // KATM so'rovidagi do'konni tanlash
         }).fail(function(){
             console.error("Magazinlar ro'yxatini yuklab bo'lmadi");
         });
     }
     loadMagazinlar();
+
+    /* ─────────── KATM so'rovi bo'yicha formani to'ldirish ───────────
+       Ombor (baza) dasturidan kelgan so'rov: /admin/user-add?katm=<id>
+       So'rovdagi tannarx, sotilgan narx, oldindan to'lov, muddat, do'kon,
+       izoh va mijoz ma'lumotlari mos maydonlarga qo'yiladi. */
+    const KATM_IDS = (new URLSearchParams(location.search).get('katm') || '')
+        .split(',').map(x => x.trim()).filter(Boolean);
+    let katmSorov = null;          // birlashtirilgan ma'lumot (do'kon tanlash uchun)
+    let magazinlarTayyor = false;
+
+    function katmDokonniQoy(s){
+        if(!magazinlarTayyor || !s) return;
+        if(s.dokonId){
+            $('#category').val(String(s.dokonId));
+        } else if(s.dokonNomi){
+            $('#category option').each(function(){
+                if($(this).text().trim().toLowerCase() === s.dokonNomi.trim().toLowerCase()){
+                    $('#category').val($(this).val());
+                }
+            });
+        }
+    }
+
+    function katmBanner(list){
+        const b = list[0];
+        const nomi = [b.mijozIsmi, b.mijozTel, b.mijozJshshir].filter(Boolean).join(' \u00B7 ');
+        const raqamlar = list.map(s => '#' + s.id).join(', ');
+        const mahsulotlar = list.map(s => '\u2022 ' + (s.about || s.mahsulotNomi) +
+            ' \u2014 ' + Number(s.sotuvNarxi || 0).toLocaleString('ru-RU') + " so'm").join('<br>');
+
+        const html = '<div class="alert alert-info" style="border-radius:10px;font-size:13.5px;">' +
+            '<b>KATM so\u2018rovi ' + raqamlar + '</b> \u2014 ombordan keldi' +
+            (b.sotuvchi ? ' (' + b.sotuvchi + ')' : '') + '<br>' +
+            (nomi ? nomi + '<br>' : '') +
+            (list.length > 1 ? '<div class="mt-2">' + mahsulotlar + '</div>' +
+                '<div class="mt-2"><b>' + list.length + ' ta mahsulot bitta shartnomaga birlashtirildi</b> ' +
+                '\u2014 tannarx, summa va oldindan to\u2018lov qo\u2018shib hisoblandi.</div>' : '') +
+            '<div class="mt-2">Shartnoma saqlangach so\u2018rov' + (list.length > 1 ? 'lar' : '') +
+            ' yopiladi va omborda sotuv yakunlanadi.</div></div>';
+
+        const el = document.getElementById('formMsg');
+        if(el) el.insertAdjacentHTML('beforebegin', html);
+    }
+
+    /** Bir yoki bir nechta so'rovni bitta shartnoma formasiga birlashtiradi */
+    function katmToldir(list){
+        if(!list || !list.length) return;
+
+        // Mijoz — ma'lumoti to'liqroq bo'lgan so'rovdan
+        const m = list.find(x => x.mijozJshshir) || list.find(x => x.mijozTel) || list[0];
+        if(m.mijozIsmi){
+            const q = m.mijozIsmi.trim().split(/\s+/);
+            $('#ism').val(q[0] || '');
+            $('#familiya').val(q[1] || '');
+            if(q.length > 2) $('#sharif').val(q.slice(2).join(' '));
+        }
+        if(m.mijozTel) $('#tel1').val(m.mijozTel);
+
+        // Mahsulotlar — har biri alohida qatorda
+        $('#about').val(list.map(s => s.about || s.mahsulotNomi).filter(Boolean).join('\n'));
+        const izohlar = list.map(s => s.izoh).filter(Boolean);
+        if(izohlar.length) $('#izoh').val(izohlar.join('\n'));
+
+        // Pul maydonlari — qo'shiladi
+        const yigindi = (maydon) => list.reduce((a, s) => a + (Number(s[maydon]) || 0), 0);
+        const tannarx = yigindi('tannarx');
+        const summa = yigindi('sotuvNarxi');
+        const oldindan = yigindi('oldindanTulov');
+        if(tannarx) $('#tannarx').val(tannarx);
+        if(summa) $('#summa').val(summa);
+        if(oldindan) $('#oldindan').val(oldindan);
+
+        // Muddat — eng uzuni
+        const muddatlar = list.map(s => Number(s.muddat) || 0);
+        const muddat = Math.max.apply(null, muddatlar);
+        if(muddat > 0) $('#muddat').val(muddat);
+
+        // Do'kon — birinchi topilgani
+        katmSorov = list.find(s => s.dokonId) || list[0];
+        katmDokonniQoy(katmSorov);
+
+        if(typeof updateCalc === 'function') updateCalc();
+        katmBanner(list);
+    }
+
+    if(KATM_IDS.length){
+        $.get('/admin/get-katm-sorovlar-tanlangan', { ids: KATM_IDS.join(',') }, function(list){
+            katmToldir(list || []);
+        }).fail(function(){
+            console.error("KATM so'rovlarini yuklab bo'lmadi");
+        });
+    }
+
+    /** Shartnoma saqlangach so'rov(lar)ni yopamiz va omborga xabar beramiz */
+    function katmYopish(){
+        if(!KATM_IDS.length) return;
+        const sorovlar = KATM_IDS.map(id => $.post('/admin/katm-sorov-bajarildi/' + id));
+        $.when.apply($, sorovlar).always(function(){
+            setTimeout(function(){ location.href = '/admin/katm-sorovlar'; }, 1500);
+        });
+    }
 
     const CHECK_PASSPORT_URL = '/admin/checkPassport';
     let passportCheckTimer = null;
@@ -1099,6 +1202,7 @@
                 if(sts.status === 200){
                     showMsg(habar || "Mijoz va shartnoma ma'lumotlari saqlandi", 'success');
                     clearForm();
+                    katmYopish();   // KATM so'rovi bo'yicha kelingan bo'lsa — yopiladi
                 } else if(sts.status === 208){
                     showMsg(habar || "Bu passport allaqachon ishlatilgan", 'error');
                 }

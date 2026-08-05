@@ -14,9 +14,11 @@ function login(){
         contentType:"application/json;charset=utf-8",
         success:function (habar,ogoh,sts){
             console.log(habar);
-            // Tokenni cookie ga yozamiz
-            document.cookie = "Auth=" + habar.token + "; path=/; SameSite=Lax"; // HttpOnly bo'lsa backendda o'rnatiladi
-            // Dashboardga yo'naltiramiz
+            document.cookie = "Auth=" + habar.token + "; path=/; SameSite=Lax";
+
+            // Dashboardda motivatsion oyna chiqishi uchun belgi
+            try { sessionStorage.setItem('gilam-yangi-kirish', '1'); } catch (e) {}
+
             document.location.href = "/admin/dashboard";
         },
         error:function (xato){

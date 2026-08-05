@@ -454,6 +454,101 @@
     ccFilterAndRender();
     selectQarzdor(mijozId);
   }
+  // ══════ BOSHQA SAHIFADAN KELGAN MIJOZNI OCHISH ══════
+  // /admin/call-markaz?mijozId=123  — mijoz sahifasidagi tugma shu manzilga oladi.
+  // Mijoz joriy filtrda bo'lmasligi mumkin (masalan qarzi yo'q), shuning uchun:
+  //   1. "Barchasi" filtri yuklanadi — eng keng ro'yxat
+  //   2. Topilmasa — mijoz ma'lumoti alohida olinib, ro'yxatga qo'shiladi
+  function ccOchMijoz(mijozId, shartnomaId) {
+    _ccFilter = 'barchasi';
+    document.querySelectorAll('.cc-filter-menu-item').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-f') === 'barchasi');
+    });
+    document.getElementById('ccFilterLabel').textContent = '📋 Barchasi';
+    document.getElementById('ccList').innerHTML =
+            '<div class="loading-state"><div class="spinner-border-custom"></div><p style="font-size:13px;">Yuklanmoqda...</p></div>';
+
+    fetch('/admin/get-qarzdorlar?filter=barchasi')
+            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(data){
+              _qarzdorlar = mapQarzdorlar(Array.isArray(data) ? data : []);
+
+              // Kerakli shartnomani ro'yxat boshiga suramiz — selectQarzdor()
+              // mijozId bo'yicha BIRINCHI mos yozuvni oladi, shuning uchun bu muhim
+              if (shartnomaId) ccOldingaSur(shartnomaId);
+
+              ccFilterAndRender();
+
+              const bor = _qarzdorlar.some(function(x){ return String(x.mijozId) === String(mijozId); });
+              if (bor) {
+                selectQarzdor(mijozId);
+                ccScrollToSelected();
+              } else {
+                ccMijozniQoshibOch(mijozId, shartnomaId);
+              }
+            })
+            .catch(function(err){
+              showError("Qarzdorlar ro'yxatini yuklab bo'lmadi: " + err);
+              ccMijozniQoshibOch(mijozId, shartnomaId);
+            });
+  }
+
+  // Berilgan shartnomaning yozuvini massiv boshiga ko'chiradi
+  function ccOldingaSur(shartnomaId) {
+    const i = _qarzdorlar.findIndex(function(x){ return String(x.shartnomaId) === String(shartnomaId); });
+    if (i > 0) _qarzdorlar.unshift(_qarzdorlar.splice(i, 1)[0]);
+  }
+
+  // Ro'yxatda yo'q mijozni /admin/mijoz-sahifa/{id} dan olib, ro'yxat boshiga qo'shadi
+  function ccMijozniQoshibOch(mijozId, shartnomaId) {
+    fetch('/admin/mijoz-sahifa/' + encodeURIComponent(mijozId))
+            .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(function(m){
+              // Ochiq shartnomani afzal ko'ramiz, bo'lmasa birinchisini olamiz
+              let sh = null;
+              if (Array.isArray(m.shartnomalar) && m.shartnomalar.length) {
+                // 1) URL'dan kelgan shartnoma  2) ochiq shartnoma  3) birinchisi
+                sh = (shartnomaId && m.shartnomalar.find(function(x){ return String(x.id) === String(shartnomaId); }))
+                        || m.shartnomalar.find(function(x){ return x.status === 'ochiq'; })
+                        || m.shartnomalar[0];
+              }
+
+              const obj = {
+                mijozId: m.id,
+                ism: m.ism || '',
+                familiya: m.familiya || '',
+                tel1: m.tel1 || null,
+                tel2: m.tel2 || null,
+                tel3: m.tel3 || null,
+                shartnomaId: sh ? sh.id : null,
+                qolganQarz: sh ? (Number(sh.qoldiq) || 0) : (Number(m.qoldiqSumma) || 0),
+                keyingiTolovSana: null,
+                muddatiOtganKun: sh ? (Number(sh.kechikkanOylar) || 0) : 0,
+                status: sh ? sh.status : null,
+                oyRaqami: null,
+                jamiOy: null
+              };
+
+              const idx = _qarzdorlar.findIndex(function(x){ return String(x.mijozId) === String(mijozId); });
+              if (idx === -1) _qarzdorlar.unshift(obj);
+              else _qarzdorlar[idx] = Object.assign({}, _qarzdorlar[idx], obj);
+
+              ccFilterAndRender();
+              selectQarzdor(mijozId);
+              ccScrollToSelected();
+            })
+            .catch(function(){
+              showError("Mijoz topilmadi yoki ma'lumotini yuklab bo'lmadi.");
+            });
+  }
+
+  // Tanlangan mijozni chapdagi ro'yxatda ko'rinadigan joyga suradi
+  function ccScrollToSelected() {
+    setTimeout(function(){
+      const el = document.querySelector('#ccList .cc-item.selected');
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+    }, 60);
+  }
 
   // ══════ CHAP: RO'YXATNI YUKLASH ══════
   // "buoy" -> eski /admin/get-last-muddat (YaqinJadvalDto[]) — eski algoritm ishlaydi
@@ -977,7 +1072,15 @@
     btn.classList.remove('recording');
   }
 
-  loadQarzdorlar(_ccFilter);
+  // Mijoz sahifasidan ?mijozId=... bilan kelingan bo'lsa — o'sha mijozni ochamiz
+  const _ccUrlParams    = new URLSearchParams(window.location.search);
+  const _ccUrlMijozId   = _ccUrlParams.get('mijozId');
+  const _ccUrlShartnoma = _ccUrlParams.get('shartnomaId');
+  if (_ccUrlMijozId) {
+    ccOchMijoz(_ccUrlMijozId, _ccUrlShartnoma);
+  } else {
+    loadQarzdorlar(_ccFilter);
+  }
   loadBugungiEslatmalar();
 </script>
 </body>
