@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>KATM so'rovlari</title>
+    <link rel="icon" type="image/png" href="/images/888.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <style>
+        :root {
+            --bg-body:       #dceef8;
+            --bg-card:       #ffffff;
+            --color-text:    #1a3a52;
+            --color-sub:     #5a8fa8;
+            --color-border:  #b3d6ee;
+            --color-divider: #d0e9f5;
+            --color-card-bdr:#c5dff0;
+            --bg-input:      #f5fafd;
+            --transition: 0.25s ease;
+        }
+        [data-theme="dark"] {
+            --bg-body:       #0f1e2b;
+            --bg-card:       #162534;
+            --color-text:    #d0e8f5;
+            --color-sub:     #5a8fa8;
+            --color-border:  #2a4f6a;
+            --color-divider: #1e3d55;
+            --color-card-bdr:#1e3d55;
+            --bg-input:      #1c2f40;
+        }
+        * { box-sizing: border-box; transition: background-color var(--transition), color var(--transition), border-color var(--transition); }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: var(--color-text); min-height: 100vh; }
+
+        .navbar { background: #1a6fa8 !important; box-shadow: 0 2px 10px rgba(26,111,168,0.3); padding: 0; }
+        [data-theme="dark"] .navbar { background: #0e3f60 !important; }
+        .navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #fff !important; }
+        .navbar-brand .logo-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .navbar-brand span { color: #a8dcf5; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.88) !important; font-size: 14px; font-weight: 500; padding: 20px 14px !important; border-bottom: 2px solid transparent; }
+        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active { color: #fff !important; border-bottom-color: rgba(255,255,255,0.6); }
+        .theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; color: #fff; padding: 5px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-left: 10px; }
+        .nav-badge { background:#e74c3c; color:#fff; border-radius:10px; font-size:11px; padding:1px 7px; margin-left:4px; }
+
+        .main-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 10px rgba(26,111,168,0.07); }
+        .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .page-sub { font-size: 13px; color: var(--color-sub); }
+
+        .stat-card { background: var(--bg-card); border: 1px solid var(--color-card-bdr); border-radius: 12px; padding: 16px 18px; }
+        .stat-value { font-size: 24px; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: 12px; color: var(--color-sub); margin-top: 4px; }
+
+        .filter-btn { border: 1px solid var(--color-border); background: var(--bg-input); color: var(--color-text);
+            border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .filter-btn.active { background: #1a6fa8; border-color: #1a6fa8; color: #fff; }
+
+        table { color: var(--color-text); }
+        .table > :not(caption) > * > * { background-color: transparent !important; color: var(--color-text); border-color: var(--color-divider) !important; }
+        thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--color-sub); }
+        tbody tr:hover td { background-color: rgba(26,111,168,0.06) !important; }
+        .muted { color: var(--color-sub); }
+        .small-note { font-size: 11.5px; color: var(--color-sub); }
+
+        .holat { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11.5px; font-weight: 700; }
+        .holat-YANGI { background: #fff3cd; color: #8a6100; }
+        .holat-BAJARILDI { background: #d7f5e0; color: #1a7a45; }
+        .holat-RAD_ETILDI { background: #fde1e1; color: #b02a2a; }
+        [data-theme="dark"] .holat-YANGI { background:#4a3a10; color:#f0c96a; }
+        [data-theme="dark"] .holat-BAJARILDI { background:#123a26; color:#66d69b; }
+        [data-theme="dark"] .holat-RAD_ETILDI { background:#3f1a1a; color:#f08a8a; }
+
+        .btn-tuz { background:#1a6fa8; color:#fff; border:none; border-radius:8px; padding:7px 13px; font-size:12.5px; font-weight:600; }
+        .btn-tuz:hover { background:#15597f; color:#fff; }
+        .btn-rad { background:#fde1e1; color:#b02a2a; border:1px solid #f5c2c2; border-radius:8px; padding:7px 13px; font-size:12.5px; font-weight:600; }
+        .btn-qayta { background:#fff3cd; color:#8a6100; border:1px solid #f2df9e; border-radius:8px; padding:7px 13px; font-size:12.5px; font-weight:600; }
+
+        .tanlov-bar { position: sticky; bottom: 0; z-index: 20; margin-top: 10px;
+            background: #1a6fa8; color:#fff; border-radius: 12px; padding: 12px 16px;
+            display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+            box-shadow: 0 6px 20px rgba(26,111,168,.35); }
+        .tanlov-bar.ochiq { display: flex; }
+        .tanlov-bar .info { font-size: 13.5px; }
+        .tanlov-bar .info b { font-size: 15px; }
+        .tanlov-bar .btn-birga { background:#fff; color:#1a6fa8; border:none; border-radius:8px;
+            padding:8px 16px; font-weight:700; font-size:13px; text-decoration:none; }
+        .tanlov-bar .btn-tozala { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.5);
+            border-radius:8px; padding:8px 14px; font-size:13px; }
+        .ogoh-matn { color:#ffe08a; font-size:12px; }
+        .tanlov-cb { width: 16px; height: 16px; cursor: pointer; }
+
+        .toast-wrap { position: fixed; top: 80px; right: 20px; z-index: 1080; display:flex; flex-direction:column; gap:8px; }
+        .toast-msg { background:#fff; border-left:4px solid #1a6fa8; border-radius:8px; padding:12px 16px; box-shadow:0 4px 18px rgba(0,0,0,.15); font-size:13.5px; max-width:340px; }
+        .toast-msg.err { border-left-color:#e74c3c; }
+        [data-theme="dark"] .toast-msg { background:#1c2f40; color:#d0e8f5; }
+    </style>
+</head>
+<body>
+<nav th:replace="~{fragment :: navbar}"></nav>
+
+<div class="container-fluid px-3 px-lg-4 py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
+        <div>
+            <div class="page-title">KATM so'rovlari</div>
+            <div class="page-sub">Ombordan kelgan nasiya so'rovlari — bosib shartnoma tuzasiz</div>
+        </div>
+        <button class="filter-btn" onclick="load()">🔄 Yangilash</button>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card"><div class="stat-value" id="statYangi">—</div>
+                <div class="stat-label">Yangi so'rov</div></div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card"><div class="stat-value" id="statBajarildi">—</div>
+                <div class="stat-label">Shartnoma tuzilgan</div></div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card"><div class="stat-value" id="statRad">—</div>
+                <div class="stat-label">Rad etilgan</div></div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card"><div class="stat-value" id="statSumma">—</div>
+                <div class="stat-label">Yangi so'rovlar summasi</div></div>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="filter-btn active" data-holat="YANGI">Yangi</button>
+            <button class="filter-btn" data-holat="BAJARILDI">Bajarilgan</button>
+            <button class="filter-btn" data-holat="RAD_ETILDI">Rad etilgan</button>
+            <button class="filter-btn" data-holat="">Barchasi</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th style="width:34px"><input type="checkbox" class="tanlov-cb" id="hammasiCb" title="Hammasini tanlash"></th>
+                    <th>#</th>
+                    <th>Kelgan vaqt</th>
+                    <th>Mijoz</th>
+                    <th>Mahsulot</th>
+                    <th>Tannarx</th>
+                    <th>Sotilgan narx</th>
+                    <th>Oldindan</th>
+                    <th>Muddat</th>
+                    <th>Do'kon</th>
+                    <th>Holat</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                <tr><td colspan="12" class="text-center muted py-4">Yuklanmoqda...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bir nechta so'rovni bitta shartnomaga birlashtirish -->
+        <div class="tanlov-bar" id="tanlovBar">
+            <div class="info">
+                <b><span id="tanlovSoni">0</span> ta so'rov tanlandi</b>
+                &nbsp;·&nbsp; jami summa: <b id="tanlovSumma">0</b>
+                <div id="tanlovOgoh" class="ogoh-matn"></div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn-tozala" onclick="tanlovniTozala()">Bekor qilish</button>
+                <a class="btn-birga" id="birgaBtn" href="#">📄 Bitta shartnoma qilish</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let holatFiltri = 'YANGI';
+    let royxat = [];
+
+    function esc(s) {
+        return (s == null ? '' : String(s))
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function pul(n) {
+        if (n == null) return '—';
+        return Number(n).toLocaleString('ru-RU') + " so'm";
+    }
+
+    function vaqt(v) {
+        if (!v) return '—';
+        const d = new Date(v);
+        const p = n => String(n).padStart(2, '0');
+        return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear() +
+            ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    }
+
+    function toast(matn, ok) {
+        const div = document.createElement('div');
+        div.className = 'toast-msg' + (ok ? '' : ' err');
+        div.textContent = matn;
+        document.getElementById('toastWrap').appendChild(div);
+        setTimeout(() => div.remove(), 4500);
+    }
+
+    document.querySelectorAll('.filter-btn[data-holat]').forEach(b => {
+        b.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn[data-holat]').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            holatFiltri = b.dataset.holat;
+            chiz();
+        });
+    });
+
+    async function load() {
+        try {
+            const res = await fetch('/admin/get-katm-sorovlar');
+            royxat = await res.json();
+            statlar();
+            chiz();
+        } catch (e) {
+            document.getElementById('tbody').innerHTML =
+                '<tr><td colspan="12" class="text-center muted py-4">Yuklab bo\u2018lmadi</td></tr>';
+        }
+    }
+
+    function statlar() {
+        const yangi = royxat.filter(s => s.holat === 'YANGI');
+        document.getElementById('statYangi').textContent = yangi.length;
+        document.getElementById('statBajarildi').textContent =
+            royxat.filter(s => s.holat === 'BAJARILDI').length;
+        document.getElementById('statRad').textContent =
+            royxat.filter(s => s.holat === 'RAD_ETILDI').length;
+        document.getElementById('statSumma').textContent =
+            pul(yangi.reduce((a, s) => a + (s.sotuvNarxi || 0), 0));
+    }
+
+    function chiz() {
+        const list = holatFiltri ? royxat.filter(s => s.holat === holatFiltri) : royxat;
+        const tbody = document.getElementById('tbody');
+
+        if (!list.length) {
+            tbody.innerHTML = '<tr><td colspan="12" class="text-center muted py-4">So\u2018rov yo\u2018q</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = list.map(s => {
+            const mijoz = [s.mijozIsmi, s.mijozTel].filter(Boolean).map(esc).join('<br>');
+            const olcham = (s.eni != null && s.boyi != null)
+                ? '<div class="small-note">' + s.eni + ' \u00D7 ' + s.boyi + ' m'
+                  + (s.miqdor != null ? ' \u00B7 ' + s.miqdor + ' ' + esc(s.birlik || '') : '') + '</div>'
+                : (s.miqdor != null ? '<div class="small-note">' + s.miqdor + ' ' + esc(s.birlik || '') + '</div>' : '');
+
+            let amal = '';
+            if (s.holat === 'YANGI') {
+                amal = '<a class="btn-tuz text-decoration-none" href="/admin/user-add?katm=' + s.id + '">📄 Shartnoma tuzish</a> ' +
+                    '<button class="btn-rad ms-1" onclick="radEt(' + s.id + ')">Rad etish</button>';
+            } else {
+                amal = '<div class="small-note">' + esc(s.javobBergan || '') + ' ' + vaqt(s.javobVaqti) +
+                    (s.shartnomaId ? ' \u00B7 shartnoma #' + s.shartnomaId : '') + '</div>';
+            }
+
+            const cb = s.holat === 'YANGI'
+                ? '<input type="checkbox" class="tanlov-cb qator-cb" data-id="' + s.id + '"' +
+                  (tanlangan.has(s.id) ? ' checked' : '') + '>'
+                : '';
+
+            return `<tr>
+                <td>${cb}</td>
+                <td class="muted">${s.id}</td>
+                <td class="small-note">${vaqt(s.kelganVaqt)}<div>${esc(s.sotuvchi || '')}</div></td>
+                <td>${mijoz || '<span class="muted">—</span>'}</td>
+                <td><b>${esc(s.mahsulotNomi)}</b>${olcham}
+                    ${s.izoh ? '<div class="small-note">' + esc(s.izoh) + '</div>' : ''}</td>
+                <td>${pul(s.tannarx)}</td>
+                <td><b>${pul(s.sotuvNarxi)}</b></td>
+                <td>${s.oldindanTulov ? pul(s.oldindanTulov) : '<span class="muted">—</span>'}</td>
+                <td>${s.muddat ? s.muddat + ' oy' : '<span class="muted">—</span>'}</td>
+                <td>${esc(s.dokonNomi) || '<span class="muted">—</span>'}</td>
+                <td><span class="holat holat-${s.holat}">${s.holat === 'YANGI' ? 'Yangi'
+                : s.holat === 'BAJARILDI' ? 'Bajarildi' : 'Rad etildi'}</span></td>
+                <td class="text-nowrap">${amal}</td>
+            </tr>`;
+        }).join('');
+
+        // Ro'yxat yangilangach, endi mavjud bo'lmagan tanlovlarni tashlaymiz
+        const mavjud = new Set(list.filter(s => s.holat === 'YANGI').map(s => s.id));
+        [...tanlangan].forEach(id => { if (!mavjud.has(id)) tanlangan.delete(id); });
+        tanlovniYangila();
+    }
+
+    // ───── Bir nechta mahsulotni bitta shartnomaga birlashtirish ─────
+    const tanlangan = new Set();
+
+    function tanlovniYangila() {
+        const bar = document.getElementById('tanlovBar');
+        const soni = tanlangan.size;
+        bar.classList.toggle('ochiq', soni > 0);
+        if (!soni) return;
+
+        const list = royxat.filter(s => tanlangan.has(s.id));
+        const jami = list.reduce((a, s) => a + (s.sotuvNarxi || 0), 0);
+        document.getElementById('tanlovSoni').textContent = soni;
+        document.getElementById('tanlovSumma').textContent = pul(jami);
+        document.getElementById('birgaBtn').href =
+            '/admin/user-add?katm=' + list.map(s => s.id).join(',');
+
+        // Har xil mijozlarniki bo'lsa ogohlantiramiz
+        const kalit = s => (s.mijozTel || s.mijozIsmi || '').trim().toLowerCase();
+        const xil = new Set(list.map(kalit).filter(Boolean));
+        document.getElementById('tanlovOgoh').textContent = xil.size > 1
+            ? "Diqqat: tanlanganlar har xil mijozlarga tegishli ko\u2018rinmoqda"
+            : '';
+    }
+
+    function tanlovniTozala() {
+        tanlangan.clear();
+        document.querySelectorAll('.qator-cb').forEach(c => c.checked = false);
+        const h = document.getElementById('hammasiCb');
+        if (h) h.checked = false;
+        tanlovniYangila();
+    }
+
+    document.getElementById('tbody').addEventListener('change', e => {
+        const cb = e.target.closest('.qator-cb');
+        if (!cb) return;
+        const id = Number(cb.dataset.id);
+        if (cb.checked) tanlangan.add(id); else tanlangan.delete(id);
+        tanlovniYangila();
+    });
+
+    document.getElementById('hammasiCb').addEventListener('change', e => {
+        document.querySelectorAll('.qator-cb').forEach(c => {
+            c.checked = e.target.checked;
+            const id = Number(c.dataset.id);
+            if (e.target.checked) tanlangan.add(id); else tanlangan.delete(id);
+        });
+        tanlovniYangila();
+    });
+
+    async function radEt(id) {
+        const izoh = prompt("Rad etish sababi (ixtiyoriy).\nOmbordagi mahsulot qoldig'i tiklanadi:", '');
+        if (izoh === null) return;
+        try {
+            const res = await fetch('/admin/katm-sorov-rad/' + id, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ izoh: izoh })
+            });
+            const data = await res.json();
+            toast(data.message, data.holat);
+            load();
+        } catch (e) {
+            toast("Server bilan aloqa yo'q", false);
+        }
+    }
+
+    load();
+    setInterval(load, 60000);   // har daqiqada yangilanadi
+
+    // Tema (fragmentdagi bilan bir xil)
+    function toggleTheme() {
+        const html = document.documentElement;
+        const yangi = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', yangi);
+        localStorage.setItem('theme', yangi);
+    }
+    (function () {
+        const t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+    })();
+</script>
+</body>
+</html>

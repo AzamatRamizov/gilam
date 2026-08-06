@@ -41,6 +41,13 @@
                         </svg> Undirish
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/katm-sorovlar">
+                        <svg style="margin-right:4px;vertical-align:-0.125em;" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm0 1h12a1 1 0 0 1 1 1v.217l-7 4.2-7-4.2V4a1 1 0 0 1 1-1zm-1 2.383 4.708 2.825L1 11.105V5.383zm5.673 3.417L8 9.583l1.327-.783 5.63 3.378A1 1 0 0 1 14 13H2a1 1 0 0 1-.957-.822L6.673 8.8zM15 11.105 10.292 8.21 15 5.383v5.722z"/>
+                        </svg> KATM so'rovlari <span class="nav-badge" id="katmBadge" style="display:none">0</span>
+                    </a>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                         <svg style="margin-right:4px;vertical-align:-0.125em;" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
@@ -115,6 +122,24 @@
     </div>
     <link rel="stylesheet" href="/css/theme-fix.css">
     <script src="/js/format.js"></script>
+    <script>
+        // KATM: javob kutayotgan so'rovlar soni (menyudagi qizil belgi)
+        (function katmBelgisi() {
+            const el = document.getElementById('katmBadge');
+            if (!el) return;
+            function yangila() {
+                fetch('/admin/katm-yangilar-soni')
+                    .then(r => r.ok ? r.json() : null)
+                    .then(d => {
+                        if (!d) return;
+                        el.textContent = d.soni;
+                        el.style.display = d.soni > 0 ? 'inline-block' : 'none';
+                    }).catch(() => {});
+            }
+            yangila();
+            setInterval(yangila, 60000);
+        })();
+    </script>
 </nav>
 
 </body>

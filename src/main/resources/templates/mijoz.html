@@ -132,6 +132,15 @@
         .action-link { color:#1a6fa8; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer; }
         .action-link:hover { color:#155d8e; text-decoration:underline; }
 
+        .btn-call-markaz {
+            display:inline-flex; align-items:center; gap:6px;
+            background:#1a6fa8; color:#fff !important; text-decoration:none;
+            border-radius:9px; padding:8px 16px;
+            font-size:13px; font-weight:600; white-space:nowrap;
+        }
+        .btn-call-markaz:hover { background:#155d8e; }
+        .btn-call-markaz.disabled { opacity:.5; pointer-events:none; }
+
         .kechik-badge { background:#ffe0e0; color:#c0392b; font-size:12px; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap; }
         [data-theme="dark"] .kechik-badge { background:#3a1818; color:#f08080; }
         .holat-ochiq { color:#1a6fa8; font-weight:600; }
@@ -151,7 +160,12 @@
             <h1 class="page-title">Mijoz sahifasi</h1>
             <p class="page-subtitle">Mijozning to&#39;liq ma&#39;lumotlari va shartnomalari</p>
         </div>
-        <a href="/admin/mijozlar" class="action-link">&#8592; Mijozlar ro&#39;yxati</a>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="#" class="btn-call-markaz" id="callMarkazBtn">
+                &#128222; Call markaziga o&#39;tish
+            </a>
+            <a href="/admin/mijozlar" class="action-link">&#8592; Mijozlar ro&#39;yxati</a>
+        </div>
     </div>
 
     <!-- Profil + Status -->
@@ -259,6 +273,17 @@
     // ── Mijoz ID (URL: /admin/mijoz?id=123) ──
     const MIJOZ_ID = new URLSearchParams(window.location.search).get('id');
 
+
+    // Call markazi tugmasining havolasini tayyorlash
+    (function () {
+        const btn = document.getElementById('callMarkazBtn');
+        if (!btn) return;
+        if (MIJOZ_ID) {
+            btn.href = '/admin/call-markaz?mijozId=' + encodeURIComponent(MIJOZ_ID);
+        } else {
+            btn.classList.add('disabled');
+        }
+    })();
     const STATUS_NOM = { yaxshi: 'Yaxshi', qisman: 'Qisman', yomon: 'Yomon' };
 
     function fmt(n) {

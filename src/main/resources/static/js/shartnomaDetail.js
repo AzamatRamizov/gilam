@@ -334,6 +334,31 @@ function fillMijoz(m) {
         {url:photoUrl(m.passportRasm||m.passportRasm1), title:'Passport rasmi (1-bet)', key:'passport1'},
         {url:photoUrl(m.passportRasm2||m.katm),          title:'Passport rasmi (2-bet)', key:'passport2'}
     ]);
+    ochishTugmalari();
+}
+// Call markazi / Mijoz sahifasi tugmalarining havolasini tayyorlaydi.
+// _currentMijozId fillMijoz() da o'rnatiladi, shuning uchun shu yerdan chaqiriladi.
+function ochishTugmalari() {
+    const cc = document.getElementById('callMarkazBtn');
+    const ms = document.getElementById('mijozSahifaBtn');
+
+    if (!_currentMijozId) {
+        if (cc) cc.classList.add('disabled');
+        if (ms) ms.classList.add('disabled');
+        return;
+    }
+
+    if (cc) {
+        // shartnomaId ham yuboramiz — mijozda bir nechta shartnoma bo'lsa
+        // call markazi aynan shu shartnomani ochadi
+        cc.href = '/admin/call-markaz?mijozId=' + encodeURIComponent(_currentMijozId)
+            + (shartnomaId ? '&shartnomaId=' + encodeURIComponent(shartnomaId) : '');
+        cc.classList.remove('disabled');
+    }
+    if (ms) {
+        ms.href = '/admin/mijoz?id=' + encodeURIComponent(_currentMijozId);
+        ms.classList.remove('disabled');
+    }
 }
 function saveMijoz() {
     const btn=document.getElementById('mijozSaveBtn');
